@@ -73,6 +73,6 @@ export class CreateBusDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => FloorDto)
-  @ArrayMinSize(2)
+  @ArrayMinSize(1)
   floors: FloorDto[];
 }

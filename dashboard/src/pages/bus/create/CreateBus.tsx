@@ -3,30 +3,28 @@ import Container from "@/components/ui/container/Container";
 import FormSection from "@/components/ui/form/FormSection";
 import Load from "@/components/ui/load/Load";
 import { useCreateBus } from "@/modules/bus/hooks/useCreateBus";
-import { 
-  Button, 
-  Input, 
-  Select, 
-  SelectItem, 
-  Divider, 
+import {
+  Button,
+  Input,
+  Select,
+  SelectItem,
   Tooltip,
   Card,
-  CardBody
+  CardBody,
 } from "@heroui/react";
-import { 
-  LuSave, 
-  LuBus, 
-  LuPlus, 
-  LuTrash2, 
-  LuInfo, 
-  LuLayers, 
-  LuHash, 
-  LuChevronLeft 
+import {
+  LuSave,
+  LuBus,
+  LuPlus,
+  LuTrash2,
+  LuInfo,
+  LuLayers,
+  LuHash,
 } from "react-icons/lu";
 import { useNavigate } from "react-router";
-import { useFieldArray } from "react-hook-form";
+import { useFieldArray, type Control } from "react-hook-form";
 import SeatGrid from "./components/SeatGrid";
-import { useEffect } from "react";
+import type { CreateBusSchemaType } from "@/schemas/bus/bus.schema";
 
 const BUS_TYPES = [
   { value: "semicama", label: "Semicama" },
@@ -37,13 +35,13 @@ const BUS_TYPES = [
 export default function CreateBus() {
   const navigate = useNavigate();
   const { form, onSubmit, isPending } = useCreateBus();
-  
-  const { 
-    control, 
-    register, 
-    watch, 
+
+  const {
+    control,
+    register,
+    watch,
     setValue,
-    formState: { errors } 
+    formState: { errors },
   } = form;
 
   const { fields, append, remove } = useFieldArray({
@@ -52,10 +50,12 @@ export default function CreateBus() {
   });
 
   const floors = watch("floors");
-  
+
   // Calculate total seats
   const totalSeats = (floors || []).reduce((acc, floor) => {
-    return acc + (floor.seats?.filter(s => s.typeSeat === "asiento").length || 0);
+    return (
+      acc + (floor.seats?.filter((s) => s.typeSeat === "asiento").length || 0)
+    );
   }, 0);
 
   // Sync capacity with seats
@@ -64,30 +64,19 @@ export default function CreateBus() {
   };
 
   return (
-    <Container className="max-w-6xl space-y-8 pb-20">
+    <Container className="pb-20">
       <Load loading={isPending} />
-      
-      <div className="flex flex-col gap-4">
-        <Button 
-          variant="light" 
-          startContent={<LuChevronLeft />} 
-          onPress={() => navigate("/bus")}
-          className="w-fit"
-        >
-          Volver a la lista
-        </Button>
+
+      <form onSubmit={onSubmit} className="space-y-8">
         <Header
           text={{
             header: "Crear Nuevo Bus",
-            description: "Registra un nuevo bus y configura su distribución de asientos.",
+            button: "Crear",
           }}
         />
-      </div>
-
-      <form onSubmit={onSubmit} className="space-y-8">
         {/* General Information */}
-        <FormSection 
-          title="Información General" 
+        <FormSection
+          title="Información General"
           description="Datos básicos de identificación del vehículo"
           icon={<LuBus size={20} />}
         >
@@ -134,9 +123,7 @@ export default function CreateBus() {
               errorMessage={errors.type?.message}
             >
               {BUS_TYPES.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
-                </SelectItem>
+                <SelectItem key={type.value}>{type.label}</SelectItem>
               ))}
             </Select>
             <Input
@@ -149,10 +136,10 @@ export default function CreateBus() {
               errorMessage={errors.capacity?.message}
               endContent={
                 <Tooltip content="Sincronizar con mapa de asientos">
-                  <Button 
-                    isIconOnly 
-                    size="sm" 
-                    variant="flat" 
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="flat"
                     color="primary"
                     onPress={handleSyncCapacity}
                   >
@@ -176,20 +163,25 @@ export default function CreateBus() {
               color="primary"
               variant="flat"
               startContent={<LuPlus />}
-              onPress={() => append({ 
-                name: `Piso ${fields.length + 1}`, 
-                order: fields.length + 1,
-                rows: 5,
-                columns: 4,
-                seats: []
-              })}
+              onPress={() =>
+                append({
+                  name: `Piso ${fields.length + 1}`,
+                  order: fields.length + 1,
+                  rows: 5,
+                  columns: 4,
+                  seats: [],
+                })
+              }
             >
               Agregar Piso
             </Button>
           </div>
 
           {fields.map((field, index) => (
-            <Card key={field.id} className="border-none shadow-sm bg-content1/50 overflow-visible">
+            <Card
+              key={field.id}
+              className="border-none shadow-sm bg-content1/50 overflow-visible"
+            >
               <CardBody className="p-0">
                 <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-default-100">
                   {/* Floor Settings */}
@@ -207,7 +199,7 @@ export default function CreateBus() {
                         <LuTrash2 size={18} />
                       </Button>
                     </div>
-                    
+
                     <div className="space-y-4">
                       <Input
                         label="Nombre del Piso"
@@ -221,22 +213,28 @@ export default function CreateBus() {
                           label="Filas"
                           size="sm"
                           variant="bordered"
-                          {...register(`floors.${index}.rows`, { valueAsNumber: true })}
+                          {...register(`floors.${index}.rows`, {
+                            valueAsNumber: true,
+                          })}
                         />
                         <Input
                           type="number"
                           label="Columnas"
                           size="sm"
                           variant="bordered"
-                          {...register(`floors.${index}.columns`, { valueAsNumber: true })}
+                          {...register(`floors.${index}.columns`, {
+                            valueAsNumber: true,
+                          })}
                         />
                       </div>
-                      
+
                       <div className="p-4 bg-primary-50 rounded-lg border border-primary-100 text-primary-700">
                         <div className="flex gap-2 items-start">
                           <LuInfo className="shrink-0 mt-0.5" size={16} />
                           <p className="text-xs leading-relaxed">
-                            Define el tamaño de la cuadrícula y haz clic en las celdas para agregar asientos, escaleras o áreas de limpieza.
+                            Define el tamaño de la cuadrícula y haz clic en las
+                            celdas para agregar asientos, escaleras o áreas de
+                            limpieza.
                           </p>
                         </div>
                       </div>
@@ -245,7 +243,12 @@ export default function CreateBus() {
 
                   {/* Seat Grid */}
                   <div className="p-6 md:w-2/3 bg-default-50/50">
-                    <SeatGrid floorIndex={index} control={control} />
+                    <SeatGrid
+                      floorIndex={index}
+                      control={
+                        control as unknown as Control<CreateBusSchemaType>
+                      }
+                    />
                   </div>
                 </div>
               </CardBody>
@@ -255,16 +258,16 @@ export default function CreateBus() {
 
         {/* Form Actions */}
         <div className="flex justify-end gap-4 pt-4">
-          <Button 
-            variant="flat" 
-            color="danger" 
+          <Button
+            variant="flat"
+            color="danger"
             onPress={() => navigate("/bus")}
           >
             Cancelar
           </Button>
-          <Button 
-            type="submit" 
-            color="primary" 
+          <Button
+            type="submit"
+            color="primary"
             className="px-8 shadow-lg shadow-primary/20 font-bold"
             startContent={<LuSave />}
             isLoading={isPending}
