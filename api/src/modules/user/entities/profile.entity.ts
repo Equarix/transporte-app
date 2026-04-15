@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
+import { TypeUser } from '../enum/type-user.enum';
 
 @Entity()
 export class Profile {
@@ -32,6 +33,12 @@ export class Profile {
 
   @Column()
   dateOfBirth: Date;
+
+  @Column({
+    type: 'varchar',
+    default: TypeUser.CLIENT,
+  })
+  typeUser: TypeUser;
 
   @OneToOne(() => User, (user) => user.profile)
   user: Relation<User>;

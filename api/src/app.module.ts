@@ -11,6 +11,7 @@ import { AgencyModule } from './modules/agency/agency.module';
 import { BusModule } from './modules/bus/bus.module';
 import { FloorModule } from './modules/floor/floor.module';
 import { SeatModule } from './modules/seat/seat.module';
+import { ReserverModule } from './modules/reserver/reserver.module';
 
 @Module({
   imports: [
@@ -43,8 +44,9 @@ import { SeatModule } from './modules/seat/seat.module';
     BusModule,
     FloorModule,
     SeatModule,
+    ReserverModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

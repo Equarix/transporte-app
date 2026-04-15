@@ -8,7 +8,14 @@ import { ENV } from "@/config/env";
 import { parseErrors } from "@/utils/parseErrors";
 import { Button, Form, Image, Input, Textarea } from "@heroui/react";
 import { Controller } from "react-hook-form";
-import { LuImage, LuInfo, LuMapPin, LuPlus, LuSave, LuTrash } from "react-icons/lu";
+import {
+  LuImage,
+  LuInfo,
+  LuMapPin,
+  LuPlus,
+  LuSave,
+  LuTrash,
+} from "react-icons/lu";
 import { useAgencyForm } from "@/modules/agency/hooks/useAgencyForm";
 import type { ResponseAgency } from "@/interface/response.interface";
 
@@ -52,7 +59,13 @@ export default function AgencyForm({
             header: isUpdate ? "Actualizar Agencia" : "Crear Agencia",
             button: isUpdate ? "Actualizar" : "Crear",
           }}
-          icon={isUpdate ? <LuSave className="size-5" /> : <LuPlus className="size-5" />}
+          icon={
+            isUpdate ? (
+              <LuSave className="size-5" />
+            ) : (
+              <LuPlus className="size-5" />
+            )
+          }
           type="submit"
           className={{
             button: "px-8 h-12 shadow-md hover:shadow-lg transition-all",
@@ -221,7 +234,6 @@ export default function AgencyForm({
             contentClassName="p-0 overflow-hidden"
           >
             <Mapa
-              disableHeader
               position={{
                 lat: Number(watchLat) || -12.0464,
                 lng: Number(watchLng) || -77.0428,

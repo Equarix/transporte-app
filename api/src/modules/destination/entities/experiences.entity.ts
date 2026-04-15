@@ -22,7 +22,10 @@ export class Experience {
   @Column()
   name: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 'MAX',
+  })
   description: string;
 
   @ManyToOne(() => Destination, (destination) => destination.experiences)

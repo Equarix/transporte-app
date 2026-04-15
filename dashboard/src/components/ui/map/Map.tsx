@@ -103,7 +103,7 @@ export default function Mapa({
   style,
 }: MapaProps) {
   const { theme } = useTheme();
-  
+
   const {
     camaraProps,
     dataSearch,
@@ -118,28 +118,26 @@ export default function Mapa({
   });
 
   return (
-    <Card 
+    <Card
       className="w-full shadow-medium border-none"
       style={{
         height: disableHeader ? "280px" : "380px",
-        ...style
+        ...style,
       }}
     >
-      {!disableHeader && (
-        <CardHeader className="p-4 z-20">
-          <Search
-            onChange={(value) => {
-              setValue(value);
-            }}
-            onSelect={(value) => {
-              handleSelect(value);
-            }}
-            values={dataSearch}
-            value={value}
-            onClickButton={setLocation}
-          />
-        </CardHeader>
-      )}
+      <CardHeader className="p-4 z-20">
+        <Search
+          onChange={(value) => {
+            setValue(value);
+          }}
+          onSelect={(value) => {
+            handleSelect(value);
+          }}
+          values={dataSearch}
+          value={value}
+          onClickButton={setLocation}
+        />
+      </CardHeader>
 
       <CardBody className="p-0 overflow-hidden relative">
         <Map

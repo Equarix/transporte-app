@@ -1,9 +1,11 @@
+import { Reserver } from '../../../modules/reserver/entities/reserver.entity';
 import { RoleEnum } from '../../../common/enum/role.enum';
 import { Profile } from '../../../modules/user/entities/profile.entity';
 import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   type Relation,
@@ -32,4 +34,10 @@ export class User {
   @OneToOne(() => Profile, (profile) => profile.user)
   @JoinColumn()
   profile: Relation<Profile>;
+
+  @OneToMany(() => Reserver, (reserver) => reserver.registerUser)
+  reservers: Relation<Reserver[]>;
+
+  @OneToMany(() => Reserver, (r) => r.driver)
+  reserversAsDriver: Relation<Reserver[]>;
 }

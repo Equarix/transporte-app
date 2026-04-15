@@ -88,15 +88,8 @@ export interface Floor {
   floorId: number;
   name: string;
   order: number;
-  status: boolean;
   columns: number;
   rows: number;
-  columnFloors: ColumnFloor[];
-}
-
-export interface ColumnFloor {
-  columnFloorId: number;
-  position: string;
   status: boolean;
   seats: Seat[];
 }
@@ -107,4 +100,5 @@ export interface Seat {
   typeSeat: string;
   status: boolean;
   row: number;
+  column: number;
 }
