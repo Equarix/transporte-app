@@ -1,4 +1,7 @@
-import { CreateBusSchema, type CreateBusSchemaType } from "@/schemas/bus/bus.schema";
+import {
+  CreateBusSchema,
+  type CreateBusSchemaType,
+} from "@/schemas/bus/bus.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,7 +15,7 @@ export function useCreateBus() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const form = useForm<CreateBusSchemaType>({
+  const form = useForm({
     resolver: zodResolver(CreateBusSchema),
     defaultValues: {
       name: "",
@@ -54,7 +57,8 @@ export function useCreateBus() {
     onError: (error: any) => {
       addToast({
         title: "Error al crear bus",
-        description: error.response?.data?.message || "Ocurrió un error inesperado",
+        description:
+          error.response?.data?.message || "Ocurrió un error inesperado",
         color: "danger",
       });
     },
