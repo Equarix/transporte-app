@@ -104,3 +104,15 @@ export interface Seat {
   row: number;
   column: number;
 }
+
+export interface ResponseReserver {
+  reserverId: number;
+  date: string;
+  registerAt: string;
+  status: string;
+  registerUser: AuthResponse;
+  checkIn: ResponseAgency;
+  checkOut: ResponseAgency;
+  bus: ResponseBus;
+  driver: Profile;
+}

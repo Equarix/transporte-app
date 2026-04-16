@@ -9,6 +9,7 @@ import {
 import { StatusReserverEnum } from '../enum/status-reserver.enum';
 import { Destination } from '../../../modules/destination/entities/destination.entity';
 import { Bus } from '../../../modules/bus/entities/bus.entity';
+import { Profile } from '../../../modules/user/entities/profile.entity';
 
 @Entity()
 export class Reserver {
@@ -41,6 +42,6 @@ export class Reserver {
   @ManyToOne(() => Bus, (b) => b.reservers)
   bus: Relation<Bus>;
 
-  @ManyToOne(() => User, (user) => user.reserversAsDriver)
-  driver: Relation<User>;
+  @ManyToOne(() => Profile, (user) => user.reserversAsDriver)
+  driver: Relation<Profile>;
 }

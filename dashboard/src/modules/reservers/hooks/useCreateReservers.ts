@@ -13,9 +13,12 @@ import type {
   ResponseBus,
   ResponseDestination,
 } from "@/interface/response.interface";
+import { useNavigate } from "react-router";
+import { addToast } from "@heroui/react";
 
 export function useCreateReservers() {
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm({
     resolver: zodResolver(reserverSchema),
@@ -23,12 +26,25 @@ export function useCreateReservers() {
 
   const createReserver = useMutation({
     mutationFn: async (data: ReserverSchemeType) => {
-      const res = await instance.post("/reservers", data, {
+      const res = await instance.post("/reserver", data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       return res.data;
+    },
+    onSuccess: () => {
+      addToast({
+        color: "success",
+        title: "Reserva creada",
+      });
+      navigate("/bus/reservers");
+    },
+    onError: () => {
+      addToast({
+        color: "danger",
+        title: "Error al Crear la Reserva",
+      });
     },
   });
 

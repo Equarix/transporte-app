@@ -37,7 +37,4 @@ export class User {
 
   @OneToMany(() => Reserver, (reserver) => reserver.registerUser)
   reservers: Relation<Reserver[]>;
-
-  @OneToMany(() => Reserver, (r) => r.driver)
-  reserversAsDriver: Relation<Reserver[]>;
 }

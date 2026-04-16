@@ -1,10 +1,11 @@
 import Header from "@/components/layouts/header/Header";
 import Container from "@/components/ui/container/Container";
 import FormSection from "@/components/ui/form/FormSection";
+import InputDate from "@/components/ui/input-date/InputDate";
 import Load from "@/components/ui/load/Load";
 import { useCreateReservers } from "@/modules/reservers/hooks/useCreateReservers";
 import { parseErrors } from "@/utils/parseErrors";
-import { Form, Select, SelectItem } from "@heroui/react";
+import { cn, Form, Select, SelectItem } from "@heroui/react";
 import { Controller } from "react-hook-form";
 import { LuInfo, LuPlus } from "react-icons/lu";
 
@@ -47,28 +48,33 @@ export default function CreateReservers() {
             title="Informacion de la reserva"
             description="Informacion de la reserva"
             icon={<LuInfo className="size-5" />}
+            className="overflow-visible"
+            contentClassName="overflow-visible"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
               <Controller
                 control={control}
                 name="busId"
-                render={({ field }) => (
+                render={({ field: { value, onChange } }) => (
                   <Select
-                    {...field}
                     label="Bus"
                     placeholder="Seleccione un bus"
+                    className={cn(!!errors.busId && "mt-0")}
                     labelPlacement="outside"
                     variant="bordered"
                     radius="lg"
                     size="lg"
-                    className="max-w-full"
                     isInvalid={!!errors.busId}
                     errorMessage={errors.busId?.message}
                     items={resBus?.body ?? []}
+                    selectedKeys={value ? [String(value)] : []}
+                    onChange={(e) => {
+                      onChange(Number(e.target.value));
+                    }}
                   >
                     {(item) => (
                       <SelectItem key={item.busId} textValue={item.plate}>
-                        PLACA - {item.plate}
+                        {item.plate}
                       </SelectItem>
                     )}
                   </Select>
@@ -78,9 +84,8 @@ export default function CreateReservers() {
               <Controller
                 control={control}
                 name="driverId"
-                render={({ field }) => (
+                render={({ field: { value, onChange } }) => (
                   <Select
-                    {...field}
                     label="Conductor"
                     placeholder="Seleccione un conductor"
                     labelPlacement="outside"
@@ -91,6 +96,8 @@ export default function CreateReservers() {
                     isInvalid={!!errors.driverId}
                     errorMessage={errors.driverId?.message}
                     items={resDrivers?.body ?? []}
+                    selectedKeys={value ? [String(value)] : []}
+                    onChange={(e) => onChange(Number(e.target.value))}
                   >
                     {(item) => (
                       <SelectItem
@@ -107,9 +114,8 @@ export default function CreateReservers() {
               <Controller
                 control={control}
                 name="checkInId"
-                render={({ field }) => (
+                render={({ field: { value, onChange } }) => (
                   <Select
-                    {...field}
                     label="Check In"
                     placeholder="Seleccione un check in"
                     labelPlacement="outside"
@@ -120,6 +126,8 @@ export default function CreateReservers() {
                     isInvalid={!!errors.checkInId}
                     errorMessage={errors.checkInId?.message}
                     items={resDestination?.body ?? []}
+                    selectedKeys={value ? [String(value)] : []}
+                    onChange={(e) => onChange(Number(e.target.value))}
                   >
                     {(item) => (
                       <SelectItem
@@ -135,9 +143,8 @@ export default function CreateReservers() {
               <Controller
                 control={control}
                 name="checkOutId"
-                render={({ field }) => (
+                render={({ field: { value, onChange } }) => (
                   <Select
-                    {...field}
                     label="Check Out"
                     placeholder="Seleccione un check out"
                     labelPlacement="outside"
@@ -145,9 +152,11 @@ export default function CreateReservers() {
                     radius="lg"
                     size="lg"
                     className="max-w-full"
-                    isInvalid={!!errors.checkInId}
-                    errorMessage={errors.checkInId?.message}
+                    isInvalid={!!errors.checkOutId}
+                    errorMessage={errors.checkOutId?.message}
                     items={resDestination?.body ?? []}
+                    selectedKeys={value ? [String(value)] : []}
+                    onChange={(e) => onChange(Number(e.target.value))}
                   >
                     {(item) => (
                       <SelectItem
@@ -161,24 +170,19 @@ export default function CreateReservers() {
                 )}
               />
 
-              {/* <Controller
+              <Controller
                 control={control}
                 name="date"
-                render={({ field }) => (
-                  <Input
-                    {...field}
+                render={({ field: { value, onChange } }) => (
+                  <InputDate
                     label="Fecha"
-                    placeholder="Fecha"
-                    labelPlacement="outside"
-                    variant="bordered"
-                    radius="lg"
-                    size="lg"
-                    className="max-w-full"
-                    isInvalid={!!errors.date}
-                    errorMessage={errors.date?.message}
+                    value={value}
+                    onChange={(date) => {
+                      onChange(date);
+                    }}
                   />
                 )}
-              /> */}
+              />
             </div>
           </FormSection>
         </div>

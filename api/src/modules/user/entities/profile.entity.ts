@@ -2,11 +2,13 @@ import { User } from '../../../modules/auth/entities/user.entity';
 import {
   Column,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
 import { TypeUser } from '../enum/type-user.enum';
+import { Reserver } from '../../../modules/reserver/entities/reserver.entity';
 
 @Entity()
 export class Profile {
@@ -47,4 +49,7 @@ export class Profile {
 
   @OneToOne(() => User, (user) => user.profile)
   user: Relation<User>;
+
+  @OneToMany(() => Reserver, (r) => r.driver)
+  reserversAsDriver: Relation<Reserver[]>;
 }

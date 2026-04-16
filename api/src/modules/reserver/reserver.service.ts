@@ -8,14 +8,15 @@ import { User } from '../auth/entities/user.entity';
 import { PaginateDto } from 'src/common/utils/paginate.dto';
 import { CreateReserverDto } from './dto/create-reserver.dto';
 import { UpdateStatusReserverDto } from './dto/update-status.dto';
+import { Profile } from '../user/entities/profile.entity';
 
 @Injectable()
 export class ReserverService {
   constructor(
     @InjectRepository(Reserver)
     private readonly reserverRepository: Repository<Reserver>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(Profile)
+    private readonly userRepository: Repository<Profile>,
     @InjectRepository(Destination)
     private readonly destinationRepository: Repository<Destination>,
     @InjectRepository(Bus)
@@ -29,7 +30,9 @@ export class ReserverService {
       take: limit,
       skip: (page - 1) * limit,
       relations: {
-        registerUser: true,
+        registerUser: {
+          profile: true,
+        },
         checkIn: true,
         checkOut: true,
         bus: true,

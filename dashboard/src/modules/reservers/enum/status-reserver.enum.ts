@@ -1,0 +1,7 @@
+export enum StatusReserverEnum {
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  CANCELLED = 'CANCELLED',
+  REJECTED = 'REJECTED',
+  COMPLETED = 'COMPLETED',
+}
