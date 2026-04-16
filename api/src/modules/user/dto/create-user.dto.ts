@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { TypeUser } from '../enum/type-user.enum';
 
 export enum TypeDocument {
   DNI = 'DNI',

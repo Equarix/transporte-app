@@ -40,6 +40,11 @@ export class Profile {
   })
   typeUser: TypeUser;
 
+  @Column({
+    default: true,
+  })
+  isActive: boolean;
+
   @OneToOne(() => User, (user) => user.profile)
   user: Relation<User>;
 }

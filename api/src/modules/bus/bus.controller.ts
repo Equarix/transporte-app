@@ -30,6 +30,11 @@ export class BusController {
     return this.busService.findAll(params);
   }
 
+  @Get('/get-all')
+  getAll() {
+    return this.busService.findAllBus();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.busService.findOne(+id);

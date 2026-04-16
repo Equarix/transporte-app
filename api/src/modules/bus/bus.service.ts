@@ -117,4 +117,13 @@ export class BusService {
     const updatedBus = await this.busRepository.update(id, { status: false });
     return updatedBus;
   }
+
+  async findAllBus() {
+    const buses = await this.busRepository.find({
+      where: {
+        status: true,
+      },
+    });
+    return buses;
+  }
 }

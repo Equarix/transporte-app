@@ -48,7 +48,7 @@ export class ReserverService {
     };
   }
 
-  async create(createDto: CreateReserverDto) {
+  async create(createDto: CreateReserverDto, userId: number) {
     const { busId, checkInId, checkOutId, date, driverId } = createDto;
 
     const bus = await this.busRepository.findOne({ where: { busId } });
@@ -69,12 +69,18 @@ export class ReserverService {
     });
     if (!driver) throw new NotFoundException('Driver no encontrado');
 
+    const findUser = await this.userRepository.findOne({
+      where: { userId },
+    });
+    if (!findUser) throw new NotFoundException('User no encontrado');
+
     const reserver = await this.reserverRepository.save({
       bus,
       checkIn,
       checkOut,
       driver,
       date,
+      registerUser: findUser,
     });
 
     return reserver;

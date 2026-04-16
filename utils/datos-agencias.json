@@ -1,0 +1,152 @@
+[
+  {
+    "name": "CHICLAYO CHICLAYO",
+    "address": "Av. Grau N° 497, Chiclayo",
+    "description": "Sucursal ITTSA Bus en Chiclayo",
+    "largeAddress": "Av. Grau N° 497, Chiclayo",
+    "phone": "044-284644",
+    "lat": "-6.776330178246074",
+    "lng": "-79.84407911015244",
+    "imageId": 1
+  },
+  {
+    "name": "CHIMBOTE CHIMBOTE",
+    "address": "Av. Bolognesi N° 749, Terminal Terrestre El Chimbador - Vía auxiliar Panamericana Norte",
+    "description": "Sucursal ITTSA Bus en Chimbote",
+    "largeAddress": "Av. Bolognesi N° 749, Terminal Terrestre El Chimbador - Vía auxiliar Panamericana Norte",
+    "phone": "044-284644",
+    "lat": "-9.104738173402277",
+    "lng": "-78.55870418949559",
+    "imageId": 1
+  },
+  {
+    "name": "LIMA LIMA",
+    "address": "Av. Paseo la República N° 809, La Victoria, Lima",
+    "description": "Sucursal ITTSA Bus en Lima",
+    "largeAddress": "Av. Paseo la República N° 809, La Victoria, Lima",
+    "phone": "044-284644",
+    "lat": "-12.066373706713586",
+    "lng": "-77.03246151164278",
+    "imageId": 1
+  },
+  {
+    "name": "Plaza Norte LIMA",
+    "address": "Plaza Norte. Av. Tomás Valle y Alfredo Mendiola (Panamericana Norte)",
+    "description": "Sucursal ITTSA Bus Plaza Norte - Lima",
+    "largeAddress": "Plaza Norte. Av. Tomás Valle y Alfredo Mendiola (Panamericana Norte)",
+    "phone": "044-284644",
+    "lat": "-12.005271304830208",
+    "lng": "-77.05539538650719",
+    "imageId": 1
+  },
+  {
+    "name": "San Martin de Porres - Lima LIMA",
+    "address": "Av. Miguel Angel N° 244, San Martin de Porres, Lima",
+    "description": "Sucursal ITTSA Bus en San Martín de Porres - Lima",
+    "largeAddress": "Av. Miguel Angel N° 244, San Martin de Porres, Lima",
+    "phone": "044-284644",
+    "lat": "-8.121751276932835",
+    "lng": "-79.04295069405325",
+    "imageId": 1
+  },
+  {
+    "name": "LOS ORGANOS LOS ORGANOS",
+    "address": "AH. 16 de Febrero Mz. A LT. 01 - Pan. Norte, Los Órganos",
+    "description": "Sucursal ITTSA Bus en Los Órganos",
+    "largeAddress": "AH. 16 de Febrero Mz. A LT. 01 - Pan. Norte, Los Órganos",
+    "phone": "044-284644",
+    "lat": "-4.17604745855025",
+    "lng": "-81.1250982107466",
+    "imageId": 1
+  },
+  {
+    "name": "MANCORA MANCORA",
+    "address": "Av. Grau Mz 09 Lt 04 Cp Barrio Nicaragua, Máncora",
+    "description": "Sucursal ITTSA Bus en Máncora",
+    "largeAddress": "Av. Grau Mz 09 Lt 04 Cp Barrio Nicaragua, Máncora",
+    "phone": "Pasajes: 943777979 - Cargo: 972241133",
+    "lat": "-4.103679869758597",
+    "lng": "-81.03644772915635",
+    "imageId": 1
+  },
+  {
+    "name": "PAITA TERMINAL PAITA",
+    "address": "Carretera Paita, Int A-2, Terminal Terrestre",
+    "description": "Sucursal ITTSA Bus Terminal Paita",
+    "largeAddress": "Carretera Paita, Int A-2, Terminal Terrestre",
+    "phone": "044-284644",
+    "lat": "-5.182257670374215",
+    "lng": "-80.65170389814998",
+    "imageId": 1
+  },
+  {
+    "name": "PIURA TERMINAL PIURA",
+    "address": "Av. Avelino Cáceres Mz.249 Lt. 02 Zona Industrial, Piura",
+    "description": "Sucursal ITTSA Bus Terminal Piura",
+    "largeAddress": "Av. Avelino Cáceres Mz.249 Lt. 02 Zona Industrial, Piura",
+    "phone": "044-284644",
+    "lat": "-5.1821490168860045",
+    "lng": "-80.64495747283662",
+    "imageId": 1
+  },
+  {
+    "name": "SULLANA SULLANA",
+    "address": "Av. Panamericana N° 1223, Sullana",
+    "description": "Sucursal ITTSA Bus en Sullana",
+    "largeAddress": "Av. Panamericana N° 1223, Sullana",
+    "phone": "044-284644",
+    "lat": "-4.9111779829164535",
+    "lng": "-80.69708809325833",
+    "imageId": 1
+  },
+  {
+    "name": "TALARA TALARA",
+    "address": "Av. Graña F Int. 07, Talara",
+    "description": "Sucursal ITTSA Bus en Talara",
+    "largeAddress": "Av. Graña F Int. 07, Talara",
+    "phone": "044-284644",
+    "lat": "-4.586718971823846",
+    "lng": "-81.26965668220896",
+    "imageId": 1
+  },
+  {
+    "name": "OFICINA JUAN PABLO TRUJILLO",
+    "address": "Av. Juan Pablo II N°1110, Trujillo",
+    "description": "Sucursal ITTSA Bus Oficina Juan Pablo - Trujillo",
+    "largeAddress": "Av. Juan Pablo II N°1110, Trujillo",
+    "phone": "044-284644",
+    "lat": "-8.121723889801592",
+    "lng": "-79.04296155186077",
+    "imageId": 1
+  },
+  {
+    "name": "TERRAPUERTO TRUJILLO TRUJILLO",
+    "address": "Car. Panamericana Norte 13 KM. 558, Trujillo",
+    "description": "Sucursal ITTSA Bus Terrapuerto - Trujillo",
+    "largeAddress": "Car. Panamericana Norte 13 KM. 558, Trujillo",
+    "phone": "044-284644",
+    "lat": "-8.137493158294731",
+    "lng": "-79.01797226594879",
+    "imageId": 1
+  },
+  {
+    "name": "OFICINA BOLIVAR TRUJILLO",
+    "address": "Jr. Bolívar N° 527, Trujillo",
+    "description": "Sucursal ITTSA Bus Oficina Bolívar - Trujillo",
+    "largeAddress": "Jr. Bolívar N° 527, Trujillo",
+    "phone": "044-284644",
+    "lat": "-8.112163972374846",
+    "lng": "-79.02663701896984",
+    "imageId": 1
+  },
+  {
+    "name": "TUMBES TUMBES",
+    "address": "Av. Tumbes N° 1321, Tumbes",
+    "description": "Sucursal ITTSA Bus en Tumbes",
+    "largeAddress": "Av. Tumbes N° 1321, Tumbes",
+    "phone": "044-284644",
+    "lat": "-3.556486418271444",
+    "lng": "-80.44832584417858",
+    "imageId": 1
+  }
+]

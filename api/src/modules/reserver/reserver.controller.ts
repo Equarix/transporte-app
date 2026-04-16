@@ -5,6 +5,7 @@ import { RoleEnum } from 'src/common/enum/role.enum';
 import { PaginateDto } from 'src/common/utils/paginate.dto';
 import { CreateReserverDto } from './dto/create-reserver.dto';
 import { UpdateStatusReserverDto } from './dto/update-status.dto';
+import { User } from 'src/common/decorator/user/user.decorator';
 
 @Auth([RoleEnum.ADMIN])
 @Controller('reserver')
@@ -17,8 +18,11 @@ export class ReserverController {
   }
 
   @Post()
-  create(@Body() createReserverDto: CreateReserverDto) {
-    return this.reserverService.create(createReserverDto);
+  create(
+    @Body() createReserverDto: CreateReserverDto,
+    @User('userId') userId: number,
+  ) {
+    return this.reserverService.create(createReserverDto, userId);
   }
 
   @Put(':id')

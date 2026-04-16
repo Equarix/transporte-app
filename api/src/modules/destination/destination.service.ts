@@ -196,4 +196,13 @@ export class DestinationService {
 
     return true;
   }
+
+  async getAll() {
+    const destinations = await this.destinationRepository.find({
+      where: {
+        status: true,
+      },
+    });
+    return destinations;
+  }
 }

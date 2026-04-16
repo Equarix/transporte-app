@@ -30,6 +30,8 @@ export interface Profile {
   email: string;
   phone: string;
   dateOfBirth: string;
+  typeUser: string;
+  isActive: boolean;
 }
 
 export interface ResponseGalery {

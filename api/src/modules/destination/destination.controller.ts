@@ -30,6 +30,11 @@ export class DestinationController {
     return this.destinationService.findAll(query);
   }
 
+  @Get('get-all')
+  getAll() {
+    return this.destinationService.getAll();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.destinationService.findOne(+id);
