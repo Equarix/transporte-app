@@ -3,9 +3,11 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
+import { AgencyServiceEntity } from './agency-services.entity';
 
 @Entity()
 export class Agency {
@@ -38,4 +40,7 @@ export class Agency {
 
   @ManyToOne(() => Galery, (galery) => galery.agency)
   galery: Relation<Galery>;
+
+  @OneToMany(() => AgencyServiceEntity, (agencyService) => agencyService.agency)
+  services: Relation<AgencyServiceEntity[]>;
 }

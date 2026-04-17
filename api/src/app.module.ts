@@ -12,6 +12,7 @@ import { BusModule } from './modules/bus/bus.module';
 import { FloorModule } from './modules/floor/floor.module';
 import { SeatModule } from './modules/seat/seat.module';
 import { ReserverModule } from './modules/reserver/reserver.module';
+import { PublicAgencyModule } from './public/public-agency/public-agency.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ReserverModule } from './modules/reserver/reserver.module';
     FloorModule,
     SeatModule,
     ReserverModule,
+    PublicAgencyModule,
   ],
   controllers: [],
   providers: [],

@@ -6,7 +6,7 @@ import { addToast, useDisclosure } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, useFieldArray } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 interface UseAgencyFormProps {
@@ -34,6 +34,10 @@ export function useAgencyForm({
           lng: initialData.lng,
           largeAddress: initialData.largeAddress,
           imageId: initialData.galery.imageId,
+          services: initialData.services.map((s) => ({
+            name: s.name,
+            icon: s.icon,
+          })),
         }
       : {
           name: "",
@@ -44,7 +48,13 @@ export function useAgencyForm({
           lng: "-77.0428",
           largeAddress: "",
           imageId: 0,
+          services: [{ name: "", icon: "" }],
         },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "services",
   });
 
   const watchLat = useWatch({
@@ -126,5 +136,8 @@ export function useAgencyForm({
     onImgGalleryOpen,
     onImgGalleryOpenChange,
     handleImageSelect,
+    fields,
+    append,
+    remove,
   };
 }

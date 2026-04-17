@@ -1,4 +1,21 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+
+export class CreateAgencyServiceDto {
+  @IsString()
+  @IsNotEmpty()
+  icon: string;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+}
 
 export class CreateAgencyDto {
   @IsString()
@@ -32,4 +49,10 @@ export class CreateAgencyDto {
   @IsNumber()
   @IsNotEmpty()
   imageId: number;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateAgencyServiceDto)
+  @IsNotEmpty()
+  services: CreateAgencyServiceDto[];
 }

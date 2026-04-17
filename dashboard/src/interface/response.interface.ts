@@ -74,6 +74,13 @@ export interface ResponseAgency {
   lat: string;
   lng: string;
   galery: ResponseGalery;
+  services: AgencyService[];
+}
+
+export interface AgencyService {
+  agencyServiceId: number;
+  icon: string;
+  name: string;
 }
 
 export interface ResponseBus {
