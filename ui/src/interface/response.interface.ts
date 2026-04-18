@@ -9,6 +9,7 @@ export interface ResponseAgency {
   lat: string;
   lng: string;
   galery: Galery;
+  services: Service[];
 }
 
 export interface Galery {
@@ -16,4 +17,10 @@ export interface Galery {
   imageUrl: string;
   createdAt: string;
   imageName: string;
+}
+
+export interface Service {
+  agencyServiceId: number;
+  icon: string;
+  name: string;
 }

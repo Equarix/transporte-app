@@ -1,7 +1,8 @@
+"use client";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { cn } from "@/utils/cn";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const NAV_LINKS = [
   {
@@ -30,9 +31,8 @@ const NAV_LINKS = [
   },
 ];
 
-export default async function Header() {
-  const headerList = await headers();
-  const url = headerList.get("x-current-path");
+export default function Header() {
+  const url = usePathname();
 
   return (
     <header className="w-full flex items-center justify-between px-8 py-4 border-b border-slate-200">
