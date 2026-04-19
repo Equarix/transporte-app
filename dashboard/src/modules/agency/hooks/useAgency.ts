@@ -120,3 +120,91 @@ export function useGetAgency(id?: string) {
     enabled: !!id,
   });
 }
+
+export function useGetUsersAgency() {
+  const { token } = useAuth();
+
+  return useQuery<ApiResponse<ResponseAgency[]>>({
+    queryKey: ["users-agency"],
+    queryFn: async () => {
+      const response = await instance.get(`/agency/users`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    },
+  });
+}
+
+export function useUserAgency(id: string) {
+  const { token } = useAuth();
+
+  const query = useQuery<ApiResponse<ResponseAgency[]>>({
+    queryKey: ["user-agency", id],
+    queryFn: async () => {
+      const response = await instance.get(`/agency/user/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    },
+    enabled: !!id,
+  });
+
+  const addUserMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await instance.post(`/agency/add-user`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      addToast({
+        title: "Usuario agregado",
+        color: "success",
+      });
+      query.refetch();
+    },
+    onError: () => {
+      addToast({
+        title: "Error al agregar usuario",
+        color: "danger",
+      });
+    },
+  });
+
+  const removeUserMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await instance.delete(`/agency/remove-user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      addToast({
+        title: "Usuario eliminado",
+        color: "success",
+      });
+      query.refetch();
+    },
+    onError: () => {
+      addToast({
+        title: "Error al eliminar usuario",
+        color: "danger",
+      });
+    },
+  });
+
+  return {
+    query,
+    addUserMutation,
+    removeUserMutation,
+  };
+}

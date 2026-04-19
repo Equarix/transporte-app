@@ -11,6 +11,9 @@ import { Repository } from 'typeorm';
 import { Galery } from '../galery/entities/galery.entity';
 import { PaginateDto } from 'src/common/utils/paginate.dto';
 import { AgencyServiceEntity } from './entities/agency-services.entity';
+import { AddUserDto } from './dto/add-user.dto';
+import { User } from '../auth/entities/user.entity';
+import { UserAgency } from '../auth/entities/user-agency.entity';
 
 @Injectable()
 export class AgencyService {
@@ -21,6 +24,10 @@ export class AgencyService {
     private galeryRepository: Repository<Galery>,
     @InjectRepository(AgencyServiceEntity)
     private agencyServiceRepository: Repository<AgencyServiceEntity>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(UserAgency)
+    private userAgencyRepository: Repository<UserAgency>,
   ) {}
 
   async create(createAgencyDto: CreateAgencyDto) {
@@ -117,5 +124,45 @@ export class AgencyService {
     });
 
     return { message: 'Agencia eliminada correctamente' };
+  }
+
+  async addUser(addUserDto: AddUserDto) {
+    const { userId, agencyId } = addUserDto;
+    const user = await this.userRepository.findOneBy({ userId });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    const agency = await this.agencyRepository.findOneBy({ agencyId });
+    if (!agency) throw new NotFoundException('Agencia no encontrada');
+    const userAgency = this.userAgencyRepository.create({
+      user,
+      agency,
+    });
+    return this.userAgencyRepository.save(userAgency);
+  }
+
+  async removeUser(removeUserDto: AddUserDto) {
+    const { userId, agencyId } = removeUserDto;
+    const user = await this.userRepository.findOneBy({ userId });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    const agency = await this.agencyRepository.findOneBy({ agencyId });
+    if (!agency) throw new NotFoundException('Agencia no encontrada');
+    const userAgency = await this.userAgencyRepository.findOneBy({
+      user,
+      agency,
+    });
+    if (!userAgency) throw new NotFoundException('Usuario no encontrado');
+    return this.userAgencyRepository.update(userAgency.userAgencyId, {
+      status: false,
+    });
+  }
+
+  async findUsersAgency() {
+    const users = await this.userAgencyRepository.find({
+      relations: {
+        user: {
+          profile: true,
+        },
+      },
+    });
+    return users;
   }
 }

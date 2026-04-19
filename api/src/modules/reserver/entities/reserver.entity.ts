@@ -3,6 +3,7 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
@@ -10,6 +11,8 @@ import { StatusReserverEnum } from '../enum/status-reserver.enum';
 import { Destination } from '../../../modules/destination/entities/destination.entity';
 import { Bus } from '../../../modules/bus/entities/bus.entity';
 import { Profile } from '../../../modules/user/entities/profile.entity';
+import { ReserverPriceFloor } from './reserver-price-floor.entity';
+import { ReserverAgency } from './reserver-angecy.entity';
 
 @Entity()
 export class Reserver {
@@ -44,4 +47,13 @@ export class Reserver {
 
   @ManyToOne(() => Profile, (user) => user.reserversAsDriver)
   driver: Relation<Profile>;
+
+  @OneToMany(
+    () => ReserverPriceFloor,
+    (reserverPriceFloor) => reserverPriceFloor.reserver,
+  )
+  reserverPriceFloors: Relation<ReserverPriceFloor[]>;
+
+  @OneToMany(() => ReserverAgency, (reserverAgency) => reserverAgency.reserver)
+  reserverAgencies: Relation<ReserverAgency[]>;
 }

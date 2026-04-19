@@ -1,5 +1,5 @@
 import type { SidebarItemProps } from "@/components/layouts/Sidebar/SidebarItem";
-import { LuBus, LuHouse, LuImage, LuMap, LuPlus } from "react-icons/lu";
+import { LuBus, LuHouse, LuImage, LuMap, LuPlus, LuUser } from "react-icons/lu";
 import { AiOutlineShop } from "react-icons/ai";
 import { GrSchedules } from "react-icons/gr";
 interface SideBarConfigProps {
@@ -90,6 +90,25 @@ export const SideBarConfig: SideBarConfigProps = {
         },
       ],
       href: "/bus",
+    },
+    {
+      label: "Usuarios",
+      icon: <LuUser />,
+      children: [
+        {
+          label: "Lista de usuarios",
+          href: "/user",
+          icon: <LuUser />,
+          children: [],
+        },
+        {
+          label: "Crear usuario",
+          href: "/user/create",
+          icon: <LuPlus />,
+          children: [],
+        },
+      ],
+      href: "/user",
     },
     {
       label: "Galeria",

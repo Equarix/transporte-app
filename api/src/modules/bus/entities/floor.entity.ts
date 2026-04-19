@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Seat } from './seat.entity';
 import { Bus } from './bus.entity';
+import { ReserverPriceFloor } from '../../../modules/reserver/entities/reserver-price-floor.entity';
 
 @Entity()
 export class Floor {
@@ -34,4 +35,10 @@ export class Floor {
 
   @Column({ default: true })
   status: boolean;
+
+  @OneToMany(
+    () => ReserverPriceFloor,
+    (reserverPriceFloor) => reserverPriceFloor.floor,
+  )
+  reserverPriceFloors: Relation<ReserverPriceFloor[]>;
 }

@@ -14,6 +14,7 @@ import { UpdateAgencyDto } from './dto/update-agency.dto';
 import { Auth } from 'src/common/decorator/auth/auth.decorator';
 import { RoleEnum } from 'src/common/enum/role.enum';
 import { PaginateDto } from 'src/common/utils/paginate.dto';
+import { AddUserDto } from './dto/add-user.dto';
 
 @Auth([RoleEnum.ADMIN])
 @Controller('agency')
@@ -43,5 +44,20 @@ export class AgencyController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.agencyService.remove(+id);
+  }
+
+  @Post('add-user')
+  addUser(@Body() addUserDto: AddUserDto) {
+    return this.agencyService.addUser(addUserDto);
+  }
+
+  @Delete('remove-user')
+  removeUser(@Body() removeUserDto: AddUserDto) {
+    return this.agencyService.removeUser(removeUserDto);
+  }
+
+  @Get('user/')
+  findUsersAgency() {
+    return this.agencyService.findUsersAgency();
   }
 }

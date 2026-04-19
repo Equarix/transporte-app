@@ -13,6 +13,7 @@ import { FloorModule } from './modules/floor/floor.module';
 import { SeatModule } from './modules/seat/seat.module';
 import { ReserverModule } from './modules/reserver/reserver.module';
 import { PublicAgencyModule } from './public/public-agency/public-agency.module';
+import { PublicAuthModule } from './public/public-auth/public-auth.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { PublicAgencyModule } from './public/public-agency/public-agency.module'
     SeatModule,
     ReserverModule,
     PublicAgencyModule,
+    PublicAuthModule,
   ],
   controllers: [],
   providers: [],

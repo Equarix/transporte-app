@@ -8,6 +8,8 @@ import {
   type Relation,
 } from 'typeorm';
 import { AgencyServiceEntity } from './agency-services.entity';
+import { ReserverAgency } from '../../../modules/reserver/entities/reserver-angecy.entity';
+import { UserAgency } from '../../../modules/auth/entities/user-agency.entity';
 
 @Entity()
 export class Agency {
@@ -43,4 +45,10 @@ export class Agency {
 
   @OneToMany(() => AgencyServiceEntity, (agencyService) => agencyService.agency)
   services: Relation<AgencyServiceEntity[]>;
+
+  @OneToMany(() => UserAgency, (userAgency) => userAgency.agency)
+  userAgencies: Relation<UserAgency[]>;
+
+  @OneToMany(() => ReserverAgency, (reserverAgency) => reserverAgency.agency)
+  reserverAgencies: Relation<ReserverAgency[]>;
 }

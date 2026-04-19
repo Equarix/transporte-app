@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   type Relation,
 } from 'typeorm';
+import { UserAgency } from './user-agency.entity';
 
 @Entity()
 export class User {
@@ -37,4 +38,7 @@ export class User {
 
   @OneToMany(() => Reserver, (reserver) => reserver.registerUser)
   reservers: Relation<Reserver[]>;
+
+  @OneToMany(() => UserAgency, (userAgency) => userAgency.user)
+  userAgencies: Relation<UserAgency[]>;
 }

@@ -7,10 +7,11 @@ import Table from "@/components/ui/table/Table";
 import { Pagination, Button, Image, Chip, useDisclosure } from "@heroui/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ResponseAgency } from "@/interface/response.interface";
-import { LuPlus, LuMapPin, LuPencil, LuTrash } from "react-icons/lu";
+import { LuPlus, LuMapPin, LuPencil, LuTrash, LuUserPlus } from "react-icons/lu";
 import { ENV } from "@/config/env";
 import { useState } from "react";
 import ConfirmModal from "@/components/ui/modal/ConfirmModal";
+import AddUserAgencyModal from "@/modules/agency/components/AddUserAgencyModal";
 
 export default function Agency() {
   const { agencies, pagination, isLoading } = useAgency();
@@ -27,9 +28,24 @@ export default function Agency() {
     null,
   );
 
+  // Modal state for adding user
+  const {
+    isOpen: isAddUserOpen,
+    onOpen: onAddUserOpen,
+    onOpenChange: onAddUserOpenChange,
+  } = useDisclosure();
+  const [selectedAgency, setSelectedAgency] = useState<ResponseAgency | null>(
+    null,
+  );
+
   const handleOpenConfirm = (agency: ResponseAgency) => {
     setAgencyToDelete(agency);
     onConfirmOpen();
+  };
+
+  const handleOpenAddUser = (agency: ResponseAgency) => {
+    setSelectedAgency(agency);
+    onAddUserOpen();
   };
 
   const handleDelete = async () => {
@@ -106,9 +122,20 @@ export default function Agency() {
           <Button
             isIconOnly
             variant="flat"
+            color="success"
+            size="sm"
+            onPress={() => handleOpenAddUser(row.original)}
+            title="Asignar Usuario"
+          >
+            <LuUserPlus size={18} />
+          </Button>
+          <Button
+            isIconOnly
+            variant="flat"
             color="primary"
             size="sm"
             onPress={() => navigate(`/agency/update/${row.original.agencyId}`)}
+            title="Editar Agencia"
           >
             <LuPencil size={18} />
           </Button>
@@ -118,6 +145,7 @@ export default function Agency() {
             color="danger"
             size="sm"
             onPress={() => handleOpenConfirm(row.original)}
+            title="Eliminar Agencia"
           >
             <LuTrash size={18} />
           </Button>
@@ -178,6 +206,11 @@ export default function Agency() {
             <p className="text-xs text-danger font-medium mt-1">Esta acción desactivará el registro.</p>
           </div>
         }
+      />
+      <AddUserAgencyModal
+        isOpen={isAddUserOpen}
+        onOpenChange={onAddUserOpenChange}
+        agency={selectedAgency}
       />
     </Container>
   );
