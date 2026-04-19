@@ -56,8 +56,8 @@ export class AgencyController {
     return this.agencyService.removeUser(removeUserDto);
   }
 
-  @Get('user/')
-  findUsersAgency() {
-    return this.agencyService.findUsersAgency();
+  @Get('user/:agencyId')
+  findUsersAgency(@Param('agencyId') agencyId: string) {
+    return this.agencyService.findUsersAgency(+agencyId);
   }
 }

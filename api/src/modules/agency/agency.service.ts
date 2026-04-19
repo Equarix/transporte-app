@@ -155,8 +155,11 @@ export class AgencyService {
     });
   }
 
-  async findUsersAgency() {
+  async findUsersAgency(agencyId: number) {
     const users = await this.userAgencyRepository.find({
+      where: {
+        agency: { agencyId },
+      },
       relations: {
         user: {
           profile: true,
