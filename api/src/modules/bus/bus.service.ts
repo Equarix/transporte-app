@@ -123,6 +123,9 @@ export class BusService {
       where: {
         status: true,
       },
+      relations: {
+        floors: true,
+      },
     });
     return buses;
   }

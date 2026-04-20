@@ -10,6 +10,7 @@ import { useAuth } from "@/components/providers/AuthContext";
 import type {
   ApiResponse,
   Profile,
+  ResponseAgency,
   ResponseBus,
   ResponseDestination,
 } from "@/interface/response.interface";
@@ -90,6 +91,20 @@ export function useCreateReservers() {
     },
   });
 
+  const { data: resAgencies, isLoading: isLoadingAgencies } = useQuery<
+    ApiResponse<ResponseAgency[]>
+  >({
+    queryKey: ["agencies-all"],
+    queryFn: async () => {
+      const res = await instance.get("/agency/all", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data;
+    },
+  });
+
   const handleSubmit = form.handleSubmit((data) => {
     createReserver.mutate(data);
   });
@@ -98,7 +113,8 @@ export function useCreateReservers() {
     createReserver.isPending ||
     isLoadingDrivers ||
     isLoadingBus ||
-    isLoadingDestination;
+    isLoadingDestination ||
+    isLoadingAgencies;
 
   return {
     form,
@@ -115,6 +131,10 @@ export function useCreateReservers() {
     destination: {
       resDestination,
       isLoadingDestination,
+    },
+    agencies: {
+      resAgencies,
+      isLoadingAgencies,
     },
     isLoading,
   };

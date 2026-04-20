@@ -27,6 +27,7 @@ export default async function AgencyPage() {
   });
 
   if (error) {
+    console.log(error);
     return notFound();
   }
 
@@ -47,7 +48,6 @@ export default async function AgencyPage() {
       <section className="grid-cols-5 grid gap-8 px-8">
         <article className="col-span-3 grid grid-cols-2 gap-4">
           {data?.body.map((i) => {
-            console.log(ENV.API_URL + i.galery.imageUrl);
             return (
               <Card key={i.agencyId}>
                 <CardImage src={ENV.API_URL + i.galery.imageUrl} />
@@ -72,7 +72,7 @@ export default async function AgencyPage() {
                 <CardFooter>
                   <Link
                     className="bg-orange-500 text-white p-3 rounded-4xl text-center"
-                    href={`/agencias/${i.agencyId}`}
+                    href={`/agencias/${i.slug}`}
                   >
                     Ver más
                   </Link>

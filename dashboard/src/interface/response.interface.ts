@@ -77,6 +77,13 @@ export interface ResponseAgency {
   services: AgencyService[];
 }
 
+export interface ResponseUserAgency {
+  userAgencyId: number;
+  user: AuthResponse;
+  status: boolean;
+  createAt: Date;
+}
+
 export interface AgencyService {
   agencyServiceId: number;
   icon: string;
@@ -122,4 +129,22 @@ export interface ResponseReserver {
   checkOut: ResponseAgency;
   bus: ResponseBus;
   driver: Profile;
+  reserverPriceFloors: ReserverPriceFloor[];
+  reserverAgencies: ReserverAgency[];
+}
+
+export interface ReserverPriceFloor {
+  reserverPriceFloorId: number;
+  floorId: number;
+  price: number;
+}
+
+export interface ReserverAgency {
+  reserverAgencyId: number;
+  agencyId: number;
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  agency: ResponseAgency;
 }

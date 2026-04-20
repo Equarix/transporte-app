@@ -16,6 +16,34 @@ export const reserverSchema = z.object({
   driverId: z.number({
     error: "Conductor requerido",
   }),
+  reserverPriceFloors: z
+    .array(
+      z.object({
+        price: z.number({
+          error: "Precio requerido",
+        }),
+        floorId: z.number({
+          error: "Floor requerido",
+        }),
+      }),
+    )
+    .min(1, {
+      error: "Debe haber al menos un precio",
+    }),
+  reserverAgencies: z
+    .array(
+      z.object({
+        agencyId: z.number({
+          error: "Agencia requerida",
+        }),
+        hour: z.string({
+          error: "Hora requerida",
+        }),
+      }),
+    )
+    .min(1, {
+      error: "Debe haber al menos una agencia",
+    }),
 });
 
 export type ReserverSchemeType = z.infer<typeof reserverSchema>;

@@ -13,6 +13,7 @@ import { LuClock, LuMapPin, LuPhone } from "react-icons/lu";
 import MapDetails from "@/components/modules/angency/MapDetails";
 import * as Lu from "react-icons/lu";
 import Icon from "@/components/ui/icon/Icon";
+import Link from "next/link";
 
 export default async function DetailAgency({
   params,
@@ -31,6 +32,7 @@ export default async function DetailAgency({
   if (error) {
     return notFound();
   }
+  console.log(data);
 
   const agency = data!.body;
 
@@ -38,7 +40,7 @@ export default async function DetailAgency({
   const joinLarge = largeAddress.join(" ");
 
   return (
-    <main className="space-y-4 mb-6">
+    <main className="space-y-4">
       <Hero
         image={ENV.API_URL + agency.galery.imageUrl}
         className={{
@@ -130,7 +132,10 @@ export default async function DetailAgency({
             const IconRender = Lu[s.icon as keyof typeof Lu];
 
             return (
-              <article className="w-full min-h-[180px] flex flex-col justify-center items-center space-y-6 bg-white shadow rounded-3xl">
+              <article
+                className="w-full min-h-[180px] flex flex-col justify-center items-center space-y-6 bg-white shadow rounded-3xl"
+                key={s.agencyServiceId}
+              >
                 <Icon className="size-16 rounded-full bg-orange-100 text-orange-800">
                   <IconRender />
                 </Icon>
@@ -141,13 +146,66 @@ export default async function DetailAgency({
         </div>
       </section>
 
-      <section className="space-y-12 px-8 py-32">
+      <section className="space-y-12 px-8 py-32 bg-[#F6F3F2]">
         <header className="space-y-2">
           <h2 className="text-3xl font-bold text-slate-800">
-            Proximas Saldias (PENDIENTE A API)
+            Proximas Saldias
           </h2>
           <p>Comodidades y facilidades exclusivas en nuestra sede.</p>
-        </header>{" "}
+        </header>
+
+        <article className="w-full space-y-4">
+          <header className="grid grid-cols-5 font-semibold px-10">
+            <h2 className="text-center">Destino</h2>
+            <h2 className="text-center">Hora</h2>
+            <h2 className="text-center">Conductor</h2>
+            <h2 className="text-center">Precio</h2>
+            <h2 className="text-center">Accion</h2>
+          </header>
+
+          {agency.reservers.map((item) => (
+            <section
+              key={item.reserverId}
+              className="bg-white grid grid-cols-5 place-items-center shadow-xl p-10 rounded-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-center">
+                <span className="w-1.5 h-10 block bg-orange-500 rounded-full mr-4" />
+                <div>
+                  <p className="text-xs">Hacia</p>
+                  <p className="font-bold text-2xl">{item.checkOut.name}</p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs">Salida</p>
+                <p className="font-bold text-2xl">
+                  {item.reserverAgencies[0].hour}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs">Conductor</p>
+                <p className="font-bold text-2xl">{item.driver.firstName}</p>
+              </div>
+
+              <div>
+                <p className="text-xs">Desde</p>
+                <p className="font-bold text-2xl">
+                  S/.{" "}
+                  {Math.min(...item.reserverPriceFloors.map((p) => p.price))}
+                </p>
+              </div>
+
+              <Link
+                className="bg-orange-500 text-white p-3 px-12 rounded-4xl text-center"
+                // href={`/agencias/${item.agencyId}`}
+                href="#"
+              >
+                Ver más
+              </Link>
+            </section>
+          ))}
+        </article>
       </section>
     </main>
   );

@@ -31,6 +31,11 @@ export class AgencyController {
     return this.agencyService.findAll(params);
   }
 
+  @Get('all')
+  findAllAgency() {
+    return this.agencyService.findAllAgency();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.agencyService.findOne(+id);

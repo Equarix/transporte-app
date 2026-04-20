@@ -2,6 +2,7 @@ import { useAuth } from "@/components/providers/AuthContext";
 import type {
   ApiResponse,
   ResponseAgency,
+  ResponseUserAgency,
 } from "@/interface/response.interface";
 import { instance } from "@/libs/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -140,7 +141,7 @@ export function useGetUsersAgency() {
 export function useUserAgency(id: string) {
   const { token } = useAuth();
 
-  const query = useQuery<ApiResponse<ResponseAgency[]>>({
+  const query = useQuery<ApiResponse<ResponseUserAgency[]>>({
     queryKey: ["user-agency", id],
     queryFn: async () => {
       const response = await instance.get(`/agency/user/${id}`, {

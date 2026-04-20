@@ -149,27 +149,29 @@ export default function UserForm({
                 control={control}
                 name="typeDocument"
                 render={({ field }) => (
-                  <Select
-                    {...field}
-                    label="Tipo de Documento"
-                    placeholder="Seleccione el tipo"
-                    labelPlacement="outside"
-                    variant="bordered"
-                    radius="lg"
-                    size="lg"
-                    selectedKeys={field.value ? [field.value] : []}
-                    onSelectionChange={(keys) =>
-                      field.onChange(Array.from(keys)[0])
-                    }
-                    isInvalid={!!errors.typeDocument}
-                    errorMessage={errors.typeDocument?.message}
-                  >
-                    {Object.values(TypeDocument).map((type) => (
-                      <SelectItem key={type}>
-                        {TYPE_DOCUMENT_LABELS[type]}
-                      </SelectItem>
-                    ))}
-                  </Select>
+                  <div>
+                    <Select
+                      {...field}
+                      label="Tipo de Documento"
+                      placeholder="Seleccione el tipo"
+                      labelPlacement="outside"
+                      variant="bordered"
+                      radius="lg"
+                      size="lg"
+                      selectedKeys={field.value ? [field.value] : []}
+                      onSelectionChange={(keys) =>
+                        field.onChange(Array.from(keys)[0])
+                      }
+                      isInvalid={!!errors.typeDocument}
+                      errorMessage={errors.typeDocument?.message}
+                    >
+                      {Object.values(TypeDocument).map((type) => (
+                        <SelectItem key={type}>
+                          {TYPE_DOCUMENT_LABELS[type]}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  </div>
                 )}
               />
 
@@ -245,25 +247,27 @@ export default function UserForm({
                 control={control}
                 name="role"
                 render={({ field }) => (
-                  <Select
-                    {...field}
-                    label="Rol"
-                    placeholder="Seleccione el rol"
-                    labelPlacement="outside"
-                    variant="bordered"
-                    radius="lg"
-                    size="lg"
-                    selectedKeys={field.value ? [field.value] : []}
-                    onSelectionChange={(keys) =>
-                      field.onChange(Array.from(keys)[0])
-                    }
-                    isInvalid={!!errors.role}
-                    errorMessage={errors.role?.message}
-                  >
-                    {Object.values(RoleEnum).map((role) => (
-                      <SelectItem key={role}>{ROLE_LABELS[role]}</SelectItem>
-                    ))}
-                  </Select>
+                  <div>
+                    <Select
+                      {...field}
+                      label="Rol"
+                      placeholder="Seleccione el rol"
+                      labelPlacement="outside"
+                      variant="bordered"
+                      radius="lg"
+                      size="lg"
+                      selectedKeys={field.value ? [field.value] : []}
+                      onSelectionChange={(keys) =>
+                        field.onChange(Array.from(keys)[0])
+                      }
+                      isInvalid={!!errors.role}
+                      errorMessage={errors.role?.message}
+                    >
+                      {Object.values(RoleEnum).map((role) => (
+                        <SelectItem key={role}>{ROLE_LABELS[role]}</SelectItem>
+                      ))}
+                    </Select>
+                  </div>
                 )}
               />
 
@@ -271,27 +275,29 @@ export default function UserForm({
                 control={control}
                 name="typeUser"
                 render={({ field }) => (
-                  <Select
-                    {...field}
-                    label="Tipo de Usuario"
-                    placeholder="Seleccione el tipo"
-                    labelPlacement="outside"
-                    variant="bordered"
-                    radius="lg"
-                    size="lg"
-                    selectedKeys={field.value ? [field.value] : []}
-                    onSelectionChange={(keys) =>
-                      field.onChange(Array.from(keys)[0])
-                    }
-                    isInvalid={!!errors.typeUser}
-                    errorMessage={errors.typeUser?.message}
-                  >
-                    {Object.values(TypeUser).map((type) => (
-                      <SelectItem key={type}>
-                        {TYPE_USER_LABELS[type]}
-                      </SelectItem>
-                    ))}
-                  </Select>
+                  <div>
+                    <Select
+                      {...field}
+                      label="Tipo de Usuario"
+                      placeholder="Seleccione el tipo"
+                      labelPlacement="outside"
+                      variant="bordered"
+                      radius="lg"
+                      size="lg"
+                      selectedKeys={field.value ? [field.value] : []}
+                      onSelectionChange={(keys) =>
+                        field.onChange(Array.from(keys)[0])
+                      }
+                      isInvalid={!!errors.typeUser}
+                      errorMessage={errors.typeUser?.message}
+                    >
+                      {Object.values(TypeUser).map((type) => (
+                        <SelectItem key={type}>
+                          {TYPE_USER_LABELS[type]}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  </div>
                 )}
               />
             </div>

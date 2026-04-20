@@ -10,9 +10,10 @@ import {
   Tooltip,
   Pagination,
 } from "@heroui/react";
-import { LuCalendar, LuMapPin, LuPlus, LuUser } from "react-icons/lu";
+import { LuCalendar, LuMapPin, LuPlus, LuUser, LuEye } from "react-icons/lu";
 import { useState } from "react";
 import StatusChangeModal from "@/modules/reservers/components/StatusChangeModal";
+import DetailReserverModal from "@/modules/reservers/components/DetailReserverModal";
 import { StatusReserverEnum } from "@/modules/reservers/enum/status-reserver.enum";
 import Header from "@/components/layouts/header/Header";
 import Container from "@/components/ui/container/Container";
@@ -40,14 +41,28 @@ const STATUS_LABEL_MAP: Record<string, string> = {
 export default function Reservers() {
   const navigate = useNavigate();
   const { data, isLoading, pagination, isPending, mutate } = useReservers();
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {
+    isOpen: isStatusOpen,
+    onOpen: onStatusOpen,
+    onOpenChange: onStatusOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: isDetailOpen,
+    onOpen: onDetailOpen,
+    onOpenChange: onDetailOpenChange,
+  } = useDisclosure();
 
   const [selectedReserver, setSelectedReserver] =
     useState<ResponseReserver | null>(null);
 
   const handleOpenStatusModal = (reserver: ResponseReserver) => {
     setSelectedReserver(reserver);
-    onOpen();
+    onStatusOpen();
+  };
+
+  const handleOpenDetailModal = (reserver: ResponseReserver) => {
+    setSelectedReserver(reserver);
+    onDetailOpen();
   };
 
   const columns: ColumnDef<ResponseReserver>[] = [
@@ -120,6 +135,17 @@ export default function Reservers() {
       header: "Acciones",
       cell: ({ row }) => (
         <div className="relative flex items-center gap-2">
+          <Tooltip content="Ver Detalle">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="flat"
+              onPress={() => handleOpenDetailModal(row.original)}
+              color="primary"
+            >
+              <LuEye className="size-4" />
+            </Button>
+          </Tooltip>
           <Tooltip content="Cambiar Estado">
             <Button
               isIconOnly
@@ -166,8 +192,8 @@ export default function Reservers() {
       />
 
       <StatusChangeModal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
+        isOpen={isStatusOpen}
+        onOpenChange={onStatusOpenChange}
         reserverId={selectedReserver?.reserverId}
         currentStatus={selectedReserver?.status}
         onConfirm={(id, status) =>
@@ -176,6 +202,12 @@ export default function Reservers() {
             status,
           })
         }
+      />
+
+      <DetailReserverModal
+        isOpen={isDetailOpen}
+        onOpenChange={onDetailOpenChange}
+        reserver={selectedReserver}
       />
     </Container>
   );

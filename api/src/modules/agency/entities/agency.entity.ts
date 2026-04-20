@@ -22,6 +22,11 @@ export class Agency {
   @Column()
   largeAddress: string;
 
+  @Column({
+    default: '',
+  })
+  slug: string;
+
   @Column()
   address: string;
 

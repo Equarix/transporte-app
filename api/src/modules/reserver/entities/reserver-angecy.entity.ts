@@ -25,6 +25,9 @@ export class ReserverAgency {
   @Column()
   email: string;
 
+  @Column()
+  hour: string;
+
   @ManyToOne(() => Reserver, (reserver) => reserver.reserverAgencies)
   reserver: Relation<Reserver>;
 

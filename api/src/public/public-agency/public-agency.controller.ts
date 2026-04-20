@@ -10,8 +10,8 @@ export class PublicAgencyController {
     return this.publicAgencyService.getAgency();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.publicAgencyService.getDetails(+id);
+  @Get(':slug')
+  findOne(@Param('slug') slug: string) {
+    return this.publicAgencyService.getDetails(slug);
   }
 }

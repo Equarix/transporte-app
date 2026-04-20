@@ -88,6 +88,7 @@ export class UserService {
       typeDocument,
       documentNumber,
       password: hashPassword,
+      role,
     });
     await this.userRepository.save(user);
 

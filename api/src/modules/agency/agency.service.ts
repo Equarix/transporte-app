@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -30,11 +31,23 @@ export class AgencyService {
     private userAgencyRepository: Repository<UserAgency>,
   ) {}
 
+  private createSlug(text: string) {
+    return text
+      .toLowerCase()
+      .normalize('NFD') // separa tildes
+      .replace(/[\u0300-\u036f]/g, '') // elimina tildes
+      .replace(/[^a-z0-9\s-]/g, '') // quita caracteres raros
+      .trim()
+      .replace(/\s+/g, '-'); // espacios múltiples → 1 guion
+  }
+
   async create(createAgencyDto: CreateAgencyDto) {
     const { imageId, services, ...rest } = createAgencyDto;
     const galery = await this.galeryRepository.findOne({ where: { imageId } });
     if (!galery) throw new BadRequestException('Galeria no encontrada');
-    const agency = this.agencyRepository.create({ ...rest, galery });
+    const slug = this.createSlug(rest.name);
+
+    const agency = this.agencyRepository.create({ ...rest, galery, slug });
 
     const newAgency = await this.agencyRepository.save(agency);
 
@@ -73,6 +86,18 @@ export class AgencyService {
         currentPage: page,
       },
     };
+  }
+
+  async findAllAgency() {
+    const agency = await this.agencyRepository.find({
+      where: {
+        status: true,
+      },
+      relations: {
+        galery: true,
+      },
+    });
+    return agency;
   }
 
   async findOne(id: number) {
@@ -132,6 +157,23 @@ export class AgencyService {
     if (!user) throw new NotFoundException('Usuario no encontrado');
     const agency = await this.agencyRepository.findOneBy({ agencyId });
     if (!agency) throw new NotFoundException('Agencia no encontrada');
+
+    const findUserAgency = await this.userAgencyRepository.findOne({
+      where: {
+        user: {
+          userId,
+        },
+        agency: {
+          agencyId,
+        },
+        status: true,
+      },
+    });
+
+    if (findUserAgency) {
+      throw new ConflictException('El usuario ya esta asignado');
+    }
+
     const userAgency = this.userAgencyRepository.create({
       user,
       agency,
