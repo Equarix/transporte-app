@@ -1,4 +1,5 @@
 packages:
   - "api"
+  - "api-sales"
   - "dashboard"
   - "ui"
