@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SalesModule } from './modules/sales/sales.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PointsUserModule } from './modules/points-user/points-user.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       requestTimeout: 0,
     }),
     SalesModule,
+    PointsUserModule,
   ],
   controllers: [],
   providers: [],
