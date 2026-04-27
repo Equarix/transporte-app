@@ -3,3 +3,4 @@ packages:
   - "api-sales"
   - "dashboard"
   - "ui"
+  - "packages/dtos"

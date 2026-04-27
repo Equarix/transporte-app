@@ -41,6 +41,9 @@ importers:
       '@nestjs/typeorm':
         specifier: ^11.0.0
         version: 11.0.0(@nestjs/common@11.1.17(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.17(@nestjs/common@11.1.17(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/microservices@11.1.19)(@nestjs/platform-express@11.1.17)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.28(ioredis@5.10.1)(mssql@12.2.1(@azure/core-client@1.10.1))(ts-node@10.9.2(@swc/core@1.15.21(@swc/helpers@0.5.20))(@types/node@22.19.15)(typescript@5.9.3)))
+      '@transporte/dtos':
+        specifier: workspace:*
+        version: link:../packages/dtos
       '@types/bcrypt':
         specifier: ^6.0.0
         version: 6.0.0
@@ -165,6 +168,9 @@ importers:
       '@nestjs/core':
         specifier: ^11.0.1
         version: 11.1.17(@nestjs/common@11.1.17(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/microservices@11.1.19)(@nestjs/platform-express@11.1.17)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/mapped-types':
+        specifier: '*'
+        version: 2.1.1(@nestjs/common@11.1.17(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)
       '@nestjs/microservices':
         specifier: ^11.1.19
         version: 11.1.19(@nestjs/common@11.1.17(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.17)(ioredis@5.10.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -174,6 +180,9 @@ importers:
       '@nestjs/typeorm':
         specifier: ^11.0.0
         version: 11.0.0(@nestjs/common@11.1.17(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.17(@nestjs/common@11.1.17(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/microservices@11.1.19)(@nestjs/platform-express@11.1.17)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.28(ioredis@5.10.1)(mssql@12.2.1(@azure/core-client@1.10.1))(ts-node@10.9.2(@swc/core@1.15.21(@swc/helpers@0.5.20))(@types/node@22.19.15)(typescript@5.9.3)))
+      '@transporte/dtos':
+        specifier: workspace:*
+        version: link:../packages/dtos
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -392,6 +401,19 @@ importers:
       vite:
         specifier: ^7.2.4
         version: 7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)
+
+  packages/dtos:
+    dependencies:
+      class-transformer:
+        specifier: '*'
+        version: 0.5.1
+      class-validator:
+        specifier: '*'
+        version: 0.15.1
+    devDependencies:
+      typescript:
+        specifier: '*'
+        version: 5.9.3
 
   ui:
     dependencies:
