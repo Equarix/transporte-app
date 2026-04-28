@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  type Relation,
+} from 'typeorm';
 import { Sale } from './sale.entity';
 
 @Entity()
@@ -31,5 +37,5 @@ export class SaleDetail {
   amount: number;
 
   @ManyToOne(() => Sale, (sale) => sale.saleDetails)
-  sale: Sale;
+  sale: Relation<Sale>;
 }

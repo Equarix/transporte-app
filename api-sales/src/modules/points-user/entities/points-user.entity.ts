@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  type Relation,
+} from 'typeorm';
 import { Sale } from '../../sales/entities/sale.entity';
 
 enum PointsFrom {
@@ -31,5 +37,5 @@ export class PointsUser {
   pointsFrom: PointsFrom;
 
   @ManyToOne(() => Sale, (sale) => sale.pointsUsers)
-  sale: Sale;
+  sale: Relation<Sale>;
 }
