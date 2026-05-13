@@ -6,6 +6,7 @@ interface HeroProps extends PropsWithChildren {
   className?: {
     container?: string;
     imagebg?: string;
+    wrapper?: string;
   };
   image: string;
 }
@@ -14,7 +15,7 @@ export default function Hero({ children, className, image }: HeroProps) {
   return (
     <section
       className={cn(
-        "w-full relative overflow-hidden min-h-[450px]",
+        "w-full relative overflow-hidden min-h-112.5",
         className?.container,
       )}
     >
@@ -27,7 +28,12 @@ export default function Hero({ children, className, image }: HeroProps) {
           className?.imagebg,
         )}
       />
-      <div className="w-full h-full absolute flex items-center px-4">
+      <div
+        className={cn(
+          "w-full h-full absolute flex items-center px-4",
+          className?.wrapper,
+        )}
+      >
         {children}
       </div>
     </section>

@@ -6,6 +6,16 @@ import { Reserver } from '../../../modules/reserver/entities/reserver.entity';
 export class Bus {
   @PrimaryGeneratedColumn()
   busId: number;
+  //TODO:CAMBIAR PARA QUE NO TENGA POR DEFECTO
+  @Column({
+    default: '',
+  })
+  type: string;
+
+  @Column({
+    default: '',
+  })
+  name: string;
 
   @Column()
   plate: string;

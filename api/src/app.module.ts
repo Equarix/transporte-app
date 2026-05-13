@@ -14,6 +14,7 @@ import { SeatModule } from './modules/seat/seat.module';
 import { ReserverModule } from './modules/reserver/reserver.module';
 import { PublicAgencyModule } from './public/public-agency/public-agency.module';
 import { PublicAuthModule } from './public/public-auth/public-auth.module';
+import { PublicDestinationModule } from './public/public-destination/public-destination.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { PublicAuthModule } from './public/public-auth/public-auth.module';
     ReserverModule,
     PublicAgencyModule,
     PublicAuthModule,
+    PublicDestinationModule,
   ],
   controllers: [],
   providers: [],

@@ -32,7 +32,6 @@ export default async function DetailAgency({
   if (error) {
     return notFound();
   }
-  console.log(data);
 
   const agency = data!.body;
 
@@ -196,13 +195,12 @@ export default async function DetailAgency({
                 </p>
               </div>
 
-              <Link
+              <button
                 className="bg-orange-500 text-white p-3 px-12 rounded-4xl text-center"
                 // href={`/agencias/${item.agencyId}`}
-                href="#"
               >
-                Ver más
-              </Link>
+                Reservar
+              </button>
             </section>
           ))}
         </article>

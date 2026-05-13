@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -12,6 +13,7 @@ import { TypeSeat } from '../entities/seat.entity';
 
 export class SeatDto {
   @IsString()
+  @ValidateIf((o) => o.typeSeat == TypeSeat.ASIENTO)
   @IsNotEmpty()
   name: string;
 
@@ -54,6 +56,14 @@ export class FloorDto {
 }
 
 export class CreateBusDto {
+  @IsString()
+  @IsNotEmpty()
+  type: string;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
   @IsString()
   @IsNotEmpty()
   plate: string;

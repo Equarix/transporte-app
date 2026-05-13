@@ -29,6 +29,7 @@ export interface Reservers {
 export interface Destination {
   destinationId: number;
   name: string;
+  slug: string;
   shortDescription: string;
   longDescription: string;
   lat: string;

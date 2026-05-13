@@ -17,6 +17,11 @@ export class Destination {
   @Column()
   name: string;
 
+  @Column({
+    default: '',
+  })
+  slug: string;
+
   @Column()
   shortDescription: string;
 

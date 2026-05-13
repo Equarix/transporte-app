@@ -83,14 +83,14 @@ export default function BusSeatsModal({
             <div
               key={`empty-${r}-${c}`}
               className="w-12 h-12 border-2 border-dashed border-default-200 rounded-lg flex items-center justify-center opacity-20"
-            />
+            />,
           );
         }
       }
       grid.push(
         <div key={`row-${r}`} className="flex gap-2 justify-center">
           {rowCells}
-        </div>
+        </div>,
       );
     }
 
@@ -105,9 +105,14 @@ export default function BusSeatsModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="3xl" scrollBehavior="inside">
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      size="3xl"
+      scrollBehavior="inside"
+    >
       <ModalContent>
-        {(onClose) => (
+        {() => (
           <>
             <ModalHeader className="flex flex-col gap-1">
               <div className="flex items-center gap-3">
@@ -118,7 +123,12 @@ export default function BusSeatsModal({
               </div>
             </ModalHeader>
             <ModalBody className="pb-8">
-              <Tabs aria-label="Pisos del bus" fullWidth color="primary" variant="underlined">
+              <Tabs
+                aria-label="Pisos del bus"
+                fullWidth
+                color="primary"
+                variant="underlined"
+              >
                 {bus.floors
                   .sort((a, b) => a.order - b.order)
                   .map((floor) => (

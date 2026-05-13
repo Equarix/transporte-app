@@ -19,6 +19,17 @@ export class DestinationService {
     private galeryRepository: Repository<Galery>,
   ) {}
 
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .normalize('NFD') // separa acentos
+      .replace(/[\u0300-\u036f]/g, '') // elimina acentos
+      .replace(/[^a-z0-9\s-]/g, '') // elimina caracteres especiales
+      .replace(/\s+/g, '-') // espacios -> guiones
+      .replace(/-+/g, '-'); // evita múltiples guiones
+  }
+
   async create(createDestinationDto: CreateDestinationDto) {
     const { experiences, imageId, ...rest } = createDestinationDto;
 
@@ -46,6 +57,7 @@ export class DestinationService {
 
     const destination = this.destinationRepository.create({
       ...rest,
+      slug: this.slugify(rest.name),
       galery,
     });
 
@@ -150,6 +162,7 @@ export class DestinationService {
     const destination = this.destinationRepository.create({
       destinationId: id,
       ...rest,
+      slug: this.slugify(rest.name!),
       galery,
     });
 

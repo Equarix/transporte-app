@@ -101,12 +101,59 @@ export class BusService {
   }
 
   async update(id: number, updateBusDto: UpdateBusDto) {
-    const bus = await this.busRepository.findOne({
-      where: { busId: id },
-    });
-    if (!bus) throw new NotFoundException('Bus no encontrado');
-    const updatedBus = await this.busRepository.update(id, updateBusDto);
-    return updatedBus;
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    const { floors, ...rest } = updateBusDto;
+
+    try {
+      const bus = await queryRunner.manager.findOne(Bus, {
+        where: { busId: id },
+      });
+      if (!bus) throw new NotFoundException('Bus no encontrado');
+
+      const busUpdate = await queryRunner.manager.update(Bus, id, rest);
+
+      const floorsUpdate = await Promise.all(
+        floors.map(async (floor) => {
+          const { seats, floorId, ...restFloor } = floor;
+
+          const floorUpdate = await queryRunner.manager.update(
+            Floor,
+            floorId,
+            restFloor,
+          );
+          const seatsUpdate = await Promise.all(
+            seats.map(async (seat) => {
+              const { seatId, ...restSeat } = seat;
+
+              const seatUpdate = await queryRunner.manager.update(
+                Seat,
+                seatId,
+                restSeat,
+              );
+              return seatUpdate;
+            }),
+          );
+          return {
+            ...floorUpdate,
+            seats: seatsUpdate,
+          };
+        }),
+      );
+
+      await queryRunner.commitTransaction();
+      return {
+        ...busUpdate,
+        floors: floorsUpdate,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async remove(id: number) {

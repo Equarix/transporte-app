@@ -91,6 +91,8 @@ export interface AgencyService {
 }
 
 export interface ResponseBus {
+  type: string;
+  name: string;
   busId: number;
   plate: string;
   model: string;

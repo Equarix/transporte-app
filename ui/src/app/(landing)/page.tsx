@@ -1,3 +1,9 @@
+import { HeroFind } from "@/components/ui/hero-find/HeroFind";
+
 export default function Home() {
-  return <h1>Home</h1>;
+  return (
+    <main>
+      <HeroFind />
+    </main>
+  );
 }
