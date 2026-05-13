@@ -36,6 +36,12 @@ export class Reserver {
   })
   status: StatusReserverEnum;
 
+  //TODO: Quitar el default
+  @Column({
+    default: '',
+  })
+  checkOutHour: string;
+
   @ManyToOne(() => Destination, (destination) => destination.checkIns)
   checkIn: Relation<Destination>;
 

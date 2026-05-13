@@ -10,7 +10,14 @@ import {
   Tooltip,
   Pagination,
 } from "@heroui/react";
-import { LuCalendar, LuMapPin, LuPlus, LuUser, LuEye } from "react-icons/lu";
+import {
+  LuCalendar,
+  LuMapPin,
+  LuPlus,
+  LuUser,
+  LuEye,
+  LuClock,
+} from "react-icons/lu";
 import { useState } from "react";
 import StatusChangeModal from "@/modules/reservers/components/StatusChangeModal";
 import DetailReserverModal from "@/modules/reservers/components/DetailReserverModal";
@@ -75,11 +82,17 @@ export default function Reservers() {
     },
     {
       accessorKey: "date",
-      header: "Fecha de Viaje",
+      header: "Hora de Llegada",
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <LuCalendar className="text-default-400" />
-          <span>{format(row.original.date, "dd/MM/yyyy")}</span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <LuCalendar className="text-default-400" />
+            <span>{format(row.original.date, "dd/MM/yyyy")}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-default-500">
+            <LuClock className="text-default-400" />
+            <span>{row.original.checkOutHour || "--:--"}</span>
+          </div>
         </div>
       ),
     },

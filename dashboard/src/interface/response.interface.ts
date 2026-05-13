@@ -124,6 +124,7 @@ export interface Seat {
 export interface ResponseReserver {
   reserverId: number;
   date: string;
+  checkOutHour: string;
   registerAt: string;
   status: string;
   registerUser: AuthResponse;

@@ -15,6 +15,7 @@ import { ReserverModule } from './modules/reserver/reserver.module';
 import { PublicAgencyModule } from './public/public-agency/public-agency.module';
 import { PublicAuthModule } from './public/public-auth/public-auth.module';
 import { PublicDestinationModule } from './public/public-destination/public-destination.module';
+import { PublicBookingModule } from './public/public-booking/public-booking.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { PublicDestinationModule } from './public/public-destination/public-dest
     PublicAgencyModule,
     PublicAuthModule,
     PublicDestinationModule,
+    PublicBookingModule,
   ],
   controllers: [],
   providers: [],

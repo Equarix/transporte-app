@@ -237,6 +237,28 @@ export default function CreateReservers() {
                   />
                 )}
               />
+
+              <Controller
+                control={control}
+                name="checkOutHour"
+                render={({ field: { value, onChange } }) => (
+                  <div>
+                    <Input
+                      type="time"
+                      label="Hora de Llegada"
+                      labelPlacement="outside"
+                      placeholder="--:--"
+                      variant="bordered"
+                      radius="lg"
+                      size="lg"
+                      value={value}
+                      onChange={onChange}
+                      isInvalid={!!errors.checkOutHour}
+                      errorMessage={errors.checkOutHour?.message}
+                    />
+                  </div>
+                )}
+              />
             </div>
           </FormSection>
 

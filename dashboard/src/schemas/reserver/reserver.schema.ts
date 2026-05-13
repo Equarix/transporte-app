@@ -16,6 +16,9 @@ export const reserverSchema = z.object({
   driverId: z.number({
     error: "Conductor requerido",
   }),
+  checkOutHour: z.string({
+    error: "Hora de salida requerida",
+  }),
   reserverPriceFloors: z
     .array(
       z.object({

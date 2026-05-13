@@ -86,3 +86,27 @@ export interface Service {
   icon: string;
   name: string;
 }
+
+export interface Reserver {
+  reserverId: number;
+  date: string;
+  registerAt: string;
+  status: string;
+  checkOutHour: string;
+  reserverAgencies: ReserverAgency[];
+}
+
+export interface ReserverAgency {
+  reserverAgencyId: number;
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  hour: string;
+}
+
+export interface ResponseBooking {
+  origin: Destination;
+  destination: Destination;
+  reservations: Reserver[];
+}

@@ -35,6 +35,10 @@ export class CreateReserverDto {
   @IsNotEmpty()
   date: Date;
 
+  @IsString()
+  @IsNotEmpty()
+  checkOutHour: string;
+
   @IsNumber()
   @Type(() => Number)
   @IsNotEmpty()

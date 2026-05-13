@@ -17,6 +17,7 @@ import {
   LuMapPin,
   LuBus,
   LuInfo,
+  LuClock,
 } from "react-icons/lu";
 import { format } from "date-fns";
 import { ENV } from "@/config/env";
@@ -73,6 +74,17 @@ export default function DetailReserverModal({
                         </p>
                         <p className="text-small font-medium">
                           {format(reserver.date, "dd/MM/yyyy")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white rounded-lg shadow-sm text-default-400">
+                        <LuClock size={18} />
+                      </div>
+                      <div>
+                        <p className="text-tiny text-default-400">Hora de Salida</p>
+                        <p className="text-small font-medium">
+                          {reserver.checkOutHour || "--:--"}
                         </p>
                       </div>
                     </div>
