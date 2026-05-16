@@ -1,9 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
+import { errorWrapper } from "./utils/errorWrapper";
+import { instance } from "./config/axios";
 
-export function proxy(request: NextRequest) {
+const protectedRoutes = ["/perfil", "/reservas"];
+
+export async function proxy(request: NextRequest) {
   const headers = new Headers(request.headers);
 
-  headers.set("x-current-path", request.nextUrl.pathname);
+  const currentPath = request.nextUrl.pathname;
+
+  headers.set("x-current-path", currentPath);
+
+  if (!protectedRoutes.some((route) => currentPath.startsWith(route))) {
+    return NextResponse.next({ headers });
+  }
+
+  const token = request.cookies.get("token")?.value;
+
+  if (!token) {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
+
+  const [error] = await errorWrapper(async () => {
+    const res = await instance.get("/public/auth/revalidate", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  });
+
+  if (error) {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
 
   return NextResponse.next({ headers });
 }

@@ -32,7 +32,7 @@ export default async function Reserver({
   });
 
   if (error) {
-    return notFound();
+    return <div></div>;
   }
 
   return <ReservePage response={data!.body} />;

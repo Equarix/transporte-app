@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import Cookie from "js-cookie";
@@ -6,12 +7,15 @@ import type { ApiResponse } from "@/interface/utils.interface";
 import { useMutation } from "@tanstack/react-query";
 import type { AuthSchemaType } from "@/schema/auth/login.schema";
 import { useRouter } from "next/navigation";
+import { AuthResponse } from "@/interface/response.interface";
+import { toast } from "sonner";
+import { RegisterSchema } from "@/schema/auth/register.schema";
 
 interface AuthContextProps {
   user?: AuthResponse;
   token: string;
-  // register: (data: RegisterSchemaType) => void;
-  // isLoadRegister: boolean;
+  register: (data: RegisterSchema) => void;
+  isLoadRegister: boolean;
   logout: () => void;
   setUser: (user: AuthResponse) => void;
   setToken: (token: string) => void;
@@ -40,7 +44,7 @@ export default function AuthProvider({
 
   const { mutate: login, isPending: isLoadLogin } = useMutation({
     mutationFn: async (data: AuthSchemaType) => {
-      const res = await instance.post("/auth/login-admin", data);
+      const res = await instance.post("/public/auth/login", data);
       return res.data as ApiResponse<AuthResponse>;
     },
     onSuccess: ({ body, token }) => {
@@ -54,17 +58,35 @@ export default function AuthProvider({
         config.headers.Authorization = `Bearer ${token}`;
         return config;
       });
-      addToast({
-        title: "Inicio de sesión exitoso",
-        color: "success",
-      });
+      toast.success("Inicio de sesión exitoso");
       router.push("/");
     },
     onError: () => {
-      addToast({
-        title: "Error al iniciar sesión",
-        color: "danger",
+      toast.error("Error al iniciar sesión");
+    },
+  });
+
+  const { mutate: register, isPending: isLoadRegister } = useMutation({
+    mutationFn: async (data: RegisterSchema) => {
+      const res = await instance.post("/public/auth/register", data);
+      return res.data as ApiResponse<AuthResponse>;
+    },
+    onSuccess: ({ body, token }) => {
+      setUser({
+        ...body,
+        token: token!,
       });
+      setToken(token!);
+      Cookie.set("token", token!);
+      instance.interceptors.request.use((config) => {
+        config.headers.Authorization = `Bearer ${token}`;
+        return config;
+      });
+      toast.success("Registro exitoso");
+      router.push("/");
+    },
+    onError: () => {
+      toast.error("Error al registrar");
     },
   });
 
@@ -80,8 +102,8 @@ export default function AuthProvider({
       value={{
         user,
         token,
-        // register,
-        // isLoadRegister,
+        register,
+        isLoadRegister,
         logout,
         setUser,
         setToken,

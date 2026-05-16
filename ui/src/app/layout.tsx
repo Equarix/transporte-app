@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
+import AuthProvider from "@/context/AuthContext";
+import Providers from "@/context/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +36,10 @@ export default function RootLayout({
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} ${jakartaSans.variable} h-full antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+        <Toaster richColors={true} position="top-right" />
+      </body>
     </html>
   );
 }

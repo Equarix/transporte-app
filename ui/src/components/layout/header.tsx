@@ -3,6 +3,8 @@ import Link from "next/link";
 import { cn } from "@/utils/cn";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import UserMenu from "@/components/modules/auth/UserMenu";
+import { useAuth } from "@/context/AuthContext";
 
 const NAV_LINKS = [
   {
@@ -33,6 +35,7 @@ const NAV_LINKS = [
 
 export default function Header() {
   const url = usePathname();
+  const { user, logout } = useAuth();
 
   return (
     <header className="w-full flex items-center justify-between px-8 py-4 border-b border-slate-200">
@@ -55,12 +58,16 @@ export default function Header() {
         </ul>
       </nav>
 
-      <Link
-        href="/auth/login"
-        className="px-4 py-2 rounded-full bg-amber-600 text-white text-sm"
-      >
-        Iniciar Sesión
-      </Link>
+      {user ? (
+        <UserMenu user={user} onLogout={logout} />
+      ) : (
+        <Link
+          href="/auth/login"
+          className="px-6 py-2.5 rounded-full bg-amber-600 text-white text-sm font-bold shadow-md hover:bg-amber-700 transition-all hover:scale-105 active:scale-95"
+        >
+          Iniciar Sesión
+        </Link>
+      )}
     </header>
   );
 }

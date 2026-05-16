@@ -42,6 +42,7 @@ export default function Select({
         <button
           onClick={() => setIsOpen((prev) => !prev)}
           className="w-full p-4 bg-[#F6F3F2] rounded-lg flex items-center gap-4 px-4"
+          type="button"
         >
           <span className="size-4 text-amber-700">{icon}</span>
 
@@ -67,6 +68,7 @@ export default function Select({
                   onSelect?.(item.value);
                   setIsOpen(false);
                 }}
+                type="button"
               >
                 {item.label}
               </button>

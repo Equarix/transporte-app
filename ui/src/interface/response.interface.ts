@@ -110,3 +110,26 @@ export interface ResponseBooking {
   destination: Destination;
   reservations: Reserver[];
 }
+
+export interface AuthResponse {
+  userId: number;
+  password: string;
+  typeDocument: string;
+  documentNumber: string;
+  role: string;
+  profile: Profile;
+  token: string;
+}
+
+export interface Profile {
+  userId: number;
+  typeDocument: string;
+  documentNumber: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  typeUser: string;
+  isActive: boolean;
+}
