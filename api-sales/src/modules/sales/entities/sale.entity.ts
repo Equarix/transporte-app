@@ -49,6 +49,12 @@ export class Sale {
   @Column()
   toDestinationId: number;
 
+  @Column()
+  agencyId: number;
+
+  @Column()
+  reserverId: number;
+
   @OneToMany(() => PointsUser, (pointsUser) => pointsUser.sale)
   pointsUsers: PointsUser[];
 }

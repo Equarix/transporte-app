@@ -4,6 +4,7 @@ import { ApiResponse } from "@/interface/utils.interface";
 import { errorWrapper } from "@/utils/errorWrapper";
 import { notFound } from "next/navigation";
 import ReservePage from "./ReservePage";
+import { BookingProvider } from "@/context/BookingProvider";
 
 export default async function Reserver({
   searchParams,
@@ -35,5 +36,9 @@ export default async function Reserver({
     return <div></div>;
   }
 
-  return <ReservePage response={data!.body} />;
+  return (
+    <BookingProvider response={data!.body}>
+      <ReservePage />
+    </BookingProvider>
+  );
 }

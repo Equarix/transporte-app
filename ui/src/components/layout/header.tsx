@@ -1,4 +1,5 @@
 "use client";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/utils/cn";
 import Image from "next/image";
@@ -36,6 +37,11 @@ const NAV_LINKS = [
 export default function Header() {
   const url = usePathname();
   const { user, logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="w-full flex items-center justify-between px-8 py-4 border-b border-slate-200">
@@ -58,7 +64,7 @@ export default function Header() {
         </ul>
       </nav>
 
-      {user ? (
+      {mounted && user ? (
         <UserMenu user={user} onLogout={logout} />
       ) : (
         <Link

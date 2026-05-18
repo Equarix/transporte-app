@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Destination } from 'src/modules/destination/entities/destination.entity';
 import { Reserver } from 'src/modules/reserver/entities/reserver.entity';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { QueryDestinationDto } from './dto/query-destination.dto';
 import { StatusReserverEnum } from 'src/modules/reserver/enum/status-reserver.enum';
 
@@ -13,6 +13,7 @@ export class PublicBookingService {
     private destinationRepository: Repository<Destination>,
     @InjectRepository(Reserver)
     private reserverRepository: Repository<Reserver>,
+    private datasource: DataSource,
   ) {}
 
   async getDestinations(query: QueryDestinationDto) {
@@ -43,6 +44,7 @@ export class PublicBookingService {
       },
       relations: {
         reserverAgencies: true,
+        reserverPriceFloors: true,
       },
     });
 
@@ -55,7 +57,10 @@ export class PublicBookingService {
     return {
       origin: originDestination,
       destination: destinationDestination,
-      reservations: reserver,
+      reservations: reserver.map((r) => ({
+        ...r,
+        freeSeats: 12,
+      })),
     };
   }
 }

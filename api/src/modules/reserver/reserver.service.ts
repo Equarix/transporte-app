@@ -75,6 +75,7 @@ export class ReserverService {
       driverId,
       reserverPriceFloors,
       reserverAgencies,
+      checkOutHour,
     } = createDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -111,6 +112,7 @@ export class ReserverService {
         driver,
         date,
         registerUser: findUser,
+        checkOutHour,
       });
 
       const reserverPricesFloor = await Promise.all(
