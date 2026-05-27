@@ -156,3 +156,35 @@ export interface Profile {
   typeUser: string;
   isActive: boolean;
 }
+
+export interface ResponseMapa {
+  reserverId: number;
+  date: string;
+  registerAt: string;
+  status: string;
+  checkOutHour: string;
+  checkIn: CheckIn;
+  checkOut: CheckOut;
+}
+
+export interface CheckIn {
+  destinationId: number;
+  name: string;
+  slug: string;
+  shortDescription: string;
+  longDescription: string;
+  lat: string;
+  lng: string;
+  status: boolean;
+}
+
+export interface CheckOut {
+  destinationId: number;
+  name: string;
+  slug: string;
+  shortDescription: string;
+  longDescription: string;
+  lat: string;
+  lng: string;
+  status: boolean;
+}

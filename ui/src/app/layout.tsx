@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import AuthProvider from "@/context/AuthContext";
 import Providers from "@/context/Providers";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,25 @@ export default function RootLayout({
         <Providers>{children}</Providers>
         <Toaster richColors={true} position="top-right" />
       </body>
+
+      <Script id="chatwoot" strategy="afterInteractive">
+        {`
+          (function(d,t) {
+            var BASE_URL="http://localhost:8080";
+            var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src=BASE_URL+"/packs/js/sdk.js";
+            g.async = true;
+            s.parentNode.insertBefore(g,s);
+            g.onload=function(){
+              window.chatwootSDK.run({
+                websiteToken: 'TAyBTnfYYy96FqvxDUnxvTvR',
+                baseUrl: BASE_URL
+              })
+            }
+          })(document,"script");
+        `}
+      </Script>
+
     </html>
   );
 }

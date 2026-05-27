@@ -11,4 +11,9 @@ export class PublicDestinationController {
   async getDestinations() {
     return this.publicDestinationService.getDestinations();
   }
+
+  @Get('/mapa')
+  async getDestinosConectados() {
+    return this.publicDestinationService.getDestinosConectados();
+  }
 }
