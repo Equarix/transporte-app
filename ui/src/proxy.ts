@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { errorWrapper } from "./utils/errorWrapper";
 import { instance } from "./config/axios";
 
-const protectedRoutes = ["/perfil", "/reservas"];
+const protectedRoutes = ["/perfil"];
 
 export async function proxy(request: NextRequest) {
   const headers = new Headers(request.headers);

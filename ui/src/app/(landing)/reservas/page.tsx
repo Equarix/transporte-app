@@ -32,10 +32,6 @@ export default async function Reserver({
     return res.data;
   });
 
-  if (error) {
-    return <div></div>;
-  }
-
   return (
     <BookingProvider response={data!.body}>
       <ReservePage />

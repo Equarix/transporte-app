@@ -36,7 +36,7 @@ export default function HeaderReserver() {
   const { step } = useBooking();
 
   return (
-    <header className="w-full items-center flex">
+    <header className="w-full items-center flex max-w-5xl">
       {steps.map((item, idx) => (
         <Fragment key={item.step}>
           <div className="flex flex-col gap-1 justify-center items-center">

@@ -67,11 +67,34 @@ export interface ReserverAgency {
 
 export interface Bus {
   busId: number;
+  type: string;
+  name: string;
   plate: string;
   model: string;
   year: number;
   capacity: number;
   status: boolean;
+  floors: Floor[];
+}
+
+export interface Floor {
+  floorId: number;
+  name: string;
+  order: number;
+  columns: number;
+  rows: number;
+  status: boolean;
+  seats: Seat[];
+}
+
+export interface Seat {
+  seatId: number;
+  name: string;
+  typeSeat: string;
+  status: boolean;
+  row: number;
+  column: number;
+  reserver: string;
 }
 
 export interface Galery {

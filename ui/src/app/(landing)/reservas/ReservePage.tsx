@@ -1,14 +1,14 @@
 "use client";
-
 import HeaderReserver from "@/components/modules/reserver/header-reserver/HeaderReserver";
-import { useBooking } from "@/context/BookingProvider";
+import ReserverSteps from "@/components/modules/reserver/ReserverSteps";
 
 export default function ReservePage() {
-  const { response } = useBooking();
-  console.log(response);
   return (
-    <main className="w-full h-full flex items-center justify-center p-10">
-      <HeaderReserver />
+    <main className="w-full min-h-[calc(100vh-80px)] bg-[#fdfcfb] flex flex-col items-center p-4 md:p-10">
+      <div className="w-full space-y-8 max-w-5xl mx-auto">
+        <HeaderReserver />
+        <ReserverSteps />
+      </div>
     </main>
   );
 }

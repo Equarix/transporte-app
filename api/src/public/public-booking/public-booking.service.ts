@@ -63,4 +63,25 @@ export class PublicBookingService {
       })),
     };
   }
+
+  async getBus(idReservation: number) {
+    const reserver = await this.reserverRepository.findOne({
+      where: {
+        reserverId: idReservation,
+      },
+      relations: {
+        bus: {
+          floors: {
+            seats: true,
+          },
+        },
+      },
+    });
+
+    if (!reserver) {
+      throw new NotFoundException('Reservation not found');
+    }
+
+    return reserver.bus;
+  }
 }
