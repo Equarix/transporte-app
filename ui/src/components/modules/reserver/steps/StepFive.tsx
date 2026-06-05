@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
+import { ResponseSaveReserver } from "@/interface/save-reserver.interface";
+
 export default function StepFive() {
   const {
     selectedSeats,
@@ -66,8 +68,14 @@ export default function StepFive() {
       });
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data: ResponseSaveReserver) => {
       toast.success("¡Pago procesado con éxito!");
+      const dataToSave = {
+        ...data,
+        originName,
+        destinationName,
+      };
+      localStorage.setItem("lastBookingResult", JSON.stringify(dataToSave));
       router.push("/reservas/completo");
     },
     onError: (err) => {

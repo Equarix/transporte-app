@@ -7,13 +7,13 @@ import {
 } from 'typeorm';
 import { Sale } from '../../sales/entities/sale.entity';
 
-enum PointsFrom {
+export enum PointsFrom {
   SALE = 'SALE',
   PROMOTION = 'PROMOTION',
   REWARD = 'REWARD',
 }
 
-enum TypePointsMovement {
+export enum TypePointsMovement {
   ADDITION = 'ADDITION',
   SUBTRACTION = 'SUBTRACTION',
 }

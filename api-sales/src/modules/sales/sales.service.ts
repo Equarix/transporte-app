@@ -5,7 +5,11 @@ import { Sale, SaleFrom } from './entities/sale.entity';
 import { DataSource, Repository } from 'typeorm';
 import { SaleDetail } from './entities/sale_detail.entity';
 import { HotelDetail } from './entities/hotel_detail.entity';
-import { PointsUser } from '../points-user/entities/points-user.entity';
+import {
+  PointsFrom,
+  PointsUser,
+  TypePointsMovement,
+} from '../points-user/entities/points-user.entity';
 import { SalePayer } from './entities/sale_payer.entity';
 import { parse } from 'date-fns';
 
@@ -122,6 +126,25 @@ export class SalesService {
       responseSale = {
         ...responseSale,
         saleDetails: saveSaleDetails,
+      };
+
+      const pointUsers = await Promise.all(
+        passengers.map((passenger) => {
+          const points = Math.floor(passenger.price / 10);
+          const savePointsUser = queryRunner.manager.save(PointsUser, {
+            userId,
+            points,
+            pointsFrom: PointsFrom.SALE,
+            type: TypePointsMovement.ADDITION,
+            sale: saveSale,
+          });
+          return savePointsUser;
+        }),
+      );
+
+      responseSale = {
+        ...responseSale,
+        pointsUsers: pointUsers,
       };
 
       await queryRunner.commitTransaction();
