@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { Map, useMap } from "@vis.gl/react-google-maps";
 import { ResponseMapa } from "@/interface/response.interface";
 
-// Component to render actual driving route instead of a straight line
 function DirectionsRoute({ path, color }: { path: google.maps.LatLngLiteral[], color: string }) {
   const map = useMap();
   
@@ -13,7 +12,7 @@ function DirectionsRoute({ path, color }: { path: google.maps.LatLngLiteral[], c
     const directionsService = new google.maps.DirectionsService();
     const directionsRenderer = new google.maps.DirectionsRenderer({
       map,
-      suppressMarkers: true, // We'll let you add custom markers if needed, or set false to see default A/B pins
+      suppressMarkers: true, 
       polylineOptions: {
         strokeColor: color,
         strokeOpacity: 0.8,

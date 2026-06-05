@@ -1,15 +1,22 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { HotelDetail } from './hotel_detail.entity';
 import { SaleDetail } from './sale_detail.entity';
 import { PointsUser } from '../../../modules/points-user/entities/points-user.entity';
+import { SalePayer } from './sale_payer.entity';
 
-enum StatusSale {
+export enum StatusSale {
   PENDING = 'PENDIENTE',
   APPROVED = 'APROBADO',
   CANCELLED = 'CANCELADO',
 }
 
-enum SaleFrom {
+export enum SaleFrom {
   WEB = 'WEB',
   TAQUILLA = 'TAQUILLA',
 }
@@ -49,7 +56,7 @@ export class Sale {
   @Column()
   toDestinationId: number;
 
-  @Column()
+  @Column({ nullable: true })
   agencyId: number;
 
   @Column()
@@ -57,4 +64,7 @@ export class Sale {
 
   @OneToMany(() => PointsUser, (pointsUser) => pointsUser.sale)
   pointsUsers: PointsUser[];
+
+  @ManyToOne(() => SalePayer, (salePayer) => salePayer.sale)
+  salePayer: SalePayer;
 }

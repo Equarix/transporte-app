@@ -14,6 +14,7 @@ interface StepFiveSidebarProps {
   onPay: () => void;
   isReadyToPay: boolean;
   isPending?: boolean;
+  hotelSelected?: any | null;
 }
 
 export default function StepFiveSidebar({
@@ -28,11 +29,22 @@ export default function StepFiveSidebar({
   onPay,
   isReadyToPay,
   isPending,
+  hotelSelected,
 }: StepFiveSidebarProps) {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  const hotelNights = (() => {
+    if (!hotelSelected?.checkIn || !hotelSelected?.checkOut) return hotelSelected?.nights || 1;
+    const checkInDate = new Date(hotelSelected.checkIn);
+    const checkOutDate = new Date(hotelSelected.checkOut);
+    const diffTime = Math.abs(checkOutDate.getTime() - checkInDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 1;
+  })();
+  const hotelCost = hotelSelected ? (hotelSelected.price_per_night * hotelNights) : 0;
+
   const subtotal = selectedSeats.reduce((acc, seat) => acc + seat.price, 0);
-  const total = subtotal + serviceCharge;
+  const total = subtotal + serviceCharge + hotelCost;
 
   return (
     <div className="bg-[#f8f6f4] rounded-4xl p-8 border border-gray-100 flex flex-col h-full sticky top-4">
@@ -91,6 +103,21 @@ export default function StepFiveSidebar({
         </div>
       </div>
 
+      {hotelSelected && (
+        <div className="flex flex-col mb-8 pb-6 border-b border-gray-200">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+            Estancia en Hotel
+          </p>
+          <p className="text-sm font-bold text-gray-900 mb-1">
+            {hotelSelected.name}
+          </p>
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>Entrada: {hotelSelected.checkIn}</span>
+            <span>Salida: {hotelSelected.checkOut}</span>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
         <div className="space-y-4 mb-6">
           <div className="flex justify-between items-center text-sm">
@@ -99,12 +126,24 @@ export default function StepFiveSidebar({
               S/ {subtotal.toFixed(2)}
             </span>
           </div>
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-500">Cargos por Servicio</span>
-            <span className="font-bold text-gray-900">
-              S/ {serviceCharge.toFixed(2)}
-            </span>
-          </div>
+          {hotelSelected && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-500">
+                Hotel ({hotelNights} {hotelNights === 1 ? "noche" : "noches"})
+              </span>
+              <span className="font-bold text-gray-900">
+                S/ {hotelCost.toFixed(2)}
+              </span>
+            </div>
+          )}
+          {serviceCharge > 0 && (
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-500">Cargos por Servicio</span>
+              <span className="font-bold text-gray-900">
+                S/ {serviceCharge.toFixed(2)}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-between items-end pt-4 border-t border-gray-100">

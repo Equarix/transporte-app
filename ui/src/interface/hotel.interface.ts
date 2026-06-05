@@ -18,6 +18,8 @@ export interface Daum {
   url_map: string;
   tax_info: string;
   Distance: number;
+  checkIn?: string;
+  checkOut?: string;
 }
 
 export interface Meta {

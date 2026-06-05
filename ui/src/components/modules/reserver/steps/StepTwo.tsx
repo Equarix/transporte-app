@@ -9,7 +9,39 @@ import { LuFilter, LuArrowRight } from "react-icons/lu";
 import { useQuery } from "@tanstack/react-query";
 
 export default function StepTwo() {
-  const { response, setHotelSelected, setStep } = useBooking();
+  const { response, setHotelSelected, setStep, reserverSelected } = useBooking();
+
+  const [checkIn, setCheckIn] = React.useState(() => {
+    if (reserverSelected?.date) {
+      return reserverSelected.date.split("T")[0];
+    }
+    return new Date().toISOString().split("T")[0];
+  });
+
+  const [checkOut, setCheckOut] = React.useState(() => {
+    const baseDate = reserverSelected?.date ? new Date(reserverSelected.date) : new Date();
+    baseDate.setDate(baseDate.getDate() + 1);
+    return baseDate.toISOString().split("T")[0];
+  });
+
+  const handleCheckInChange = (val: string) => {
+    setCheckIn(val);
+    if (new Date(checkOut) <= new Date(val)) {
+      const nextDay = new Date(val);
+      nextDay.setDate(nextDay.getDate() + 1);
+      setCheckOut(nextDay.toISOString().split("T")[0]);
+    }
+  };
+
+  const handleCheckOutChange = (val: string) => {
+    if (new Date(val) <= new Date(checkIn)) {
+      const nextDay = new Date(checkIn);
+      nextDay.setDate(nextDay.getDate() + 1);
+      setCheckOut(nextDay.toISOString().split("T")[0]);
+    } else {
+      setCheckOut(val);
+    }
+  };
 
   const lat = response?.destination?.lat || "-12.046374";
   const lng = response?.destination?.lng || "-77.042793";
@@ -31,7 +63,18 @@ export default function StepTwo() {
   };
 
   const handleSelectHotel = (hotel: Daum) => {
-    setHotelSelected(hotel);
+    // Calculate nights for hotel
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const diffTime = Math.abs(checkOutDate.getTime() - checkInDate.getTime());
+    const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+
+    setHotelSelected({
+      ...hotel,
+      nights,
+      checkIn: checkIn,
+      checkOut: checkOut,
+    });
     setStep(3);
   };
 
@@ -57,6 +100,42 @@ export default function StepTwo() {
           <button className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-5 rounded-full text-sm transition-colors">
             Precio
           </button>
+        </div>
+      </div>
+
+      {/* Date Pickers Container */}
+      <div className="w-full max-w-5xl bg-white p-6 rounded-3xl border border-gray-100 shadow-sm mb-6 flex flex-col md:flex-row gap-6 items-center justify-between">
+        <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto flex-1">
+          <div className="flex-1">
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
+              Fecha de Entrada (Check-in)
+            </label>
+            <input
+              type="date"
+              value={checkIn}
+              onChange={(e) => handleCheckInChange(e.target.value)}
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-600 transition-all"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
+              Fecha de Salida (Check-out)
+            </label>
+            <input
+              type="date"
+              value={checkOut}
+              onChange={(e) => handleCheckOutChange(e.target.value)}
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-600 transition-all"
+            />
+          </div>
+        </div>
+        <div className="text-right shrink-0 mt-4 md:mt-0">
+          <span className="text-xs font-bold text-amber-700 block mb-1">
+            Fechas de Estancia
+          </span>
+          <span className="text-sm font-black text-gray-900">
+            {checkIn} hasta {checkOut}
+          </span>
         </div>
       </div>
 

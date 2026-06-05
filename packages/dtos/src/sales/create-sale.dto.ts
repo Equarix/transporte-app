@@ -115,8 +115,13 @@ export class HotelDto {
   @IsString()
   tax_info: string;
 
-  @IsNumber()
-  Distance: number;
+  @IsString()
+  @IsOptional()
+  checkIn?: string;
+
+  @IsString()
+  @IsOptional()
+  checkOut?: string;
 }
 
 /* =========================
@@ -190,7 +195,7 @@ export class CreateSaleDto {
   paymentMethod: PaymentMethodDto;
 
   @IsNumber()
-  serviceCharge: number;
+  busId: number;
 
   @ValidateNested()
   @IsOptional()
@@ -201,4 +206,12 @@ export class CreateSaleDto {
   @ValidateNested({ each: true })
   @Type(() => PassengerDto)
   passengers: PassengerDto[];
+
+  @IsNumber()
+  @IsNotEmpty()
+  fromDestinationId: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  toDestinationId: number;
 }

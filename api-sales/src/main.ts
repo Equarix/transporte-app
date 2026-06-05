@@ -1,6 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Transport, MicroserviceOptions } from '@nestjs/microservices';
+import {
+  Transport,
+  MicroserviceOptions,
+  RpcException,
+} from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -18,8 +22,15 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        return new RpcException({
+          statusCode: 400,
+          errors: errors.map((error) => ({
+            property: error.property,
+            constraints: error.constraints,
+          })),
+        });
+      },
     }),
   );
 

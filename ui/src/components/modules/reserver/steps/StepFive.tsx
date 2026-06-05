@@ -21,6 +21,7 @@ export default function StepFive() {
     reserverSelected,
     hotelSelected,
     setStep,
+    bus,
   } = useBooking();
 
   const originName = response?.origin?.name || "TRUJILLO";
@@ -82,8 +83,10 @@ export default function StepFive() {
       reserverId: reserverSelected.reserverId,
       payer: payerData,
       paymentMethod: paymentMethod,
-      serviceCharge: 5.0,
       hotel: hotelSelected,
+      busId: bus?.busId || 0,
+      fromDestinationId: response?.origin?.destinationId || 0,
+      toDestinationId: response?.destination?.destinationId || 0,
       passengers: passengers.map((p, index: number) => {
         const seat = selectedSeats[index];
         return {
@@ -114,7 +117,6 @@ export default function StepFive() {
           </div>
         </div>
 
-        {/* Right Side: Sidebar */}
         <div className="col-span-1 h-full relative">
           <StepFiveSidebar
             origin={originName}
@@ -124,12 +126,14 @@ export default function StepFive() {
             date={travelDate}
             time={travelTime}
             selectedSeats={selectedSeats}
-            serviceCharge={5.0} // Mocked service charge
+            serviceCharge={0.0}
             onPay={handlePay}
             isReadyToPay={isReadyToPay}
             isPending={isPending}
+            hotelSelected={hotelSelected}
           />
         </div>
+
       </div>
     </div>
   );

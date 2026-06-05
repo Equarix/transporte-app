@@ -13,6 +13,11 @@ enum PointsFrom {
   REWARD = 'REWARD',
 }
 
+enum TypePointsMovement {
+  ADDITION = 'ADDITION',
+  SUBTRACTION = 'SUBTRACTION',
+}
+
 @Entity()
 export class PointsUser {
   @PrimaryGeneratedColumn()
@@ -35,6 +40,12 @@ export class PointsUser {
     default: PointsFrom.SALE,
   })
   pointsFrom: PointsFrom;
+
+  @Column({
+    type: 'varchar',
+    default: TypePointsMovement.ADDITION,
+  })
+  type: TypePointsMovement;
 
   @ManyToOne(() => Sale, (sale) => sale.pointsUsers)
   sale: Relation<Sale>;

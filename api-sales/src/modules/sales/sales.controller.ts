@@ -1,14 +1,14 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SalesService } from './sales.service';
-import { CreateSaleDto } from '@transporte/dtos';
+import { CreateSaleDtoService } from './dto/create-sale.dto';
 
 @Controller()
 export class SalesController {
   constructor(private readonly salesService: SalesService) {}
 
   @MessagePattern('createSale')
-  create(@Payload() createSaleDto: CreateSaleDto) {
+  create(@Payload() createSaleDto: CreateSaleDtoService) {
     return this.salesService.create(createSaleDto);
   }
 

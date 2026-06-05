@@ -28,13 +28,19 @@ export class SaleDetail {
   name: string;
 
   @Column()
-  phone: string;
-
-  @Column()
-  clientId: string;
-
-  @Column()
   amount: number;
+
+  @Column()
+  row: number;
+
+  @Column()
+  column: number;
+
+  @Column()
+  floor: number;
+
+  @Column()
+  typeSeat: string;
 
   @ManyToOne(() => Sale, (sale) => sale.saleDetails)
   sale: Relation<Sale>;

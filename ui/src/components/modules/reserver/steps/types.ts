@@ -31,5 +31,7 @@ export interface BookingPayload {
   paymentMethod: PaymentMethod;
   passengers: BookingPassenger[];
   hotel?: Hotel | null;
-  serviceCharge: number;
+  busId: number;
+  fromDestinationId: number;
+  toDestinationId: number;
 }
