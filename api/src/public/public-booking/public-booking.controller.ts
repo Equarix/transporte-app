@@ -49,7 +49,16 @@ export class PublicBookingController implements OnModuleInit {
   @Auth()
   @Post('/pay')
   async pay(@Body() data: CreateSaleDto, @User('userId') userId: number) {
-    return this.paymentClient.send('createSale', { ...data, userId: userId });
+    // Verificar si el usuario comprador con el documentNumber existe en la base de datos
+    const dbUser = await this.publicBookingService.checkUserByDocument(
+      data.payer.documentType,
+      data.payer.documentNumber
+    );
+    
+    // Si es un bot o si coincide con el userId autenticado, usar ese userId.
+    // De lo contrario, usar el userId del comprador encontrado por su documentNumber.
+    const targetUserId = dbUser ? dbUser.userId : userId;
+    return this.paymentClient.send('createSale', { ...data, userId: targetUserId });
   }
 
   @Auth()

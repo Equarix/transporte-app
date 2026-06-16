@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Destination } from 'src/modules/destination/entities/destination.entity';
 import { Reserver } from 'src/modules/reserver/entities/reserver.entity';
+import { User } from 'src/modules/auth/entities/user.entity';
 import { Between, DataSource, In, Repository } from 'typeorm';
 import { QueryDestinationDto } from './dto/query-destination.dto';
 import { StatusReserverEnum } from 'src/modules/reserver/enum/status-reserver.enum';
@@ -15,10 +16,28 @@ export class PublicBookingService {
     private destinationRepository: Repository<Destination>,
     @InjectRepository(Reserver)
     private reserverRepository: Repository<Reserver>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     private datasource: DataSource,
     @Inject('PAYMENT_SERVICE')
     private readonly paymentClient: ClientProxy,
   ) {}
+
+  async checkUserByDocument(typeDocument: string, documentNumber: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        typeDocument,
+        documentNumber,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `El usuario con documento ${documentNumber} no está registrado. Debe registrarse primero para poder comprar boletos.`,
+      );
+    }
+    return user;
+  }
 
   async getDestinations(query: QueryDestinationDto) {
     const { origin, destination, checkIn } = query;
