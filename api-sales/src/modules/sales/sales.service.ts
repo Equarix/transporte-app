@@ -157,15 +157,94 @@ export class SalesService {
     }
   }
 
+  async getSalesReport() {
+    const kpis = await this.saleDetailRepository.createQueryBuilder('detail')
+      .select('SUM(detail.amount)', 'totalRevenue')
+      .addSelect('COUNT(detail.saleDetailId)', 'ticketsSold')
+      .getRawOne();
+      
+    const salesCount = await this.saleRepository.count();
+    const ticketsSold = parseInt(kpis?.ticketsSold || '0', 10);
+    const totalRevenue = parseInt(kpis?.totalRevenue || '0', 10);
+    
+    // Calculate dynamic occupancy: tickets sold / (sales/trips * average capacity of 50)
+    const occupancyRate = salesCount > 0 ? Math.min(Math.round((ticketsSold / (salesCount * 50)) * 100), 100) : 0;
+    
+    // Group monthly trends
+    const trendsRaw = await this.saleRepository.createQueryBuilder('sale')
+      .select('YEAR(sale.createdAt)', 'year')
+      .addSelect('MONTH(sale.createdAt)', 'month')
+      .addSelect('sale.purchaseFrom', 'purchaseFrom')
+      .addSelect('SUM(detail.amount)', 'total')
+      .innerJoin('sale.saleDetails', 'detail')
+      .groupBy('YEAR(sale.createdAt), MONTH(sale.createdAt), sale.purchaseFrom')
+      .orderBy('YEAR(sale.createdAt)', 'ASC')
+      .addOrderBy('MONTH(sale.createdAt)', 'ASC')
+      .getRawMany();
+
+    // Map trends to a friendly output format
+    const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const trendsMap: Record<string, { month: string; direct: number; agencies: number }> = {};
+
+    for (const raw of trendsRaw) {
+      const year = raw.year;
+      const monthIdx = parseInt(raw.month, 10) - 1;
+      const label = `${monthNames[monthIdx]} ${year}`;
+      
+      if (!trendsMap[label]) {
+        trendsMap[label] = { month: label, direct: 0, agencies: 0 };
+      }
+      
+      const val = parseInt(raw.total || '0', 10);
+      if (raw.purchaseFrom === 'WEB') {
+        trendsMap[label].direct += val;
+      } else {
+        trendsMap[label].agencies += val;
+      }
+    }
+
+    const trends = Object.values(trendsMap);
+
+    // Get recent transactions
+    const recentSales = await this.saleRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 100,
+      relations: {
+        saleDetails: true,
+        salePayer: true,
+      }
+    });
+
+    return {
+      totalRevenue,
+      ticketsSold,
+      growthRate: 8.2, // Mock growth rate or calculated
+      occupancyRate,
+      trends,
+      recentSales,
+    };
+  }
+
   findAll() {
-    return `This action returns all sales`;
+    return this.saleRepository.find({
+      relations: {
+        saleDetails: true,
+        salePayer: true,
+      }
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} sale`;
+    return this.saleRepository.findOne({
+      where: { saleId: id },
+      relations: {
+        saleDetails: true,
+        salePayer: true,
+      }
+    });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} sale`;
+    return this.saleRepository.delete(id);
   }
 }

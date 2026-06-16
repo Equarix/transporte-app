@@ -1,5 +1,13 @@
 import type { SidebarItemProps } from "@/components/layouts/Sidebar/SidebarItem";
-import { LuBus, LuHouse, LuImage, LuMap, LuPlus, LuUser } from "react-icons/lu";
+import {
+  LuBus,
+  LuHouse,
+  LuImage,
+  LuMap,
+  LuPlus,
+  LuUser,
+  LuChartBar,
+} from "react-icons/lu";
 import { AiOutlineShop } from "react-icons/ai";
 import { GrSchedules } from "react-icons/gr";
 interface SideBarConfigProps {
@@ -14,6 +22,19 @@ export const SideBarConfig: SideBarConfigProps = {
       icon: <LuHouse />,
       children: [],
       href: "/",
+    },
+    {
+      label: "Reportes",
+      icon: <LuChartBar />,
+      children: [
+        {
+          label: "Reporte de Ventas",
+          href: "/reports/sales",
+          icon: <LuChartBar />,
+          children: [],
+        },
+      ],
+      href: "/reports/sales",
     },
     {
       label: "Destinos",

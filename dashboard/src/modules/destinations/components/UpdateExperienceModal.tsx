@@ -197,8 +197,8 @@ export default function UpdateExperienceModal({
                     lng: Number(watchLng) || -77.0428,
                   }}
                   setPosistion={(position) => {
-                    setValue("lat", position.lat);
-                    setValue("lng", position.lng);
+                    setValue("lat", String(position.lat));
+                    setValue("lng", String(position.lng));
                   }}
                   style={{
                     minHeight: "450px",

@@ -17,6 +17,11 @@ export class SalesController {
     return this.salesService.findAll();
   }
 
+  @MessagePattern('getSalesReport')
+  getSalesReport() {
+    return this.salesService.getSalesReport();
+  }
+
   @MessagePattern('findOneSale')
   findOne(@Payload() id: number) {
     return this.salesService.findOne(id);
