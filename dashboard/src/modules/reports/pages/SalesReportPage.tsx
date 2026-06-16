@@ -3,6 +3,7 @@ import {
   useSalesReport,
   type RecentTransaction,
 } from "../hooks/useSalesReport";
+import { exportToExcel } from "@/utils/exportUtils";
 import {
   LuDollarSign,
   LuTicket,
@@ -350,9 +351,28 @@ export default function SalesReportPage() {
               <LuFilter size={14} />
               Filtrar
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 border border-zinc-200 dark:border-zinc-800 text-xs font-semibold rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+            <button
+              onClick={() => {
+                const exportData = data.recentSales.map((s) => ({
+                  "Reserva ID": s.bookingId,
+                  "Ruta": s.route,
+                  "Clase de Bus": s.busClass,
+                  "Cliente": s.customer,
+                  "Estado": s.status,
+                  "Fecha": new Date(s.date).toLocaleDateString("es-PE"),
+                  "Monto (USD)": s.amount,
+                }));
+                exportToExcel(
+                  exportData,
+                  ["Reserva ID", "Ruta", "Clase de Bus", "Cliente", "Estado", "Fecha", "Monto (USD)"],
+                  ["Reserva ID", "Ruta", "Clase de Bus", "Cliente", "Estado", "Fecha", "Monto (USD)"],
+                  "Reporte_Ventas_Recientes"
+                );
+              }}
+              className="flex items-center gap-2 px-4 py-2 border border-zinc-200 dark:border-zinc-800 text-xs font-semibold rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+            >
               <LuDownload size={14} />
-              Exportar Hoja
+              Exportar Excel
             </button>
           </div>
         </div>

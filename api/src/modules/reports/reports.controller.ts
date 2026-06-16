@@ -12,4 +12,24 @@ export class ReportsController {
   async getSalesReport() {
     return this.reportsService.getSalesReport();
   }
+
+  @Get('points')
+  async getPointsReport() {
+    return this.reportsService.getPointsReport();
+  }
+
+  @Get('sales-agents')
+  async getSalesAgentReport() {
+    return this.reportsService.getSalesAgentReport();
+  }
+
+  @Get('agencies')
+  async getAgencyReport() {
+    return this.reportsService.getAgencyReport();
+  }
+
+  @Get('routes')
+  async getRoutesReport() {
+    return this.reportsService.getRoutesReport();
+  }
 }

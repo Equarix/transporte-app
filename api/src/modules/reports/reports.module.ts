@@ -5,12 +5,14 @@ import { Destination } from '../destination/entities/destination.entity';
 import { Bus } from '../bus/entities/bus.entity';
 import { Profile } from '../user/entities/profile.entity';
 import { User } from '../auth/entities/user.entity';
+import { UserAgency } from '../auth/entities/user-agency.entity';
+import { Agency } from '../agency/entities/agency.entity';
 import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Destination, Bus, Profile, User]),
+    TypeOrmModule.forFeature([Destination, Bus, Profile, User, UserAgency, Agency]),
     ClientsModule.register([
       {
         name: 'PAYMENT_SERVICE',

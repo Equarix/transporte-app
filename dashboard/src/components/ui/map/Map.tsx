@@ -147,11 +147,9 @@ export default function Mapa({
             height: "100%",
           }}
           {...camaraProps}
-          options={{
-            styles: theme === "dark" ? mapDarkStyle : [],
-            disableDefaultUI: true,
-            zoomControl: true,
-          }}
+          disableDefaultUI={true}
+          zoomControl={true}
+          styles={theme === "dark" ? mapDarkStyle : []}
           onClick={(e) => {
             setPosistion?.(
               e.detail.latLng ? e.detail.latLng : { lat: 0, lng: 0 },

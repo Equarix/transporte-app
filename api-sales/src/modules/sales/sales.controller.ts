@@ -31,4 +31,19 @@ export class SalesController {
   remove(@Payload() id: number) {
     return this.salesService.remove(id);
   }
+
+  @MessagePattern('getSalesAgentReport')
+  getSalesAgentReport() {
+    return this.salesService.getSalesAgentReport();
+  }
+
+  @MessagePattern('getAgencyReport')
+  getAgencyReport() {
+    return this.salesService.getAgencyReport();
+  }
+
+  @MessagePattern('getRoutesReport')
+  getRoutesReport() {
+    return this.salesService.getRoutesReport();
+  }
 }

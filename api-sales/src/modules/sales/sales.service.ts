@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSaleDtoService } from './dto/create-sale.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Sale, SaleFrom } from './entities/sale.entity';
+import { Sale, SaleFrom, StatusSale } from './entities/sale.entity';
 import { DataSource, Repository } from 'typeorm';
 import { SaleDetail } from './entities/sale_detail.entity';
 import { HotelDetail } from './entities/hotel_detail.entity';
@@ -215,10 +215,36 @@ export class SalesService {
       }
     });
 
+    // Calculate real monthly growth rate comparing this month vs last month
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    const thisMonthRes = await this.saleDetailRepository.createQueryBuilder('detail')
+      .select('SUM(detail.amount)', 'total')
+      .innerJoin('detail.sale', 'sale')
+      .where('sale.createdAt >= :start', { start: startOfThisMonth })
+      .getRawOne();
+
+    const lastMonthRes = await this.saleDetailRepository.createQueryBuilder('detail')
+      .select('SUM(detail.amount)', 'total')
+      .innerJoin('detail.sale', 'sale')
+      .where('sale.createdAt >= :start AND sale.createdAt <= :end', { start: startOfLastMonth, end: endOfLastMonth })
+      .getRawOne();
+
+    const thisMonthTotal = parseFloat(thisMonthRes?.total || '0');
+    const lastMonthTotal = parseFloat(lastMonthRes?.total || '0');
+
+    let growthRate = 0;
+    if (lastMonthTotal > 0) {
+      growthRate = Math.round(((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100 * 10) / 10;
+    }
+
     return {
       totalRevenue,
       ticketsSold,
-      growthRate: 8.2, // Mock growth rate or calculated
+      growthRate,
       occupancyRate,
       trends,
       recentSales,
@@ -246,5 +272,171 @@ export class SalesService {
 
   remove(id: number) {
     return this.saleRepository.delete(id);
+  }
+
+  async getSalesAgentReport() {
+    // 1. Fetch approved sales with ticket count and revenue grouped by agencyId
+    const approvedSales = await this.saleRepository.find({
+      where: { status: StatusSale.APPROVED },
+      relations: {
+        saleDetails: true,
+      },
+    });
+
+    // We can group sales in-memory to keep it simple, clean, and robust
+    const agencyMetricsMap: Record<number, { ticketsSold: number; totalSales: number; conversionCount: number; totalCount: number }> = {};
+
+    for (const sale of approvedSales) {
+      if (!sale.agencyId) continue;
+      if (!agencyMetricsMap[sale.agencyId]) {
+        agencyMetricsMap[sale.agencyId] = { ticketsSold: 0, totalSales: 0, conversionCount: 0, totalCount: 0 };
+      }
+      
+      const tickets = sale.saleDetails?.length || 0;
+      const salesVal = (sale.saleDetails || []).reduce((sum, det) => sum + (det.amount || 0), 0);
+      
+      agencyMetricsMap[sale.agencyId].ticketsSold += tickets;
+      agencyMetricsMap[sale.agencyId].totalSales += salesVal;
+      agencyMetricsMap[sale.agencyId].conversionCount += 1; // approved counts as converted
+    }
+
+    // Also count total (approved + pending + cancelled) sales per agency to calculate conversion rate
+    const allSales = await this.saleRepository.find({
+      where: { purchaseFrom: SaleFrom.TAQUILLA }
+    });
+
+    for (const sale of allSales) {
+      if (!sale.agencyId) continue;
+      if (!agencyMetricsMap[sale.agencyId]) {
+        agencyMetricsMap[sale.agencyId] = { ticketsSold: 0, totalSales: 0, conversionCount: 0, totalCount: 0 };
+      }
+      agencyMetricsMap[sale.agencyId].totalCount += 1;
+    }
+
+    const agencyMetrics = Object.entries(agencyMetricsMap).map(([agencyId, metrics]) => {
+      const convRate = metrics.totalCount > 0 
+        ? Math.round((metrics.conversionCount / metrics.totalCount) * 1000) / 10
+        : 70.0; // default conversion fallback
+
+      return {
+        agencyId: parseInt(agencyId, 10),
+        ticketsSold: metrics.ticketsSold,
+        totalSales: metrics.totalSales,
+        conversionRate: convRate,
+      };
+    });
+
+    return {
+      agencyMetrics,
+    };
+  }
+
+  async getAgencyReport() {
+    const approvedSales = await this.saleRepository.find({
+      where: { status: StatusSale.APPROVED },
+      relations: {
+        saleDetails: true,
+      },
+    });
+
+    const metricsMap: Record<number, { ticketsSold: number; totalSales: number; conversionCount: number; totalCount: number }> = {};
+
+    for (const sale of approvedSales) {
+      if (!sale.agencyId) continue;
+      if (!metricsMap[sale.agencyId]) {
+        metricsMap[sale.agencyId] = { ticketsSold: 0, totalSales: 0, conversionCount: 0, totalCount: 0 };
+      }
+      const tickets = sale.saleDetails?.length || 0;
+      const salesVal = (sale.saleDetails || []).reduce((sum, det) => sum + (det.amount || 0), 0);
+      
+      metricsMap[sale.agencyId].ticketsSold += tickets;
+      metricsMap[sale.agencyId].totalSales += salesVal;
+      metricsMap[sale.agencyId].conversionCount += 1;
+    }
+
+    const allSales = await this.saleRepository.find({
+      where: { purchaseFrom: SaleFrom.TAQUILLA }
+    });
+
+    for (const sale of allSales) {
+      if (!sale.agencyId) continue;
+      if (!metricsMap[sale.agencyId]) {
+        metricsMap[sale.agencyId] = { ticketsSold: 0, totalSales: 0, conversionCount: 0, totalCount: 0 };
+      }
+      metricsMap[sale.agencyId].totalCount += 1;
+    }
+
+    const agencyMetrics = Object.entries(metricsMap).map(([agencyId, metrics]) => {
+      const convRate = metrics.totalCount > 0 
+        ? Math.round((metrics.conversionCount / metrics.totalCount) * 100)
+        : 70;
+
+      return {
+        agencyId: parseInt(agencyId, 10),
+        ticketsSold: metrics.ticketsSold,
+        totalSales: metrics.totalSales,
+        conversionRate: convRate,
+      };
+    });
+
+    return {
+      agencyMetrics,
+    };
+  }
+
+  async getRoutesReport() {
+    const approvedSales = await this.saleRepository.find({
+      where: { status: StatusSale.APPROVED },
+      relations: {
+        saleDetails: true,
+      },
+    });
+
+    const routeMetricsMap: Record<string, {
+      fromDestinationId: number;
+      toDestinationId: number;
+      ticketsSold: number;
+      revenue: number;
+      salesCount: number;
+    }> = {};
+
+    for (const sale of approvedSales) {
+      if (sale.fromDestinationId === null || sale.fromDestinationId === undefined || sale.toDestinationId === null || sale.toDestinationId === undefined) continue;
+      const key = `${sale.fromDestinationId}-${sale.toDestinationId}`;
+      if (!routeMetricsMap[key]) {
+        routeMetricsMap[key] = {
+          fromDestinationId: sale.fromDestinationId,
+          toDestinationId: sale.toDestinationId,
+          ticketsSold: 0,
+          revenue: 0,
+          salesCount: 0,
+        };
+      }
+      
+      const tickets = sale.saleDetails?.length || 0;
+      const amount = (sale.saleDetails || []).reduce((sum, det) => sum + (det.amount || 0), 0);
+      
+      routeMetricsMap[key].ticketsSold += tickets;
+      routeMetricsMap[key].revenue += amount;
+      routeMetricsMap[key].salesCount += 1;
+    }
+
+    const routeMetrics = Object.values(routeMetricsMap).map((m) => {
+      const loadFactor = m.salesCount > 0 
+        ? Math.min(Math.round((m.ticketsSold / (m.salesCount * 50)) * 100), 100)
+        : 0;
+
+      return {
+        fromDestinationId: m.fromDestinationId,
+        toDestinationId: m.toDestinationId,
+        ticketsSold: m.ticketsSold,
+        revenue: m.revenue,
+        loadFactor,
+      };
+    });
+
+    return {
+      routeMetrics,
+    };
   }
 }

@@ -5,6 +5,12 @@ import AgencyRoutes from "../agency/agency.routes";
 import BusRoutes from "../bus/bus.routes";
 import UserRoutes from "../user/user.routes";
 import SalesReportPage from "@/modules/reports/pages/SalesReportPage";
+import PointsReportPage from "@/modules/reports/pages/PointsReportPage";
+import SalesAgentReportPage from "@/modules/reports/pages/SalesAgentReportPage";
+import AgencyReportPage from "@/modules/reports/pages/AgencyReportPage";
+import RoutesReportPage from "@/modules/reports/pages/RoutesReportPage";
+import MapProvider from "@/components/providers/MapProvider";
+import { ENV } from "@/config/env";
 
 export default function DashboardRoutes() {
   return (
@@ -16,6 +22,24 @@ export default function DashboardRoutes() {
       <Route path="/agency/*" element={<AgencyRoutes />} />
       <Route path="/user/*" element={<UserRoutes />} />
       <Route path="/reports/sales" element={<SalesReportPage />} />
+      <Route path="/reports/points" element={<PointsReportPage />} />
+      <Route path="/reports/sales-agents" element={<SalesAgentReportPage />} />
+      <Route
+        path="/reports/agencies"
+        element={
+          <MapProvider apiKey={ENV.GOOGLE_MAPS}>
+            <AgencyReportPage />
+          </MapProvider>
+        }
+      />
+      <Route
+        path="/reports/routes"
+        element={
+          <MapProvider apiKey={ENV.GOOGLE_MAPS}>
+            <RoutesReportPage />
+          </MapProvider>
+        }
+      />
     </Routes>
   );
 }

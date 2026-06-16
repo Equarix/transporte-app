@@ -32,4 +32,9 @@ export class PointsUserController {
   remove(@Payload() id: number) {
     return this.pointsUserService.remove(id);
   }
+
+  @MessagePattern('getPointsReport')
+  getPointsReport() {
+    return this.pointsUserService.getPointsReport();
+  }
 }
