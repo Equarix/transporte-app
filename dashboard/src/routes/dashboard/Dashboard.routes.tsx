@@ -11,6 +11,7 @@ import AgencyReportPage from "@/modules/reports/pages/AgencyReportPage";
 import RoutesReportPage from "@/modules/reports/pages/RoutesReportPage";
 import MapProvider from "@/components/providers/MapProvider";
 import { ENV } from "@/config/env";
+import PromosPage from "@/modules/promos/pages/PromosPage";
 
 export default function DashboardRoutes() {
   return (
@@ -40,6 +41,7 @@ export default function DashboardRoutes() {
           </MapProvider>
         }
       />
+      <Route path="/promos" element={<PromosPage />} />
     </Routes>
   );
 }

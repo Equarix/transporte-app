@@ -113,6 +113,25 @@ AGENCY_SERVICES_POOL = [
     {"name": "Cafetería", "icon": "local_cafe"}
 ]
 
+def calculate_mock_promo_discount(promo, purchase_amount):
+    """Calculates the mock discount applied by a promo."""
+    if promo["promoType"] == "REGALO":
+        return 0
+
+    discount_mode = promo.get("discountMode")
+    discount_value = promo.get("discountValue")
+    if discount_mode is None or discount_value is None:
+        return 0
+
+    if discount_mode == "MONTO_FIJO":
+        return round(min(float(discount_value), purchase_amount), 2)
+
+    raw_discount = (purchase_amount * float(discount_value)) / 100
+    cap = promo.get("maxDiscountCap")
+    if cap is not None:
+        raw_discount = min(raw_discount, float(cap))
+    return round(raw_discount, 2)
+
 def load_db_config(project_dir):
     """Reads a NestJS project .env file to extract database credentials."""
     config = {}
@@ -152,6 +171,7 @@ def generate_mock_data(scale=1.0):
     print(f"- Buses: {n_buses}")
     print(f"- Agencias: {n_agencies}")
     print(f"- Reservaciones / Ventas: {n_reservations}")
+    print(f"- Promociones: {max(8, int(10 * scale))}")
     
     # 1. GALERY
     galery_list = []
@@ -393,12 +413,78 @@ def generate_mock_data(scale=1.0):
             user_ag_id_counter += 1
         agency_id_counter += 1
 
-    # 7. RESERVER (Main DB)
+    # 7. PROMOS & REDEMPTIONS (Sales DB)
+    promo_list = []
+    promo_redemption_list = []
+    promo_id_counter = 1
+    promo_redemption_id_counter = 1
+
+    promo_author_ids = [u["userId"] for u in user_list if u["role"] in ["admin", "seller"]]
+    if not promo_author_ids:
+        promo_author_ids = [u["userId"] for u in user_list]
+
+    promo_count = max(8, int(10 * scale))
+    promo_words = ["Verano", "Ruta", "Feriado", "Familia", "Express", "Norte", "Ahorro", "Premium"]
+    gift_options = ["Kit de viaje", "Snack pack premium", "Manta de viaje", "Pase VIP", "Bebida gratis"]
+
+    for idx in range(1, promo_count + 1):
+        promo_type = random.choice(["DESCUENTO", "DESCUENTO", "REGALO"])
+        starts_at = datetime.now() - timedelta(days=random.randint(5, 45))
+        expires_at = datetime.now() + timedelta(days=random.randint(30, 120))
+        created_at = starts_at + timedelta(hours=random.randint(1, 48))
+        updated_at = created_at + timedelta(days=random.randint(0, 5))
+        promo_scope = random.choice(["TICKET", "HOTEL", "AMBOS"])
+        chosen_routes = random.sample(destination_list, random.randint(0, min(3, len(destination_list))))
+        chosen_agencies = random.sample(agency_list, random.randint(0, min(3, len(agency_list))))
+        creator_id = random.choice(promo_author_ids)
+
+        promo_item = {
+            "promoId": promo_id_counter,
+            "code": f"PROMO-{idx:03d}-{random.choice(promo_words).upper()}",
+            "name": f"Promo {random.choice(promo_words)} {idx}",
+            "description": f"Promoción especial {idx} para viajeros frecuentes de Entrafesa.",
+            "promoType": promo_type,
+            "discountMode": None,
+            "discountValue": None,
+            "maxDiscountCap": None,
+            "giftDescription": None,
+            "applicableTo": promo_scope,
+            "minimumPurchaseAmount": round(random.uniform(40, 180), 2),
+            "applicableRouteIds": ",".join(str(route["destinationId"]) for route in chosen_routes) if chosen_routes else None,
+            "applicableAgencyIds": ",".join(str(agency["agencyId"]) for agency in chosen_agencies) if chosen_agencies else None,
+            "startsAt": starts_at,
+            "expiresAt": expires_at,
+            "maxGlobalUses": random.choice([None, random.randint(20, 200)]),
+            "maxUsesPerUser": random.choice([None, 1, 2, 3]),
+            "totalUses": 0,
+            "status": random.choices(["ACTIVO", "INACTIVO", "EXPIRADO"], weights=[7, 2, 1], k=1)[0],
+            "createdAt": created_at,
+            "updatedAt": updated_at,
+            "createdByUserId": creator_id,
+            "updatedByUserId": creator_id if random.random() < 0.6 else None,
+            "deletedByUserId": None,
+            "deletedAt": None,
+        }
+
+        if promo_type == "DESCUENTO":
+            promo_item["discountMode"] = random.choice(["PORCENTAJE", "MONTO_FIJO"])
+            if promo_item["discountMode"] == "PORCENTAJE":
+                promo_item["discountValue"] = round(random.uniform(5, 35), 2)
+                promo_item["maxDiscountCap"] = round(random.uniform(20, 120), 2)
+            else:
+                promo_item["discountValue"] = round(random.uniform(10, 80), 2)
+        else:
+            promo_item["giftDescription"] = random.choice(gift_options)
+
+        promo_list.append(promo_item)
+        promo_id_counter += 1
+
+    # 8. RESERVER (Main DB)
     reserver_list = []
     reserver_agency_list = []
     reserver_price_floor_list = []
     
-    # 8. SALES DATABASE (transporte_sales)
+    # 9. SALES DATABASE (transporte_sales)
     sale_payer_list = []
     sale_list = []
     sale_detail_list = []
@@ -430,6 +516,7 @@ def generate_mock_data(scale=1.0):
         
         driver = random.choice(driver_ids)
         res_user = random.choice(regular_users)
+        hotel_booking_created = False
         
         status = random.choice(["CONFIRMED", "COMPLETED", "PENDING", "CANCELLED"])
         res_date = (datetime.now() + timedelta(days=random.randint(-30, 30))).replace(hour=random.randint(6, 22), minute=random.choice([0, 15, 30, 45]), second=0)
@@ -561,6 +648,34 @@ def generate_mock_data(scale=1.0):
                 "saleSaleId": sale_id_counter
             })
             hotel_id_counter += 1
+            hotel_booking_created = True
+
+        eligible_promos = [
+            promo for promo in promo_list
+            if promo["status"] == "ACTIVO"
+            and promo["startsAt"] <= register_date <= promo["expiresAt"]
+            and (
+                promo["applicableTo"] in ["TICKET", "AMBOS"]
+                or (promo["applicableTo"] == "HOTEL" and hotel_booking_created)
+            )
+        ]
+
+        if sale_status == "APROBADO" and eligible_promos and random.random() < 0.35:
+            selected_promo = random.choice(eligible_promos)
+            promo_redemption_list.append({
+                "redemptionId": promo_redemption_id_counter,
+                "saleId": sale_id_counter,
+                "userId": res_user["userId"],
+                "discountApplied": calculate_mock_promo_discount(selected_promo, total_amount),
+                "giftDelivered": selected_promo["giftDescription"] if selected_promo["promoType"] == "REGALO" else None,
+                "status": "APLICADO",
+                "redeemedAt": register_date + timedelta(minutes=random.randint(5, 120)),
+                "revertedAt": None,
+                "revertedByUserId": None,
+                "promoPromoId": selected_promo["promoId"],
+            })
+            selected_promo["totalUses"] += 1
+            promo_redemption_id_counter += 1
             
         sale_payer_id_counter += 1
         sale_id_counter += 1
@@ -586,6 +701,8 @@ def generate_mock_data(scale=1.0):
         },
         # sales db
         "sales": {
+            "promo": promo_list,
+            "promo_redemption": promo_redemption_list,
             "sale_payer": sale_payer_list,
             "sale": sale_list,
             "sale_detail": sale_detail_list,
@@ -721,7 +838,7 @@ def insert_sales_db(data, db_config):
         cursor.execute("EXEC sp_MSforeachtable \"ALTER TABLE ? NOCHECK CONSTRAINT all\";")
         
         # Clean existing data
-        tables_in_order = ["hotel_detail", "points_user", "sale_detail", "sale", "sale_payer"]
+        tables_in_order = ["promo_redemption", "promo", "hotel_detail", "points_user", "sale_detail", "sale", "sale_payer"]
         for tbl in tables_in_order:
             cursor.execute(f"DELETE FROM [{tbl}];")
             try:
@@ -745,6 +862,9 @@ def insert_sales_db(data, db_config):
             cursor.execute(f"SET IDENTITY_INSERT [{table_name}] OFF;")
 
         # Insert tables
+        insert_table("promo", ["promoId", "code", "name", "description", "promoType", "discountMode", "discountValue", "maxDiscountCap", "giftDescription", "applicableTo", "minimumPurchaseAmount", "applicableRouteIds", "applicableAgencyIds", "startsAt", "expiresAt", "maxGlobalUses", "maxUsesPerUser", "totalUses", "status", "createdAt", "updatedAt", "createdByUserId", "updatedByUserId", "deletedByUserId", "deletedAt"], 
+                 [(x['promoId'], x['code'], x['name'], x['description'], x['promoType'], x['discountMode'], x['discountValue'], x['maxDiscountCap'], x['giftDescription'], x['applicableTo'], x['minimumPurchaseAmount'], x['applicableRouteIds'], x['applicableAgencyIds'], x['startsAt'], x['expiresAt'], x['maxGlobalUses'], x['maxUsesPerUser'], x['totalUses'], x['status'], x['createdAt'], x['updatedAt'], x['createdByUserId'], x['updatedByUserId'], x['deletedByUserId'], x['deletedAt']) for x in data["promo"]])
+
         insert_table("sale_payer", ["salePayerId", "userId", "documentType", "documentNumber", "names", "email", "phone", "providerMethod", "typeMethod"], 
                      [(x['salePayerId'], x['userId'], x['documentType'], x['documentNumber'], x['names'], x['email'], x['phone'], x['providerMethod'], x['typeMethod']) for x in data["sale_payer"]])
                      
@@ -759,6 +879,9 @@ def insert_sales_db(data, db_config):
                      
         insert_table("hotel_detail", ["hotelDetailId", "hotelId", "referenceNumber", "clientName", "roomId", "hotelName", "checkIn", "checkOut", "amount", "saleSaleId"], 
                      [(x['hotelDetailId'], x['hotelId'], x['referenceNumber'], x['clientName'], x['roomId'], x['hotelName'], x['checkIn'], x['checkOut'], x['amount'], x['saleSaleId']) for x in data["hotel_detail"]])
+
+        insert_table("promo_redemption", ["redemptionId", "saleId", "userId", "discountApplied", "giftDelivered", "status", "redeemedAt", "revertedAt", "revertedByUserId", "promoPromoId"], 
+                 [(x['redemptionId'], x['saleId'], x['userId'], x['discountApplied'], x['giftDelivered'], x['status'], x['redeemedAt'], x['revertedAt'], x['revertedByUserId'], x['promoPromoId']) for x in data["promo_redemption"]])
 
         # Enable constraints
         cursor.execute("EXEC sp_MSforeachtable \"ALTER TABLE ? CHECK CONSTRAINT all\";")

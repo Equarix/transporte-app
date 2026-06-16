@@ -17,6 +17,7 @@ import { PublicAuthModule } from './public/public-auth/public-auth.module';
 import { PublicDestinationModule } from './public/public-destination/public-destination.module';
 import { PublicBookingModule } from './public/public-booking/public-booking.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { PromosGatewayModule } from './modules/promos/promos.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     PublicDestinationModule,
     PublicBookingModule,
     ReportsModule,
+    PromosGatewayModule,
   ],
   controllers: [],
   providers: [],

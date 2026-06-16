@@ -7,6 +7,7 @@ import {
   LuPlus,
   LuUser,
   LuChartBar,
+  LuTag,
 } from "react-icons/lu";
 import { AiOutlineShop } from "react-icons/ai";
 import { GrSchedules } from "react-icons/gr";
@@ -59,6 +60,12 @@ export const SideBarConfig: SideBarConfigProps = {
         },
       ],
       href: "/reports/sales",
+    },
+    {
+      label: "Promos",
+      icon: <LuTag />,
+      children: [],
+      href: "/promos",
     },
     {
       label: "Destinos",

@@ -1,5 +1,5 @@
 import { instance } from "@/config/axios";
-import { ResponseBooking } from "@/interface/response.interface";
+import { ResponseBooking, Destination } from "@/interface/response.interface";
 import { ApiResponse } from "@/interface/utils.interface";
 import { errorWrapper } from "@/utils/errorWrapper";
 import { notFound } from "next/navigation";
@@ -32,8 +32,25 @@ export default async function Reserver({
     return res.data;
   });
 
+  const defaultDestination: Destination = {
+    destinationId: 0,
+    name: "",
+    slug: "",
+    shortDescription: "",
+    longDescription: "",
+    lat: "0",
+    lng: "0",
+    status: false,
+  };
+
+  const bookingResponse: ResponseBooking = data?.body || {
+    origin: defaultDestination,
+    destination: defaultDestination,
+    reservations: [],
+  };
+
   return (
-    <BookingProvider response={data!.body}>
+    <BookingProvider response={bookingResponse}>
       <ReservePage />
     </BookingProvider>
   );
