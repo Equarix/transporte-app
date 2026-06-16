@@ -1,0 +1,13 @@
+{
+  "name": "arquitectura",
+  "description": "Arquitectura React modular, atomización de componentes, React Hook Form, Zod y TypeScript estricto.",
+  "version": "1.0.0",
+  "tags": [
+    "react",
+    "typescript",
+    "frontend",
+    "architecture",
+    "zod",
+    "react-hook-form"
+  ]
+}
