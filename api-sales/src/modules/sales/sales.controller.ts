@@ -51,4 +51,9 @@ export class SalesController {
   findUserSales(@Payload() userId: number) {
     return this.salesService.findUserSales(userId);
   }
+
+  @MessagePattern('findOccupiedSeats')
+  findOccupiedSeats(@Payload() reserverId: number) {
+    return this.salesService.findOccupiedSeats(reserverId);
+  }
 }

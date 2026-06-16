@@ -62,6 +62,12 @@ export class Sale {
   @Column()
   reserverId: number;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  promoCode: string | null;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  discount: number;
+
   @OneToMany(() => PointsUser, (pointsUser) => pointsUser.sale)
   pointsUsers: PointsUser[];
 

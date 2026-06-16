@@ -26,6 +26,9 @@ export class PromoRedemption {
   @Column({ type: 'int' })
   userId: number;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  code: string | null;
+
   // ─── Efecto aplicado ─────────────────────────────────────────────────────
   /**
    * Monto del descuento aplicado en la moneda base.

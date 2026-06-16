@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Destination } from 'src/modules/destination/entities/destination.entity';
 import { Reserver } from 'src/modules/reserver/entities/reserver.entity';
 import { Between, DataSource, In, Repository } from 'typeorm';
 import { QueryDestinationDto } from './dto/query-destination.dto';
 import { StatusReserverEnum } from 'src/modules/reserver/enum/status-reserver.enum';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class PublicBookingService {
@@ -14,6 +16,8 @@ export class PublicBookingService {
     @InjectRepository(Reserver)
     private reserverRepository: Repository<Reserver>,
     private datasource: DataSource,
+    @Inject('PAYMENT_SERVICE')
+    private readonly paymentClient: ClientProxy,
   ) {}
 
   async getDestinations(query: QueryDestinationDto) {
@@ -44,8 +48,8 @@ export class PublicBookingService {
 
     const reserver = await this.reserverRepository.find({
       where: {
-        checkIn: originDestination,
-        checkOut: destinationDestination,
+        checkIn: originDestination as any,
+        checkOut: destinationDestination as any,
         date: Between(startDate, endDate),
         status: StatusReserverEnum.CONFIRMED,
       },
@@ -87,6 +91,37 @@ export class PublicBookingService {
 
     if (!reserver) {
       throw new NotFoundException('Reservation not found');
+    }
+
+    // Call microservice to find occupied seats
+    let occupiedSeats: Array<{ seatId: number; floor: number }> = [];
+    try {
+      occupiedSeats = await firstValueFrom(
+        this.paymentClient.send<Array<{ seatId: number; floor: number }>>(
+          'findOccupiedSeats',
+          idReservation,
+        ),
+      );
+    } catch (err) {
+      console.error('Error fetching occupied seats:', err);
+    }
+
+    // Enrich the seat structures with reserver = 'sold' if they are in occupiedSeats
+    if (reserver.bus && reserver.bus.floors) {
+      for (const floor of reserver.bus.floors) {
+        if (floor.seats) {
+          for (const seat of floor.seats) {
+            const isOccupied = occupiedSeats.some(
+              (os) => os.seatId === seat.seatId && os.floor === floor.order,
+            );
+            if (isOccupied) {
+              (seat as any).reserver = 'sold';
+            } else {
+              (seat as any).reserver = null;
+            }
+          }
+        }
+      }
     }
 
     return reserver.bus;

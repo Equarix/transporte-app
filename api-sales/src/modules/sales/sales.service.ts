@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateSaleDtoService } from './dto/create-sale.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Sale, SaleFrom, StatusSale } from './entities/sale.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, Not } from 'typeorm';
 import { SaleDetail } from './entities/sale_detail.entity';
 import { HotelDetail } from './entities/hotel_detail.entity';
 import {
@@ -152,12 +152,15 @@ export class SalesService {
 
       if (promoCode) {
         const subtotal = passengers.reduce((sum, p) => sum + p.price, 0);
-        await this.promosService.redeem({
+        const redemptionResult = await this.promosService.redeem({
           code: promoCode,
           saleId: saveSale.saleId,
           userId,
           purchaseAmount: subtotal,
         });
+        saveSale.promoCode = promoCode;
+        saveSale.discount = redemptionResult.discountAmount;
+        await queryRunner.manager.save(Sale, saveSale);
       }
 
       await queryRunner.commitTransaction();
@@ -464,5 +467,22 @@ export class SalesService {
         createdAt: 'DESC',
       },
     });
+  }
+
+  async findOccupiedSeats(reserverId: number) {
+    const details = await this.saleDetailRepository.find({
+      where: {
+        sale: {
+          reserverId,
+          status: Not(StatusSale.CANCELLED),
+        },
+      },
+      select: ['seatId', 'floor'],
+    });
+
+    return details.map((d) => ({
+      seatId: d.seatId,
+      floor: d.floor,
+    }));
   }
 }

@@ -81,6 +81,8 @@ interface Ticket {
       lastName: string;
     };
   };
+  promoCode?: string;
+  discount?: number;
 }
 
 interface PointMovement {
@@ -904,8 +906,13 @@ function ProfileContent() {
                             Total Pagado
                           </p>
                           <p className="font-black text-amber-800 text-sm mt-0.5">
-                            S/ {totalAmount.toFixed(2)}
+                            S/ {Math.max(0, totalAmount - (ticket.discount || 0)).toFixed(2)}
                           </p>
+                          {ticket.promoCode && (
+                            <p className="text-[9px] text-emerald-600 font-bold mt-1">
+                              Cupón: {ticket.promoCode} (-S/ {Number(ticket.discount).toFixed(2)})
+                            </p>
+                          )}
                         </div>
                       </div>
 

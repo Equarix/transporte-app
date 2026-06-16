@@ -154,6 +154,8 @@ export class PromosService {
       if (redemptionCount < pmCount) {
         const diff = pmCount - redemptionCount;
         for (let i = 0; i < diff; i++) {
+          const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+          const uniqueCode = `${promoCode}-${randomSuffix}`;
           const newRed = this.redemptionRepository.create({
             userId,
             saleId: 0,
@@ -161,6 +163,7 @@ export class PromosService {
             giftDelivered: giftDescription ?? undefined,
             status: RedemptionStatus.PENDIENTE,
             promo,
+            code: uniqueCode,
           });
           await this.redemptionRepository.save(newRed);
         }
@@ -177,20 +180,19 @@ export class PromosService {
     });
 
     const now = new Date();
-    const activePromos = redemptions
-      .map((r) => r.promo)
-      .filter((promo) => {
-        if (!promo || promo.deletedAt !== null || promo.status !== PromoStatus.ACTIVO) {
-          return false;
-        }
-        return promo.startsAt <= now && promo.expiresAt >= now;
-      });
+    const activeRedemptions = redemptions.filter((r) => {
+      const promo = r.promo;
+      if (!promo || promo.deletedAt !== null || promo.status !== PromoStatus.ACTIVO) {
+        return false;
+      }
+      return promo.startsAt <= now && promo.expiresAt >= now;
+    });
 
-    const uniquePromos = Array.from(
-      new Map(activePromos.map((p) => [p.promoId, p])).values(),
-    );
-
-    return uniquePromos.map((p) => this.toResponseDto(p));
+    return activeRedemptions.map((r) => {
+      const dto = this.toResponseDto(r.promo);
+      dto.code = r.code || r.promo.code; // Override generic code with unique code
+      return dto;
+    });
   }
 
   async findOne(id: number): Promise<PromoResponseDto> {
@@ -237,35 +239,52 @@ export class PromosService {
     dto: RedeemPromoDto,
   ): Promise<{ valid: boolean; message: string; discountAmount?: number }> {
     const now = new Date();
-    const promo = await this.promoRepository.findOne({
-      where: {
-        code: dto.code,
-        status: PromoStatus.ACTIVO,
-        startsAt: LessThanOrEqual(now),
-        expiresAt: MoreThanOrEqual(now),
-      },
-    });
+    
+    // Check if it's a unique single-use code (e.g. DESC15-ABCD)
+    const isUniqueCode = dto.code.includes('-');
+    let promo: Promo | null = null;
+    let pendingRedemption: PromoRedemption | null = null;
 
-    if (!promo) {
+    if (isUniqueCode) {
+      pendingRedemption = await this.redemptionRepository.findOne({
+        where: {
+          code: dto.code,
+          userId: dto.userId,
+          status: RedemptionStatus.PENDIENTE,
+        },
+        relations: ['promo'],
+      });
+
+      if (!pendingRedemption) {
+        return { valid: false, message: 'Código de cupón único inválido, ya utilizado o de otro usuario' };
+      }
+      promo = pendingRedemption.promo;
+    } else {
+      // It's a generic code. Ensure it's not a points-only promo code
+      const pointPromoCodes = ['DESC15', 'UPGRADE_SUITE', 'DESAYUNO_BORDO'];
+      if (pointPromoCodes.includes(dto.code)) {
+        return {
+          valid: false,
+          message: 'Esta promoción requiere que ingreses tu código único de cupón (ej. DESC15-XXXX)',
+        };
+      }
+
+      promo = await this.promoRepository.findOne({
+        where: {
+          code: dto.code,
+          status: PromoStatus.ACTIVO,
+          startsAt: LessThanOrEqual(now),
+          expiresAt: MoreThanOrEqual(now),
+        },
+      });
+    }
+
+    if (!promo || promo.status !== PromoStatus.ACTIVO || promo.deletedAt !== null) {
       return { valid: false, message: 'Código de promo inválido o expirado' };
     }
 
-    // Para cupones obtenidos por canje de puntos, verificar que exista redención PENDIENTE
-    const pointPromoCodes = ['DESC15', 'UPGRADE_SUITE', 'DESAYUNO_BORDO'];
-    if (pointPromoCodes.includes(promo.code)) {
-      const pendingRedemption = await this.redemptionRepository.findOne({
-        where: {
-          userId: dto.userId,
-          status: RedemptionStatus.PENDIENTE,
-          promo: { promoId: promo.promoId },
-        },
-      });
-      if (!pendingRedemption) {
-        return {
-          valid: false,
-          message: 'Debes canjear esta promoción con tus puntos antes de usarla',
-        };
-      }
+    if (promo.startsAt > now || promo.expiresAt < now) {
+      return { valid: false, message: 'Esta promo no está activa en este rango de fechas' };
     }
 
     if (
@@ -310,35 +329,41 @@ export class PromosService {
       throw new BadRequestException(validation.message);
     }
 
-    const now = new Date();
-    const promo = await this.promoRepository.findOneOrFail({
-      where: {
-        code: dto.code,
-        status: PromoStatus.ACTIVO,
-        startsAt: LessThanOrEqual(now),
-        expiresAt: MoreThanOrEqual(now),
-      },
-    });
+    const isUniqueCode = dto.code.includes('-');
+    let promo: Promo;
+    let redemption: PromoRedemption | null = null;
+
+    if (isUniqueCode) {
+      redemption = await this.redemptionRepository.findOne({
+        where: {
+          code: dto.code,
+          userId: dto.userId,
+          status: RedemptionStatus.PENDIENTE,
+        },
+        relations: ['promo'],
+      });
+      if (!redemption) {
+        throw new BadRequestException('Cupón no encontrado o ya utilizado');
+      }
+      promo = redemption.promo;
+    } else {
+      const now = new Date();
+      promo = await this.promoRepository.findOneOrFail({
+        where: {
+          code: dto.code,
+          status: PromoStatus.ACTIVO,
+          startsAt: LessThanOrEqual(now),
+          expiresAt: MoreThanOrEqual(now),
+        },
+      });
+    }
 
     const discountAmount = this.calculateDiscount(promo, dto.purchaseAmount);
-
-    // Buscar si existe redención PENDIENTE de este usuario y promo
-    let redemption = await this.redemptionRepository.findOne({
-      where: {
-        userId: dto.userId,
-        status: RedemptionStatus.PENDIENTE,
-        promo: { promoId: promo.promoId },
-      },
-    });
 
     if (redemption) {
       redemption.saleId = dto.saleId;
       redemption.discountApplied = discountAmount;
       redemption.status = RedemptionStatus.APLICADO;
-      redemption.giftDelivered =
-        promo.promoType === PromoType.REGALO
-          ? (promo.giftDescription ?? undefined)
-          : undefined;
     } else {
       redemption = new PromoRedemption();
       redemption.saleId = dto.saleId;
@@ -350,6 +375,7 @@ export class PromosService {
           : undefined;
       redemption.status = RedemptionStatus.APLICADO;
       redemption.promo = promo;
+      redemption.code = dto.code;
     }
 
     const saved = await this.redemptionRepository.save(redemption);

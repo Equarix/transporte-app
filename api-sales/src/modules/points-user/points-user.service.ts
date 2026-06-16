@@ -236,6 +236,10 @@ export class PointsUserService {
     });
     await this.pointsUserRepository.save(pointMovement);
 
+    // Generate a unique code like DESC15-A1B2
+    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const uniqueCode = `${promoCode}-${randomSuffix}`;
+
     // Create PENDIENTE redemption associated with the promo (using saleId = 0 as placeholder)
     const redemption = this.redemptionRepository.create({
       userId,
@@ -244,6 +248,7 @@ export class PointsUserService {
       giftDelivered: giftDescription ?? undefined,
       status: RedemptionStatus.PENDIENTE,
       promo,
+      code: uniqueCode,
     });
     await this.redemptionRepository.save(redemption);
 
