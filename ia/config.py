@@ -26,3 +26,6 @@ BOT_LAST_NAME = os.getenv("BOT_LAST_NAME", "Entrafesa")
 BOT_EMAIL = os.getenv("BOT_EMAIL", "bot@entrafesa.com")
 BOT_PHONE = os.getenv("BOT_PHONE", "999999999")
 BOT_DATE_OF_BIRTH = os.getenv("BOT_DATE_OF_BIRTH", "2000-01-01")
+
+# URL de la aplicación web (para generar enlaces de pago al usuario)
+APP_URL = os.getenv("APP_URL", "http://localhost:3000").rstrip("/")

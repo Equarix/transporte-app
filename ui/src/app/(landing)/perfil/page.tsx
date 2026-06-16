@@ -21,7 +21,11 @@ import {
   LuClock,
   LuTag,
   LuCreditCard,
-  LuAlertCircle,
+  LuCircleAlert,
+  LuLock,
+  LuShield,
+  LuX,
+  LuCheck,
 } from "react-icons/lu";
 import { ApiResponse } from "@/interface/utils.interface";
 import { Profile } from "@/interface/response.interface";
@@ -114,6 +118,262 @@ interface ClientPromo {
   discountMode: string | null;
 }
 
+/* =========================================================
+   PAYMENT GATEWAY MODAL
+   ========================================================= */
+interface PaymentGatewayModalProps {
+  ticket: Ticket;
+  onClose: () => void;
+  onConfirm: () => void;
+  isProcessing: boolean;
+}
+
+function PaymentGatewayModal({
+  ticket,
+  onClose,
+  onConfirm,
+  isProcessing,
+}: PaymentGatewayModalProps) {
+  const [cardNumber, setCardNumber] = useState("4242 4242 4242 4242");
+  const [cardName, setCardName] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
+  const [payMethod, setPayMethod] = useState<"card" | "yape" | "efectivo">("card");
+
+  const totalAmount = ticket.saleDetails.reduce(
+    (sum, det) => sum + det.amount,
+    0,
+  );
+  const originName = ticket.origin?.name || "Origen";
+  const destName = ticket.destination?.name || "Destino";
+
+  const formatCard = (val: string) =>
+    val
+      .replace(/\D/g, "")
+      .slice(0, 16)
+      .replace(/(\d{4})/g, "$1 ")
+      .trim();
+
+  const formatExpiry = (val: string) =>
+    val
+      .replace(/\D/g, "")
+      .slice(0, 4)
+      .replace(/(\d{2})(\d{0,2})/, "$1/$2");
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backdropFilter: "blur(8px)", backgroundColor: "rgba(0,0,0,0.55)" }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+        {/* Modal Header */}
+        <div className="bg-gradient-to-r from-[#5D4037] to-[#8B5E3C] px-6 pt-6 pb-8 text-white relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all"
+          >
+            <LuX className="text-white text-sm" />
+          </button>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center">
+              <LuCreditCard className="text-white text-lg" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/70">
+                Entrafesa Pagos
+              </p>
+              <h2 className="text-base font-black">Completar Pago</h2>
+            </div>
+          </div>
+          {/* Order Summary Strip */}
+          <div className="bg-white/10 rounded-2xl p-4 border border-white/20">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
+                  Ruta
+                </p>
+                <p className="font-extrabold text-sm mt-0.5">
+                  {originName} → {destName}
+                </p>
+                <p className="text-[10px] text-white/70 mt-1">
+                  Reserva IT-{ticket.saleId} · {ticket.saleDetails.length} pasajero(s)
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
+                  Total
+                </p>
+                <p className="text-2xl font-black mt-0.5">
+                  S/ {totalAmount.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Body */}
+        <div className="px-6 py-5 space-y-5">
+          {/* Payment Method Selector */}
+          <div>
+            <p className="text-[10px] font-black text-[#5D4037] uppercase tracking-wider mb-3">
+              Método de Pago
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { id: "card", label: "Tarjeta", icon: "💳" },
+                { id: "yape", label: "Yape / Plin", icon: "📱" },
+                { id: "efectivo", label: "Efectivo", icon: "💵" },
+              ] as const).map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setPayMethod(m.id)}
+                  className={`flex flex-col items-center gap-1.5 py-3 rounded-2xl border-2 text-xs font-bold transition-all ${
+                    payMethod === m.id
+                      ? "border-amber-600 bg-amber-50 text-amber-800"
+                      : "border-gray-100 text-gray-500 hover:border-gray-200 hover:bg-gray-50"
+                  }`}
+                >
+                  <span className="text-lg">{m.icon}</span>
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Card Form */}
+          {payMethod === "card" && (
+            <div className="space-y-3">
+              <div>
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-wider">
+                  Número de Tarjeta
+                </label>
+                <div className="relative mt-1">
+                  <input
+                    type="text"
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(formatCard(e.target.value))}
+                    maxLength={19}
+                    placeholder="0000 0000 0000 0000"
+                    className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-mono font-bold text-sm text-gray-700 tracking-widest"
+                  />
+                  <LuCreditCard className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 text-lg" />
+                </div>
+              </div>
+              <div>
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-wider">
+                  Nombre en la Tarjeta
+                </label>
+                <input
+                  type="text"
+                  value={cardName}
+                  onChange={(e) => setCardName(e.target.value.toUpperCase())}
+                  placeholder="NOMBRE APELLIDO"
+                  className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-bold text-sm text-gray-700 uppercase tracking-wider"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-wider">
+                    Vencimiento
+                  </label>
+                  <input
+                    type="text"
+                    value={cardExpiry}
+                    onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
+                    placeholder="MM/AA"
+                    maxLength={5}
+                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-bold text-sm text-gray-700 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] font-black text-gray-400 uppercase tracking-wider">
+                    CVV
+                  </label>
+                  <input
+                    type="password"
+                    value={cardCvv}
+                    onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                    placeholder="•••"
+                    maxLength={4}
+                    className="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 font-bold text-sm text-gray-700 font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Yape/Plin QR placeholder */}
+          {payMethod === "yape" && (
+            <div className="py-6 flex flex-col items-center gap-3 bg-purple-50 rounded-2xl border border-purple-100">
+              <div className="w-28 h-28 bg-white rounded-2xl border-2 border-purple-200 flex items-center justify-center shadow-sm">
+                <span className="text-5xl">📱</span>
+              </div>
+              <p className="font-bold text-purple-800 text-sm">Escanea con Yape o Plin</p>
+              <p className="text-[10px] text-purple-500 font-medium">
+                Al confirmar se generará el código de pago
+              </p>
+            </div>
+          )}
+
+          {/* Efectivo info */}
+          {payMethod === "efectivo" && (
+            <div className="py-5 flex flex-col items-center gap-3 bg-green-50 rounded-2xl border border-green-100">
+              <span className="text-5xl">💵</span>
+              <p className="font-bold text-green-800 text-sm">Pago en agencia</p>
+              <p className="text-[10px] text-green-600 font-medium text-center max-w-[220px]">
+                Presenta el código de reserva IT-{ticket.saleId} en cualquier agencia Entrafesa para pagar en efectivo.
+              </p>
+            </div>
+          )}
+
+          {/* Security badges */}
+          <div className="flex items-center justify-center gap-4 pt-1">
+            <div className="flex items-center gap-1 text-[9px] text-gray-400 font-bold">
+              <LuLock className="text-green-500" />
+              SSL Seguro
+            </div>
+            <div className="w-px h-3 bg-gray-200" />
+            <div className="flex items-center gap-1 text-[9px] text-gray-400 font-bold">
+              <LuShield className="text-green-500" />
+              3D Secure
+            </div>
+            <div className="w-px h-3 bg-gray-200" />
+            <div className="flex items-center gap-1 text-[9px] text-gray-400 font-bold">
+              <LuCheck className="text-green-500" />
+              Encriptado
+            </div>
+          </div>
+
+          {/* Confirm Button */}
+          <button
+            id={`confirm-payment-${ticket.saleId}`}
+            onClick={onConfirm}
+            disabled={isProcessing}
+            className="w-full py-4 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white font-black rounded-2xl text-sm transition-all shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isProcessing ? (
+              <>
+                <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                Procesando pago...
+              </>
+            ) : (
+              <>
+                <LuLock className="text-base" />
+                Confirmar Pago · S/ {totalAmount.toFixed(2)}
+              </>
+            )}
+          </button>
+
+          <p className="text-center text-[9px] text-gray-400">
+            Al confirmar aceptas los Términos de Servicio de Entrafesa.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProfileContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -125,7 +385,9 @@ function ProfileContent() {
     "upcoming",
   );
   const [reviewTicket, setReviewTicket] = useState<Ticket | null>(null);
-  const [hasDeclinedReviewThisSession, setHasDeclinedReviewThisSession] = useState(false);
+  const [hasDeclinedReviewThisSession, setHasDeclinedReviewThisSession] =
+    useState(false);
+  const [paymentModalTicket, setPaymentModalTicket] = useState<Ticket | null>(null);
 
   // Redirect if not logged in (fallback to middleware check)
   useEffect(() => {
@@ -251,16 +513,16 @@ function ProfileContent() {
   });
 
   // Query: Get Pending Reviews
-  const { data: pendingReviewsResponse, refetch: refetchPendingReviews } = useQuery<
-    ApiResponse<Ticket[]>
-  >({
-    queryKey: ["pendingReviews"],
-    queryFn: async () => {
-      const res = await instance.get<ApiResponse<Ticket[]>>("/resenas/pending");
-      return res.data;
-    },
-    enabled: !!user,
-  });
+  const { data: pendingReviewsResponse, refetch: refetchPendingReviews } =
+    useQuery<ApiResponse<Ticket[]>>({
+      queryKey: ["pendingReviews"],
+      queryFn: async () => {
+        const res =
+          await instance.get<ApiResponse<Ticket[]>>("/resenas/pending");
+        return res.data;
+      },
+      enabled: !!user,
+    });
 
   const pendingTickets = pendingReviewsResponse?.body || [];
 
@@ -295,14 +557,17 @@ function ProfileContent() {
       queryClient.invalidateQueries({ queryKey: ["userTickets"] });
     },
     onError: (err) => {
-      const msg =
-        err.response?.data?.message || "Error al procesar el pago";
+      const msg = err.response?.data?.message || "Error al procesar el pago";
       toast.error(msg);
     },
   });
 
   useEffect(() => {
-    if (pendingTickets.length > 0 && !reviewTicket && !hasDeclinedReviewThisSession) {
+    if (
+      pendingTickets.length > 0 &&
+      !reviewTicket &&
+      !hasDeclinedReviewThisSession
+    ) {
       setReviewTicket(pendingTickets[0]);
     }
   }, [pendingTickets, reviewTicket, hasDeclinedReviewThisSession]);
@@ -961,11 +1226,16 @@ function ProfileContent() {
                             Total Pagado
                           </p>
                           <p className="font-black text-amber-800 text-sm mt-0.5">
-                            S/ {Math.max(0, totalAmount - (ticket.discount || 0)).toFixed(2)}
+                            S/{" "}
+                            {Math.max(
+                              0,
+                              totalAmount - (ticket.discount || 0),
+                            ).toFixed(2)}
                           </p>
                           {ticket.promoCode && (
                             <p className="text-[9px] text-emerald-600 font-bold mt-1">
-                              Cupón: {ticket.promoCode} (-S/ {Number(ticket.discount).toFixed(2)})
+                              Cupón: {ticket.promoCode} (-S/{" "}
+                              {Number(ticket.discount).toFixed(2)})
                             </p>
                           )}
                         </div>
@@ -1031,7 +1301,7 @@ function ProfileContent() {
               </div>
               {(pendingPaymentResponse?.body?.length ?? 0) > 0 && (
                 <div className="bg-amber-50 px-4 py-2 rounded-2xl border border-amber-200 flex items-center gap-2">
-                  <LuAlertCircle className="text-amber-600 text-lg" />
+                  <LuCircleAlert className="text-amber-600 text-lg" />
                   <span className="text-xs font-bold text-amber-800">
                     {pendingPaymentResponse?.body?.length} pendiente(s)
                   </span>
@@ -1042,7 +1312,9 @@ function ProfileContent() {
             {isLoadPendingPayment ? (
               <div className="py-12 flex flex-col items-center justify-center gap-4">
                 <div className="size-8 rounded-full border-2 border-amber-600 border-t-transparent animate-spin"></div>
-                <p className="text-sm text-[#8B7E74]">Cargando pagos pendientes...</p>
+                <p className="text-sm text-[#8B7E74]">
+                  Cargando pagos pendientes...
+                </p>
               </div>
             ) : (pendingPaymentResponse?.body?.length ?? 0) === 0 ? (
               <div className="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl">
@@ -1123,7 +1395,8 @@ function ProfileContent() {
                             {ticket.origin?.name || "Origen"}
                           </p>
                           <p className="text-[10px] text-gray-400 font-medium mt-1 line-clamp-1">
-                            {ticket.origin?.shortDescription || "Terminal de origen"}
+                            {ticket.origin?.shortDescription ||
+                              "Terminal de origen"}
                           </p>
                         </div>
 
@@ -1147,7 +1420,8 @@ function ProfileContent() {
                             {ticket.destination?.name || "Destino"}
                           </p>
                           <p className="text-[10px] text-gray-400 font-medium mt-1 line-clamp-1">
-                            {ticket.destination?.shortDescription || "Terminal de destino"}
+                            {ticket.destination?.shortDescription ||
+                              "Terminal de destino"}
                           </p>
                         </div>
                       </div>
@@ -1190,14 +1464,11 @@ function ProfileContent() {
                         </p>
                         <button
                           id={`pay-ticket-${ticket.saleId}`}
-                          onClick={() =>
-                            approveTicketMutation.mutate(ticket.saleId)
-                          }
-                          disabled={isApproving || approveTicketMutation.isPending}
-                          className="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white font-black rounded-xl text-xs transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                          onClick={() => setPaymentModalTicket(ticket)}
+                          className="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white font-black rounded-xl text-xs transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                         >
                           <LuCreditCard className="text-sm" />
-                          {isApproving ? "Procesando..." : "Pagar Ahora"}
+                          Pagar Ahora
                         </button>
                       </div>
                     </div>
@@ -1658,6 +1929,18 @@ function ProfileContent() {
             setReviewTicket(null);
             refetchPendingReviews();
           }}
+        />
+      )}
+
+      {paymentModalTicket && (
+        <PaymentGatewayModal
+          ticket={paymentModalTicket}
+          onClose={() => setPaymentModalTicket(null)}
+          onConfirm={() => {
+            approveTicketMutation.mutate(paymentModalTicket.saleId);
+            setPaymentModalTicket(null);
+          }}
+          isProcessing={approveTicketMutation.isPending}
         />
       )}
     </div>

@@ -266,3 +266,10 @@ class ApiClient:
         except Exception as e:
             logger.exception(f"Excepción al crear reserva: {str(e)}")
             return {"error": "Exception occurred", "message": str(e)}
+
+    def get_pending_tickets_url(self) -> str:
+        """
+        Devuelve la URL de la pestaña de pagos pendientes en el perfil del usuario.
+        """
+        app_url = getattr(config, 'APP_URL', 'http://localhost:3000')
+        return f"{app_url}/perfil?tab=pending"

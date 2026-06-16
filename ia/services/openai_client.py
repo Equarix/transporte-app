@@ -57,8 +57,11 @@ class OpenAIClient:
             f"   - Fecha de nacimiento (YYYY-MM-DD).\n"
             f"   (Puedes sugerir usar los mismos datos de pasajero como comprador si es la misma persona para agilizar el proceso).\n"
             f"11. Una vez que tengas todos los datos, realiza la reserva llamando a `create_reservation` con toda la información técnica que obtuviste de `get_bus_layout` (seatId, row, column, floor, price, busId) y los datos personales del usuario.\n"
-            f"12. Al finalizar con éxito, confirma la reserva indicando el código/ID de la venta y resúmele los detalles del viaje (origen, destino, fecha, asiento, pasajero y estado PENDIENTE). Explícale al usuario que su reserva está registrada en estado PENDIENTE y que debe proceder a pagarla o completarla para confirmar su boleto.\n"
-            f"13. Si una herramienta te da un error o no encuentra datos, explícaselo amablemente al usuario (ej. 'No encontré salidas confirmadas para esa fecha') e invítalo a consultar otra opción.\n"
+            f"12. Al finalizar con éxito, confirma la reserva indicando el código/ID de la venta y resúmele los detalles del viaje (origen, destino, fecha, asiento, pasajero y estado PENDIENTE).\n"
+            f"   - Inmediatamente después, utiliza la herramienta `get_pending_tickets_url` para obtener el link de pago y compártelo con el usuario, indicándole que debe ingresar a ese enlace para completar el pago y confirmar su boleto.\n"
+            f"   - Ejemplo: 'Tu reserva está registrada en estado PENDIENTE. Para confirmar tu boleto, ingresa aqui a completar el pago: [ENLACE]'\n"
+            f"13. Si el usuario te pregunta sobre sus reservas pendientes de pago o cómo pagar, llama a `get_pending_tickets_url` y comparte el enlace directo.\n"
+            f"14. Si una herramienta te da un error o no encuentra datos, explícaselo amablemente al usuario (ej. 'No encontré salidas confirmadas para esa fecha') e invítalo a consultar otra opción.\n"
         )
 
     def _get_tools(self) -> List[Dict[str, Any]]:
@@ -155,6 +158,13 @@ class OpenAIClient:
                         ]
                     }
                 }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_pending_tickets_url",
+                    "description": "Obtiene el enlace directo a la sección de pagos pendientes del perfil del usuario en la web de Entrafesa. Usar cuando el usuario quiera saber cómo pagar su reserva pendiente, o justo después de crear una reserva exitosa."
+                }
             }
         ]
 
@@ -215,6 +225,10 @@ class OpenAIClient:
                     type_seat=args.get("type_seat", "asiento")
                 )
                 return {"result": reservation_data}
+
+            elif name == "get_pending_tickets_url":
+                url = self.api_client.get_pending_tickets_url()
+                return {"url": url, "message": "Enlace a la sección de pagos pendientes del perfil del usuario."}
                 
             else:
                 return {"error": f"Herramienta '{name}' no encontrada."}
