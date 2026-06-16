@@ -38,9 +38,29 @@ export class PublicBookingController implements OnModuleInit {
     return this.publicBookingService.getBus(+idReservation);
   }
 
+  @Get('/available-dates')
+  async getAvailableDates(
+    @Query('origin') origin: string,
+    @Query('destination') destination: string,
+  ) {
+    return this.publicBookingService.getAvailableDates(origin, destination);
+  }
+
   @Auth()
   @Post('/pay')
   async pay(@Body() data: CreateSaleDto, @User('userId') userId: number) {
     return this.paymentClient.send('createSale', { ...data, userId: userId });
   }
+
+  @Auth()
+  @Post('/approve/:saleId')
+  async approveSale(
+    @Param('saleId') saleId: string,
+    @User('userId') userId: number,
+  ) {
+    return firstValueFrom(
+      this.paymentClient.send('approveSale', +saleId),
+    );
+  }
 }
+

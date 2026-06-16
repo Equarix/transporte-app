@@ -244,6 +244,10 @@ export class UserService {
     return updatedProfile;
   }
 
+  async getPendingTickets(sales: SaleFromMicroservice[]) {
+    return this.enrichTickets(sales);
+  }
+
   async enrichTickets(sales: SaleFromMicroservice[]) {
     if (!sales || sales.length === 0) return [];
 

@@ -43,23 +43,21 @@ export default function RootLayout({
       </body>
 
       <Script id="chatwoot" strategy="afterInteractive">
-        {`
-          (function(d,t) {
-            var BASE_URL="http://localhost:8080";
-            var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-            g.src=BASE_URL+"/packs/js/sdk.js";
-            g.async = true;
-            s.parentNode.insertBefore(g,s);
-            g.onload=function(){
-              window.chatwootSDK.run({
-                websiteToken: 'TAyBTnfYYy96FqvxDUnxvTvR',
-                baseUrl: BASE_URL
-              })
-            }
-          })(document,"script");
-        `}
+        {`  window.chatwootSettings = {"position":"right","type":"standard","launcherTitle":""};
+  (function(d,t) {
+    var BASE_URL="http://localhost:8080";
+    var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+    g.src=BASE_URL+"/packs/js/sdk.js";
+    g.async = true;
+    s.parentNode.insertBefore(g,s);
+    g.onload=function(){
+      window.chatwootSDK.run({
+        websiteToken: 'aPmW7eYsf3eTBhj7S7z3TVVX',
+        baseUrl: BASE_URL
+      })
+    }
+  })(document,"script");`}
       </Script>
-
     </html>
   );
 }

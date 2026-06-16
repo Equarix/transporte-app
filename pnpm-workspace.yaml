@@ -4,3 +4,4 @@ packages:
   - "dashboard"
   - "ui"
   - "packages/dtos"
+  - "ia"

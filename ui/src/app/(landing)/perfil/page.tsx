@@ -20,6 +20,8 @@ import {
   LuAward,
   LuClock,
   LuTag,
+  LuCreditCard,
+  LuAlertCircle,
 } from "react-icons/lu";
 import { ApiResponse } from "@/interface/utils.interface";
 import { Profile } from "@/interface/response.interface";
@@ -262,6 +264,43 @@ function ProfileContent() {
 
   const pendingTickets = pendingReviewsResponse?.body || [];
 
+  // Query: Get Pending Payment Tickets
+  const { data: pendingPaymentResponse, isLoading: isLoadPendingPayment } =
+    useQuery<ApiResponse<Ticket[]>>({
+      queryKey: ["pendingPaymentTickets"],
+      queryFn: async () => {
+        const res = await instance.get<ApiResponse<Ticket[]>>(
+          "/user/pending-tickets",
+        );
+        return res.data;
+      },
+      enabled: !!user,
+    });
+
+  // Mutation: Approve (pay) a pending ticket
+  const approveTicketMutation = useMutation<
+    ApiResponse<{ saleId: number; status: string }>,
+    AxiosError<{ message?: string }>,
+    number
+  >({
+    mutationFn: async (saleId: number) => {
+      const res = await instance.post<
+        ApiResponse<{ saleId: number; status: string }>
+      >(`/public/booking/approve/${saleId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("¡Pago confirmado! Tu boleto ha sido aprobado.");
+      queryClient.invalidateQueries({ queryKey: ["pendingPaymentTickets"] });
+      queryClient.invalidateQueries({ queryKey: ["userTickets"] });
+    },
+    onError: (err) => {
+      const msg =
+        err.response?.data?.message || "Error al procesar el pago";
+      toast.error(msg);
+    },
+  });
+
   useEffect(() => {
     if (pendingTickets.length > 0 && !reviewTicket && !hasDeclinedReviewThisSession) {
       setReviewTicket(pendingTickets[0]);
@@ -443,6 +482,22 @@ function ProfileContent() {
             >
               <LuTag className="text-lg" />
               Mis Cupones
+            </button>
+            <button
+              onClick={() => setTab("pending")}
+              className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-bold transition-all relative ${
+                activeTab === "pending"
+                  ? "bg-amber-600 text-white shadow-sm"
+                  : "text-amber-700 hover:bg-amber-50"
+              }`}
+            >
+              <LuCreditCard className="text-lg" />
+              Pagos Pendientes
+              {(pendingPaymentResponse?.body?.length ?? 0) > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-[9px] font-black rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                  {pendingPaymentResponse?.body?.length}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setTab("settings")}
@@ -952,6 +1007,198 @@ function ProfileContent() {
                             Ver Detalle
                           </button>
                         )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Pagos Pendientes */}
+        {activeTab === "pending" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-black text-[#333333]">
+                  Pagos Pendientes
+                </h1>
+                <p className="text-sm text-[#8B7E74] mt-1">
+                  Estas reservas están registradas pero aún no han sido
+                  confirmadas. Completa el pago para asegurar tu asiento.
+                </p>
+              </div>
+              {(pendingPaymentResponse?.body?.length ?? 0) > 0 && (
+                <div className="bg-amber-50 px-4 py-2 rounded-2xl border border-amber-200 flex items-center gap-2">
+                  <LuAlertCircle className="text-amber-600 text-lg" />
+                  <span className="text-xs font-bold text-amber-800">
+                    {pendingPaymentResponse?.body?.length} pendiente(s)
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {isLoadPendingPayment ? (
+              <div className="py-12 flex flex-col items-center justify-center gap-4">
+                <div className="size-8 rounded-full border-2 border-amber-600 border-t-transparent animate-spin"></div>
+                <p className="text-sm text-[#8B7E74]">Cargando pagos pendientes...</p>
+              </div>
+            ) : (pendingPaymentResponse?.body?.length ?? 0) === 0 ? (
+              <div className="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+                <LuCreditCard className="mx-auto text-4xl text-gray-300 mb-3" />
+                <p className="font-bold text-gray-700">Sin pagos pendientes</p>
+                <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                  No tienes reservas pendientes de pago. ¡Excelente!
+                </p>
+                <button
+                  onClick={() => router.push("/")}
+                  className="mt-4 px-6 py-2.5 bg-amber-700 text-white text-xs font-bold rounded-xl shadow-md"
+                >
+                  Buscar un viaje
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {pendingPaymentResponse?.body?.map((ticket) => {
+                  const tripDate = ticket.reserver?.date
+                    ? new Date(ticket.reserver.date)
+                    : new Date(ticket.createdAt);
+                  const formattedDate = format(tripDate, "dd MMM yyyy", {
+                    locale: es,
+                  });
+                  const formattedTime = ticket.reserver?.checkOutHour
+                    ? format(
+                        new Date(`2026-01-01T${ticket.reserver.checkOutHour}`),
+                        "hh:mm a",
+                      )
+                    : "--:--";
+                  const totalAmount = ticket.saleDetails.reduce(
+                    (sum, det) => sum + det.amount,
+                    0,
+                  );
+                  const seatsList = ticket.saleDetails
+                    .map((det) => `Asiento ${det.seatId}`)
+                    .join(", ");
+                  const isApproving =
+                    approveTicketMutation.isPending &&
+                    approveTicketMutation.variables === ticket.saleId;
+
+                  return (
+                    <div
+                      key={ticket.saleId}
+                      className="bg-white border-2 border-amber-200 rounded-3xl p-6 hover:shadow-lg hover:border-amber-400 transition-all duration-300 flex flex-col gap-5 relative overflow-hidden"
+                    >
+                      {/* Pending stripe decoration */}
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-orange-400" />
+
+                      {/* Header */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-50 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">
+                            PENDIENTE DE PAGO
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                            RESERVA:{" "}
+                            <span className="text-gray-700 font-black">
+                              IT-{ticket.saleId}
+                            </span>
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
+                          <LuClock className="text-amber-600" />
+                          <span>
+                            {formattedDate} - {formattedTime}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Route */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2">
+                        <div className="flex-1">
+                          <p className="text-[9px] font-black text-amber-700 uppercase tracking-wider mb-1">
+                            Origen
+                          </p>
+                          <p className="font-extrabold text-[#333333] text-base leading-tight">
+                            {ticket.origin?.name || "Origen"}
+                          </p>
+                          <p className="text-[10px] text-gray-400 font-medium mt-1 line-clamp-1">
+                            {ticket.origin?.shortDescription || "Terminal de origen"}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-row sm:flex-col items-center shrink-0 gap-2 sm:gap-1 px-4">
+                          <span className="text-[9px] font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Directo
+                          </span>
+                          <div className="w-16 sm:w-20 h-px bg-amber-300 relative my-1">
+                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-amber-600"></div>
+                          </div>
+                          <span className="text-[8px] text-gray-400 font-semibold uppercase tracking-wider">
+                            Terrestre
+                          </span>
+                        </div>
+
+                        <div className="flex-1 sm:text-right">
+                          <p className="text-[9px] font-black text-amber-700 uppercase tracking-wider mb-1">
+                            Destino
+                          </p>
+                          <p className="font-extrabold text-[#333333] text-base leading-tight">
+                            {ticket.destination?.name || "Destino"}
+                          </p>
+                          <p className="text-[10px] text-gray-400 font-medium mt-1 line-clamp-1">
+                            {ticket.destination?.shortDescription || "Terminal de destino"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Details */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-amber-50/60 rounded-2xl p-4 border border-amber-100">
+                        <div>
+                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                            Asiento(s)
+                          </p>
+                          <p
+                            className="font-extrabold text-[#5D4037] text-xs mt-1 truncate"
+                            title={seatsList}
+                          >
+                            {seatsList || "Ninguno"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                            Pasajeros
+                          </p>
+                          <p className="font-extrabold text-gray-700 text-xs mt-1">
+                            {ticket.saleDetails.length} pasajero(s)
+                          </p>
+                        </div>
+                        <div className="col-span-2 sm:col-span-1">
+                          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                            Total a Pagar
+                          </p>
+                          <p className="font-black text-amber-800 text-sm mt-0.5">
+                            S/ {totalAmount.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Action */}
+                      <div className="flex items-center justify-end gap-3 pt-3 border-t border-amber-100">
+                        <p className="text-[10px] text-gray-400 flex-1">
+                          Confirma tu pago para asegurar el asiento.
+                        </p>
+                        <button
+                          id={`pay-ticket-${ticket.saleId}`}
+                          onClick={() =>
+                            approveTicketMutation.mutate(ticket.saleId)
+                          }
+                          disabled={isApproving || approveTicketMutation.isPending}
+                          className="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white font-black rounded-xl text-xs transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          <LuCreditCard className="text-sm" />
+                          {isApproving ? "Procesando..." : "Pagar Ahora"}
+                        </button>
                       </div>
                     </div>
                   );

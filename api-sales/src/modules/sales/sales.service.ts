@@ -469,6 +469,33 @@ export class SalesService {
     });
   }
 
+  async findUserPendingSales(userId: number) {
+    return this.saleRepository.find({
+      where: { userId, status: StatusSale.PENDING },
+      relations: {
+        saleDetails: true,
+        salePayer: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
+  async approveSale(saleId: number) {
+    const sale = await this.saleRepository.findOne({
+      where: { saleId },
+    });
+
+    if (!sale) {
+      throw new Error(`Venta con ID ${saleId} no encontrada`);
+    }
+
+    await this.saleRepository.update(saleId, { status: StatusSale.APPROVED });
+
+    return { saleId, status: StatusSale.APPROVED };
+  }
+
   async findOccupiedSeats(reserverId: number) {
     const details = await this.saleDetailRepository.find({
       where: {

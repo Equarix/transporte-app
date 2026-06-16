@@ -52,6 +52,16 @@ export class SalesController {
     return this.salesService.findUserSales(userId);
   }
 
+  @MessagePattern('findUserPendingSales')
+  findUserPendingSales(@Payload() userId: number) {
+    return this.salesService.findUserPendingSales(userId);
+  }
+
+  @MessagePattern('approveSale')
+  approveSale(@Payload() saleId: number) {
+    return this.salesService.approveSale(saleId);
+  }
+
   @MessagePattern('findOccupiedSeats')
   findOccupiedSeats(@Payload() reserverId: number) {
     return this.salesService.findOccupiedSeats(reserverId);

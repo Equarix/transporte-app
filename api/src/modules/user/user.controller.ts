@@ -59,6 +59,14 @@ export class UserController {
     return this.userService.enrichTickets(sales);
   }
 
+  @Get('pending-tickets')
+  async getPendingTickets(@User('userId') userId: number) {
+    const sales = await firstValueFrom(
+      this.paymentClient.send('findUserPendingSales', userId),
+    );
+    return this.userService.getPendingTickets(sales);
+  }
+
   @Auth([RoleEnum.ADMIN])
   @Get('drivers')
   getDrivers() {

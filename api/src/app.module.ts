@@ -16,7 +16,9 @@ import { PublicAgencyModule } from './public/public-agency/public-agency.module'
 import { PublicAuthModule } from './public/public-auth/public-auth.module';
 import { PublicDestinationModule } from './public/public-destination/public-destination.module';
 import { PublicBookingModule } from './public/public-booking/public-booking.module';
+import { PublicIaModule } from './public/public-ia/public-ia.module';
 import { ReportsModule } from './modules/reports/reports.module';
+
 import { PromosGatewayModule } from './modules/promos/promos.module';
 import { ResenaModule } from './modules/resena/resena.module';
 
@@ -56,7 +58,9 @@ import { ResenaModule } from './modules/resena/resena.module';
     PublicAuthModule,
     PublicDestinationModule,
     PublicBookingModule,
+    PublicIaModule,
     ReportsModule,
+
     PromosGatewayModule,
     ResenaModule,
   ],

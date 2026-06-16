@@ -126,4 +126,42 @@ export class PublicBookingService {
 
     return reserver.bus;
   }
+
+  async getAvailableDates(origin: string, destination: string): Promise<string[]> {
+    const destinations = await this.destinationRepository.find({
+      where: {
+        slug: In([origin, destination]),
+        status: true,
+      },
+    });
+
+    const originDestination = destinations.find((d) => d.slug === origin);
+    const destinationDestination = destinations.find(
+      (d) => d.slug === destination,
+    );
+
+    if (!originDestination || !destinationDestination) {
+      throw new NotFoundException('Origin or destination not found');
+    }
+
+    const reservers = await this.reserverRepository.find({
+      where: {
+        checkIn: originDestination as any,
+        checkOut: destinationDestination as any,
+        status: StatusReserverEnum.CONFIRMED,
+      },
+      select: ['date'],
+    });
+
+    const dates = reservers.map((r) => {
+      const d = new Date(r.date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    });
+
+    return [...new Set(dates)].sort();
+  }
 }
+
