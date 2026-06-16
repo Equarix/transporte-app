@@ -4,6 +4,7 @@ import { SalesModule } from './modules/sales/sales.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PointsUserModule } from './modules/points-user/points-user.module';
 import { PromosModule } from './modules/promos/promos.module';
+import { ResenaModule } from './modules/resena/resena.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PromosModule } from './modules/promos/promos.module';
     SalesModule,
     PointsUserModule,
     PromosModule,
+    ResenaModule,
   ],
   controllers: [],
   providers: [],

@@ -22,6 +22,7 @@ import {
   PromoResponseDto,
   RedemptionResultDto,
 } from './dto/promo-response.dto';
+import { PointsUser, TypePointsMovement, PointsFrom } from '../points-user/entities/points-user.entity';
 
 @Injectable()
 export class PromosService {
@@ -30,6 +31,8 @@ export class PromosService {
     private readonly promoRepository: Repository<Promo>,
     @InjectRepository(PromoRedemption)
     private readonly redemptionRepository: Repository<PromoRedemption>,
+    @InjectRepository(PointsUser)
+    private readonly pointsUserRepository: Repository<PointsUser>,
   ) {}
 
   // ─── CRUD ──────────────────────────────────────────────────────────────────
@@ -62,6 +65,132 @@ export class PromosService {
       order: { createdAt: 'DESC' },
     });
     return promos.map((p) => this.toResponseDto(p));
+  }
+
+  async findActivePromosByUser(userId: number): Promise<PromoResponseDto[]> {
+    // 1. Obtener los movimientos de puntos del usuario correspondientes a canjes
+    const pointRedemptions = await this.pointsUserRepository.find({
+      where: {
+        userId,
+        pointsFrom: PointsFrom.REWARD,
+        type: TypePointsMovement.SUBTRACTION,
+      },
+    });
+
+    // 2. Por cada movimiento, asegurar que exista la redención de promo correspondiente
+    for (const pm of pointRedemptions) {
+      let promoCode = '';
+      let promoName = '';
+      let promoDescription = '';
+      let promoType = PromoType.DESCUENTO;
+      let discountMode: DiscountMode | null = null;
+      let discountValue = 0;
+      let giftDescription: string | null = null;
+
+      // Mapear por los puntos restados (8 -> DESC15, 12 -> UPGRADE_SUITE, 6 -> DESAYUNO_BORDO)
+      if (pm.points === 8 || pm.points === 800) {
+        promoCode = 'DESC15';
+        promoName = '15% Descuento';
+        promoDescription = 'Descuento del 15% en tu próximo pasaje nacional.';
+        promoType = PromoType.DESCUENTO;
+        discountMode = DiscountMode.PORCENTAJE;
+        discountValue = 15;
+      } else if (pm.points === 12 || pm.points === 1200) {
+        promoCode = 'UPGRADE_SUITE';
+        promoName = 'Upgrade a Suite Class';
+        promoDescription = 'Sube de categoría a Suite Class y viaja con la máxima comodidad.';
+        promoType = PromoType.DESCUENTO;
+        discountMode = DiscountMode.PORCENTAJE;
+        discountValue = 100;
+      } else if (pm.points === 6 || pm.points === 600) {
+        promoCode = 'DESAYUNO_BORDO';
+        promoName = 'Desayuno a bordo gratis';
+        promoDescription = 'Disfruta de un desayuno de cortesía durante tu viaje.';
+        promoType = PromoType.REGALO;
+        giftDescription = 'Desayuno a bordo';
+      } else {
+        continue; // Desconocido
+      }
+
+      // Buscar si ya existe la promo
+      let promo = await this.promoRepository.findOne({
+        where: { code: promoCode },
+      });
+
+      if (!promo) {
+        const now = new Date();
+        const oneYearFromNow = new Date();
+        oneYearFromNow.setFullYear(now.getFullYear() + 1);
+
+        promo = this.promoRepository.create({
+          code: promoCode,
+          name: promoName,
+          description: promoDescription,
+          promoType,
+          discountMode: discountMode ?? undefined,
+          discountValue,
+          giftDescription: giftDescription ?? undefined,
+          startsAt: now,
+          expiresAt: oneYearFromNow,
+          status: PromoStatus.ACTIVO,
+          minimumPurchaseAmount: 0,
+          createdByUserId: 1, // Admin por defecto
+        });
+        promo = await this.promoRepository.save(promo);
+      }
+
+      // Contar cuántas redenciones existen para este usuario y esta promo
+      const redemptionCount = await this.redemptionRepository.count({
+        where: {
+          userId,
+          promo: { promoId: promo.promoId },
+        },
+      });
+
+      // Contar cuántos movimientos de puntos con este puntaje tiene el usuario
+      const pmCount = pointRedemptions.filter(p => p.points === pm.points).length;
+
+      // Si faltan redenciones, crearlas en estado PENDIENTE y saleId = 0
+      if (redemptionCount < pmCount) {
+        const diff = pmCount - redemptionCount;
+        for (let i = 0; i < diff; i++) {
+          const newRed = this.redemptionRepository.create({
+            userId,
+            saleId: 0,
+            discountApplied: 0,
+            giftDelivered: giftDescription ?? undefined,
+            status: RedemptionStatus.PENDIENTE,
+            promo,
+          });
+          await this.redemptionRepository.save(newRed);
+        }
+      }
+    }
+
+    // 3. Obtener todas las redenciones PENDIENTES actualizadas
+    const redemptions = await this.redemptionRepository.find({
+      where: {
+        userId,
+        status: RedemptionStatus.PENDIENTE,
+      },
+      relations: ['promo'],
+    });
+
+    const now = new Date();
+    const activePromos = redemptions
+      .map((r) => r.promo)
+      .filter((promo) => {
+        if (!promo || promo.deletedAt !== null || promo.status !== PromoStatus.ACTIVO) {
+          return false;
+        }
+        return promo.startsAt <= now && promo.expiresAt >= now;
+      });
+
+    const uniquePromos = Array.from(
+      new Map(activePromos.map((p) => [p.promoId, p])).values(),
+    );
+
+    return uniquePromos.map((p) => this.toResponseDto(p));
   }
 
   async findOne(id: number): Promise<PromoResponseDto> {
@@ -106,7 +235,7 @@ export class PromosService {
 
   async validate(
     dto: RedeemPromoDto,
-  ): Promise<{ valid: boolean; message: string }> {
+  ): Promise<{ valid: boolean; message: string; discountAmount?: number }> {
     const now = new Date();
     const promo = await this.promoRepository.findOne({
       where: {
@@ -121,6 +250,24 @@ export class PromosService {
       return { valid: false, message: 'Código de promo inválido o expirado' };
     }
 
+    // Para cupones obtenidos por canje de puntos, verificar que exista redención PENDIENTE
+    const pointPromoCodes = ['DESC15', 'UPGRADE_SUITE', 'DESAYUNO_BORDO'];
+    if (pointPromoCodes.includes(promo.code)) {
+      const pendingRedemption = await this.redemptionRepository.findOne({
+        where: {
+          userId: dto.userId,
+          status: RedemptionStatus.PENDIENTE,
+          promo: { promoId: promo.promoId },
+        },
+      });
+      if (!pendingRedemption) {
+        return {
+          valid: false,
+          message: 'Debes canjear esta promoción con tus puntos antes de usarla',
+        };
+      }
+    }
+
     if (
       promo.maxGlobalUses !== null &&
       promo.totalUses >= promo.maxGlobalUses
@@ -131,7 +278,7 @@ export class PromosService {
     if (dto.purchaseAmount < promo.minimumPurchaseAmount) {
       return {
         valid: false,
-        message: `El monto mínimo para esta promo es $${promo.minimumPurchaseAmount}`,
+        message: `El monto mínimo para esta promo es S/ ${promo.minimumPurchaseAmount}`,
       };
     }
 
@@ -151,7 +298,8 @@ export class PromosService {
       }
     }
 
-    return { valid: true, message: 'Promo válida' };
+    const discountAmount = this.calculateDiscount(promo, dto.purchaseAmount);
+    return { valid: true, message: 'Promo válida', discountAmount };
   }
 
   // ─── Canje ─────────────────────────────────────────────────────────────────
@@ -174,16 +322,35 @@ export class PromosService {
 
     const discountAmount = this.calculateDiscount(promo, dto.purchaseAmount);
 
-    const redemption = new PromoRedemption();
-    redemption.saleId = dto.saleId;
-    redemption.userId = dto.userId;
-    redemption.discountApplied = discountAmount;
-    redemption.giftDelivered =
-      promo.promoType === PromoType.REGALO
-        ? (promo.giftDescription ?? undefined)
-        : undefined;
-    redemption.status = RedemptionStatus.APLICADO;
-    redemption.promo = promo;
+    // Buscar si existe redención PENDIENTE de este usuario y promo
+    let redemption = await this.redemptionRepository.findOne({
+      where: {
+        userId: dto.userId,
+        status: RedemptionStatus.PENDIENTE,
+        promo: { promoId: promo.promoId },
+      },
+    });
+
+    if (redemption) {
+      redemption.saleId = dto.saleId;
+      redemption.discountApplied = discountAmount;
+      redemption.status = RedemptionStatus.APLICADO;
+      redemption.giftDelivered =
+        promo.promoType === PromoType.REGALO
+          ? (promo.giftDescription ?? undefined)
+          : undefined;
+    } else {
+      redemption = new PromoRedemption();
+      redemption.saleId = dto.saleId;
+      redemption.userId = dto.userId;
+      redemption.discountApplied = discountAmount;
+      redemption.giftDelivered =
+        promo.promoType === PromoType.REGALO
+          ? (promo.giftDescription ?? undefined)
+          : undefined;
+      redemption.status = RedemptionStatus.APLICADO;
+      redemption.promo = promo;
+    }
 
     const saved = await this.redemptionRepository.save(redemption);
 

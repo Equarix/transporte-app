@@ -18,6 +18,7 @@ import { PublicDestinationModule } from './public/public-destination/public-dest
 import { PublicBookingModule } from './public/public-booking/public-booking.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { PromosGatewayModule } from './modules/promos/promos.module';
+import { ResenaModule } from './modules/resena/resena.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { PromosGatewayModule } from './modules/promos/promos.module';
     PublicBookingModule,
     ReportsModule,
     PromosGatewayModule,
+    ResenaModule,
   ],
   controllers: [],
   providers: [],

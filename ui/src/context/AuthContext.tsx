@@ -42,6 +42,14 @@ export default function AuthProvider({
     }
   }, [user]);
 
+  useEffect(() => {
+    if (token) {
+      instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      delete instance.defaults.headers.common["Authorization"];
+    }
+  }, [token]);
+
   const { mutate: login, isPending: isLoadLogin } = useMutation({
     mutationFn: async (data: AuthSchemaType) => {
       const res = await instance.post("/public/auth/login", data);

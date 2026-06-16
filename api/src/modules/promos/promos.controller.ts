@@ -7,7 +7,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { PromosGatewayService } from './promos.service';
+import { PromoFromMicroservice, PromosGatewayService } from './promos.service';
 import { Auth } from 'src/common/decorator/auth/auth.decorator';
 import { User } from 'src/common/decorator/user/user.decorator';
 import { RoleEnum } from 'src/common/enum/role.enum';
@@ -18,6 +18,32 @@ import { RedeemPromoGatewayDto } from './dto/redeem-promo.dto';
 @Controller('promos')
 export class PromosController {
   constructor(private readonly promosGatewayService: PromosGatewayService) {}
+
+  // ─── Canje / Rutas de usuario (definidas primero para evitar conflictos de rutas con :id) ───
+
+  @Auth([RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.SELLER])
+  @Post('validate')
+  validate(
+    @Body() redeemPromoDto: RedeemPromoGatewayDto,
+    @User('userId') userId: number,
+  ) {
+    return this.promosGatewayService.validate(redeemPromoDto, userId);
+  }
+
+  @Auth([RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.SELLER])
+  @Get('active')
+  findActive(@User('userId') userId: number): Promise<PromoFromMicroservice[]> {
+    return this.promosGatewayService.findActive(userId);
+  }
+
+  @Auth([RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.SELLER])
+  @Post('redeem')
+  redeem(
+    @Body() redeemPromoDto: RedeemPromoGatewayDto,
+    @User('userId') userId: number,
+  ) {
+    return this.promosGatewayService.redeem(redeemPromoDto, userId);
+  }
 
   // ─── CRUD (solo ADMIN) ─────────────────────────────────────────────────────
 
@@ -56,34 +82,5 @@ export class PromosController {
   @Delete(':id')
   remove(@Param('id') id: string, @User('userId') userId: number) {
     return this.promosGatewayService.remove(+id, userId);
-  }
-
-  // ─── Canje (usuarios autenticados) ────────────────────────────────────────
-
-  /**
-   * POST /promos/validate
-   * Valida si un código aplica a la compra SIN persistir nada.
-   * Usar antes del checkout para mostrar el descuento calculado.
-   */
-  @Auth([RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.SELLER])
-  @Post('validate')
-  validate(
-    @Body() redeemPromoDto: RedeemPromoGatewayDto,
-    @User('userId') userId: number,
-  ) {
-    return this.promosGatewayService.validate(redeemPromoDto, userId);
-  }
-
-  /**
-   * POST /promos/redeem
-   * Aplica el canje de la promo. Llamar después de confirmar el pago.
-   */
-  @Auth([RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.SELLER])
-  @Post('redeem')
-  redeem(
-    @Body() redeemPromoDto: RedeemPromoGatewayDto,
-    @User('userId') userId: number,
-  ) {
-    return this.promosGatewayService.redeem(redeemPromoDto, userId);
   }
 }

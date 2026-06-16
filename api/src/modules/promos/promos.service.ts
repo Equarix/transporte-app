@@ -5,6 +5,19 @@ import { CreatePromoGatewayDto } from './dto/create-promo.dto';
 import { UpdatePromoGatewayDto } from './dto/update-promo.dto';
 import { RedeemPromoGatewayDto } from './dto/redeem-promo.dto';
 
+export interface PromoFromMicroservice {
+  promoId: number;
+  code: string;
+  name: string;
+  description: string | null;
+  startsAt: string | Date;
+  expiresAt: string | Date;
+  status: string;
+  minimumPurchaseAmount: number;
+  discountValue: number | null;
+  discountMode: string | null;
+}
+
 @Injectable()
 export class PromosGatewayService {
   constructor(
@@ -31,7 +44,11 @@ export class PromosGatewayService {
     return firstValueFrom(this.paymentClient.send('findOnePromo', id));
   }
 
-  async update(id: number, dto: UpdatePromoGatewayDto, updatedByUserId: number) {
+  async update(
+    id: number,
+    dto: UpdatePromoGatewayDto,
+    updatedByUserId: number,
+  ) {
     return firstValueFrom(
       this.paymentClient.send('updatePromo', {
         ...dto,
@@ -47,8 +64,6 @@ export class PromosGatewayService {
     );
   }
 
-  // ─── Canje ─────────────────────────────────────────────────────────────────
-
   async validate(dto: RedeemPromoGatewayDto, userId: number) {
     return firstValueFrom(
       this.paymentClient.send('validatePromo', { ...dto, userId }),
@@ -58,6 +73,12 @@ export class PromosGatewayService {
   async redeem(dto: RedeemPromoGatewayDto, userId: number) {
     return firstValueFrom(
       this.paymentClient.send('redeemPromo', { ...dto, userId }),
+    );
+  }
+
+  async findActive(userId: number) {
+    return firstValueFrom<PromoFromMicroservice[]>(
+      this.paymentClient.send('findActivePromosByUser', userId),
     );
   }
 }

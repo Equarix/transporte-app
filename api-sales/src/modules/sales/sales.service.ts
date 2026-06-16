@@ -12,6 +12,7 @@ import {
 } from '../points-user/entities/points-user.entity';
 import { SalePayer } from './entities/sale_payer.entity';
 import { parse } from 'date-fns';
+import { PromosService } from '../promos/promos.service';
 
 @Injectable()
 export class SalesService {
@@ -28,6 +29,7 @@ export class SalesService {
     private salePayerRepository: Repository<SalePayer>,
 
     private dataSource: DataSource,
+    private promosService: PromosService,
   ) {}
 
   async create(createSaleDto: CreateSaleDtoService) {
@@ -41,6 +43,7 @@ export class SalesService {
       fromDestinationId,
       toDestinationId,
       busId,
+      promoCode,
     } = createSaleDto;
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -147,11 +150,21 @@ export class SalesService {
         pointsUsers: pointUsers,
       };
 
+      if (promoCode) {
+        const subtotal = passengers.reduce((sum, p) => sum + p.price, 0);
+        await this.promosService.redeem({
+          code: promoCode,
+          saleId: saveSale.saleId,
+          userId,
+          purchaseAmount: subtotal,
+        });
+      }
+
       await queryRunner.commitTransaction();
       return responseSale;
-    } catch {
+    } catch (err) {
       await queryRunner.rollbackTransaction();
-      return 'Error al crear la venta';
+      throw err;
     } finally {
       await queryRunner.release();
     }
@@ -438,5 +451,18 @@ export class SalesService {
     return {
       routeMetrics,
     };
+  }
+
+  async findUserSales(userId: number) {
+    return this.saleRepository.find({
+      where: { userId },
+      relations: {
+        saleDetails: true,
+        salePayer: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 }

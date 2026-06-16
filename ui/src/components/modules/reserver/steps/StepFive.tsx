@@ -26,6 +26,9 @@ export default function StepFive() {
     bus,
   } = useBooking();
 
+  const [appliedPromoCode, setAppliedPromoCode] = React.useState<string>("");
+  const [promoDiscount, setPromoDiscount] = React.useState<number>(0);
+
   const originName = response?.origin?.name || "TRUJILLO";
   const destinationName = response?.destination?.name || "LIMA";
   // Mock terminal names for now, or use from response if available
@@ -102,6 +105,7 @@ export default function StepFive() {
           ...seat,
         };
       }),
+      promoCode: appliedPromoCode || undefined,
     };
 
     mutate(payload);
@@ -139,6 +143,12 @@ export default function StepFive() {
             isReadyToPay={isReadyToPay}
             isPending={isPending}
             hotelSelected={hotelSelected}
+            appliedPromoCode={appliedPromoCode}
+            promoDiscount={promoDiscount}
+            onPromoApplied={(code, discount) => {
+              setAppliedPromoCode(code);
+              setPromoDiscount(discount);
+            }}
           />
         </div>
 

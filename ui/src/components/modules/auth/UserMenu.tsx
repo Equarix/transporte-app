@@ -15,17 +15,17 @@ const MENU_OPTIONS: MenuOption[] = [
   {
     label: "Mi Perfil",
     icon: <LuUser />,
-    href: "/perfil",
+    href: "/perfil?tab=profile",
   },
   {
     label: "Mis Reservas",
     icon: <LuTicket />,
-    href: "/reservas",
+    href: "/perfil?tab=tickets",
   },
   {
     label: "Configuración",
     icon: <LuSettings />,
-    href: "/configuracion",
+    href: "/perfil?tab=settings",
   },
 ];
 

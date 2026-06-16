@@ -12,6 +12,7 @@ import RoutesReportPage from "@/modules/reports/pages/RoutesReportPage";
 import MapProvider from "@/components/providers/MapProvider";
 import { ENV } from "@/config/env";
 import PromosPage from "@/modules/promos/pages/PromosPage";
+import ReviewsPage from "@/modules/resenas/pages/ReviewsPage";
 
 export default function DashboardRoutes() {
   return (
@@ -42,6 +43,7 @@ export default function DashboardRoutes() {
         }
       />
       <Route path="/promos" element={<PromosPage />} />
+      <Route path="/reviews" element={<ReviewsPage />} />
     </Routes>
   );
 }

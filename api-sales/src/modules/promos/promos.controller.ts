@@ -21,6 +21,11 @@ export class PromosController {
     return this.promosService.findAll();
   }
 
+  @MessagePattern('findActivePromosByUser')
+  findActivePromosByUser(@Payload() userId: number) {
+    return this.promosService.findActivePromosByUser(userId);
+  }
+
   @MessagePattern('findOnePromo')
   findOne(@Payload() id: number) {
     return this.promosService.findOne(id);

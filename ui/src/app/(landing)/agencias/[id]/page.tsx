@@ -128,7 +128,8 @@ export default async function DetailAgency({
 
         <div className="w-full grid-cols-4 grid gap-6">
           {agency.services.map((s) => {
-            const IconRender = Lu[s.icon as keyof typeof Lu];
+            const IconRender =
+              Lu[s.icon as keyof typeof Lu] ?? Lu["LuFileWarning"];
 
             return (
               <article

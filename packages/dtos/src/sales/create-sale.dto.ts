@@ -214,4 +214,8 @@ export class CreateSaleDto {
   @IsNumber()
   @IsNotEmpty()
   toDestinationId: number;
+
+  @IsString()
+  @IsOptional()
+  promoCode?: string;
 }

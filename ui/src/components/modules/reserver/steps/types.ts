@@ -34,4 +34,5 @@ export interface BookingPayload {
   busId: number;
   fromDestinationId: number;
   toDestinationId: number;
+  promoCode?: string;
 }

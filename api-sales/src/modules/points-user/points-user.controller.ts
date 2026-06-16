@@ -37,4 +37,14 @@ export class PointsUserController {
   getPointsReport() {
     return this.pointsUserService.getPointsReport();
   }
+
+  @MessagePattern('getUserPoints')
+  getUserPoints(@Payload() userId: number) {
+    return this.pointsUserService.getUserPoints(userId);
+  }
+
+  @MessagePattern('redeemPoints')
+  redeemPoints(@Payload() data: { userId: number; rewardId: string; points: number }) {
+    return this.pointsUserService.redeemPoints(data.userId, data.rewardId, data.points);
+  }
 }

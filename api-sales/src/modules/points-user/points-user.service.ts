@@ -3,13 +3,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePointsUserDto } from './dto/create-points-user.dto';
 import { UpdatePointsUserDto } from './dto/update-points-user.dto';
-import { PointsUser, TypePointsMovement } from './entities/points-user.entity';
+import { PointsFrom, PointsUser, TypePointsMovement } from './entities/points-user.entity';
+import { Promo, PromoStatus, PromoType, DiscountMode } from '../promos/entities/promo.entity';
+import { PromoRedemption, RedemptionStatus } from '../promos/entities/promo-redemption.entity';
 
 @Injectable()
 export class PointsUserService {
   constructor(
     @InjectRepository(PointsUser)
     private readonly pointsUserRepository: Repository<PointsUser>,
+    @InjectRepository(Promo)
+    private readonly promoRepository: Repository<Promo>,
+    @InjectRepository(PromoRedemption)
+    private readonly redemptionRepository: Repository<PromoRedemption>,
   ) {}
 
   create(createPointsUserDto: CreatePointsUserDto) {
@@ -137,5 +143,110 @@ export class PointsUserService {
       redemptionRate,
       topMembers,
     };
+  }
+
+  async getUserPoints(userId: number) {
+    const movements = await this.pointsUserRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+
+    const balance = movements.reduce((acc, curr) => {
+      return curr.type === TypePointsMovement.ADDITION ? acc + curr.points : acc - curr.points;
+    }, 0);
+
+    return {
+      balance,
+      movements,
+    };
+  }
+
+  async redeemPoints(userId: number, rewardId: string, points: number) {
+    const userPoints = await this.getUserPoints(userId);
+    if (userPoints.balance < points) {
+      throw new Error('Puntos insuficientes');
+    }
+
+    // Map reward ID to Promo specifications
+    let promoCode = '';
+    let promoName = '';
+    let promoDescription = '';
+    let promoType = PromoType.DESCUENTO;
+    let discountMode: DiscountMode | null = null;
+    let discountValue = 0;
+    let giftDescription: string | null = null;
+
+    if (rewardId === 'desc15') {
+      promoCode = 'DESC15';
+      promoName = '15% Descuento';
+      promoDescription = 'Descuento del 15% en tu próximo pasaje nacional.';
+      promoType = PromoType.DESCUENTO;
+      discountMode = DiscountMode.PORCENTAJE;
+      discountValue = 15;
+    } else if (rewardId === 'upgrade_suite') {
+      promoCode = 'UPGRADE_SUITE';
+      promoName = 'Upgrade a Suite Class';
+      promoDescription = 'Sube de categoría a Suite Class y viaja con la máxima comodidad.';
+      promoType = PromoType.DESCUENTO;
+      discountMode = DiscountMode.PORCENTAJE;
+      discountValue = 100;
+    } else if (rewardId === 'desayuno_bordo') {
+      promoCode = 'DESAYUNO_BORDO';
+      promoName = 'Desayuno a bordo gratis';
+      promoDescription = 'Disfruta de un desayuno de cortesía durante tu viaje.';
+      promoType = PromoType.REGALO;
+      giftDescription = 'Desayuno a bordo';
+    } else {
+      throw new Error('Tipo de recompensa inválido');
+    }
+
+    // Find or create the Promo in database
+    let promo = await this.promoRepository.findOne({
+      where: { code: promoCode },
+    });
+
+    if (!promo) {
+      const now = new Date();
+      const oneYearFromNow = new Date();
+      oneYearFromNow.setFullYear(now.getFullYear() + 1);
+
+      promo = this.promoRepository.create({
+        code: promoCode,
+        name: promoName,
+        description: promoDescription,
+        promoType,
+        discountMode: discountMode ?? undefined,
+        discountValue,
+        giftDescription: giftDescription ?? undefined,
+        startsAt: now,
+        expiresAt: oneYearFromNow,
+        status: PromoStatus.ACTIVO,
+        minimumPurchaseAmount: 0,
+        createdByUserId: 1, // Default Admin
+      });
+      promo = await this.promoRepository.save(promo);
+    }
+
+    // Save point subtraction
+    const pointMovement = this.pointsUserRepository.create({
+      userId,
+      points,
+      pointsFrom: PointsFrom.REWARD,
+      type: TypePointsMovement.SUBTRACTION,
+    });
+    await this.pointsUserRepository.save(pointMovement);
+
+    // Create PENDIENTE redemption associated with the promo (using saleId = 0 as placeholder)
+    const redemption = this.redemptionRepository.create({
+      userId,
+      saleId: 0,
+      discountApplied: 0,
+      giftDelivered: giftDescription ?? undefined,
+      status: RedemptionStatus.PENDIENTE,
+      promo,
+    });
+    await this.redemptionRepository.save(redemption);
+
+    return pointMovement;
   }
 }

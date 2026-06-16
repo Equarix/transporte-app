@@ -7,6 +7,7 @@ import { SaleDetail } from './entities/sale_detail.entity';
 import { HotelDetail } from './entities/hotel_detail.entity';
 import { PointsUser } from '../points-user/entities/points-user.entity';
 import { SalePayer } from './entities/sale_payer.entity';
+import { PromosModule } from '../promos/promos.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { SalePayer } from './entities/sale_payer.entity';
       PointsUser,
       SalePayer,
     ]),
+    PromosModule,
   ],
   controllers: [SalesController],
   providers: [SalesService],

@@ -46,4 +46,9 @@ export class SalesController {
   getRoutesReport() {
     return this.salesService.getRoutesReport();
   }
+
+  @MessagePattern('findUserSales')
+  findUserSales(@Payload() userId: number) {
+    return this.salesService.findUserSales(userId);
+  }
 }

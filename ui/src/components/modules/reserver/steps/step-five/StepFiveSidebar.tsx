@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { SeatSelection } from "@/context/BookingProvider";
 import { FaLock } from "react-icons/fa";
+import { instance } from "@/config/axios";
+import { ApiResponse } from "@/interface/utils.interface";
 
 interface StepFiveSidebarProps {
   origin: string;
@@ -15,6 +17,9 @@ interface StepFiveSidebarProps {
   isReadyToPay: boolean;
   isPending?: boolean;
   hotelSelected?: any | null;
+  appliedPromoCode: string;
+  promoDiscount: number;
+  onPromoApplied: (code: string, discount: number) => void;
 }
 
 export default function StepFiveSidebar({
@@ -30,21 +35,74 @@ export default function StepFiveSidebar({
   isReadyToPay,
   isPending,
   hotelSelected,
+  appliedPromoCode,
+  promoDiscount,
+  onPromoApplied,
 }: StepFiveSidebarProps) {
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [isVerifyingCoupon, setIsVerifyingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
 
   const hotelNights = (() => {
-    if (!hotelSelected?.checkIn || !hotelSelected?.checkOut) return hotelSelected?.nights || 1;
+    if (!hotelSelected?.checkIn || !hotelSelected?.checkOut)
+      return hotelSelected?.nights || 1;
     const checkInDate = new Date(hotelSelected.checkIn);
     const checkOutDate = new Date(hotelSelected.checkOut);
     const diffTime = Math.abs(checkOutDate.getTime() - checkInDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays > 0 ? diffDays : 1;
   })();
-  const hotelCost = hotelSelected ? (hotelSelected.price_per_night * hotelNights) : 0;
+  const hotelCost = hotelSelected
+    ? hotelSelected.price_per_night * hotelNights
+    : 0;
 
   const subtotal = selectedSeats.reduce((acc, seat) => acc + seat.price, 0);
-  const total = subtotal + serviceCharge + hotelCost;
+  const total = Math.max(
+    0,
+    subtotal + serviceCharge + hotelCost - promoDiscount,
+  );
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setIsVerifyingCoupon(true);
+    setCouponError("");
+
+    try {
+      const res = await instance.post<
+        ApiResponse<{
+          valid: boolean;
+          message: string;
+          discountAmount?: number;
+        }>
+      >("/promos/validate", {
+        code: couponCode.trim(),
+        saleId: 1,
+        purchaseAmount: subtotal,
+      });
+
+      const body = res.data?.body;
+      if (body?.valid) {
+        onPromoApplied(couponCode.trim(), body.discountAmount || 0);
+        setCouponError("");
+      } else {
+        setCouponError(body?.message || "Cupón inválido");
+        onPromoApplied("", 0);
+      }
+    } catch (err) {
+      console.error(err);
+      setCouponError("Error al validar el cupón");
+      onPromoApplied("", 0);
+    } finally {
+      setIsVerifyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    onPromoApplied("", 0);
+    setCouponCode("");
+    setCouponError("");
+  };
 
   return (
     <div className="bg-[#f8f6f4] rounded-4xl p-8 border border-gray-100 flex flex-col h-full sticky top-4">
@@ -118,6 +176,53 @@ export default function StepFiveSidebar({
         </div>
       )}
 
+      {/* Coupon Input Section */}
+      <div className="bg-white rounded-2xl p-5 shadow-xs mb-6 border border-gray-100">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">
+          ¿Tienes un cupón de descuento?
+        </label>
+        <div className="relative flex items-center">
+          <input
+            type="text"
+            placeholder="CÓDIGO DE CUPÓN"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+            disabled={!!appliedPromoCode}
+            className="w-full pl-4 pr-22 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 focus:outline-hidden focus:ring-2 focus:ring-[#e87722]/20 focus:border-[#e87722] uppercase placeholder:text-gray-300 disabled:bg-gray-50 disabled:text-gray-400 text-gray-700"
+          />
+          <div className="absolute right-1">
+            {appliedPromoCode ? (
+              <button
+                type="button"
+                onClick={handleRemoveCoupon}
+                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-lg text-[10px] transition-all border border-red-100"
+              >
+                Quitar
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={isVerifyingCoupon || !couponCode.trim()}
+                className="px-3 py-1.5 bg-[#8b5a2b] hover:bg-[#724921] disabled:bg-gray-200 disabled:text-gray-400 text-white font-bold rounded-lg text-[10px] transition-all"
+              >
+                {isVerifyingCoupon ? "..." : "Aplicar"}
+              </button>
+            )}
+          </div>
+        </div>
+        {couponError && (
+          <p className="text-[10px] font-bold text-red-500 mt-2">
+            {couponError}
+          </p>
+        )}
+        {appliedPromoCode && (
+          <p className="text-[10px] font-bold text-emerald-600 mt-2">
+            ¡Cupón "{appliedPromoCode}" aplicado!
+          </p>
+        )}
+      </div>
+
       <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
         <div className="space-y-4 mb-6">
           <div className="flex justify-between items-center text-sm">
@@ -142,6 +247,12 @@ export default function StepFiveSidebar({
               <span className="font-bold text-gray-900">
                 S/ {serviceCharge.toFixed(2)}
               </span>
+            </div>
+          )}
+          {promoDiscount > 0 && (
+            <div className="flex justify-between items-center text-sm text-emerald-600 font-bold bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100/50">
+              <span>Descuento Cupón ({appliedPromoCode})</span>
+              <span>- S/ {promoDiscount.toFixed(2)}</span>
             </div>
           )}
         </div>
