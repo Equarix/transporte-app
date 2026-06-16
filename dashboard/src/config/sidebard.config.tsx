@@ -121,27 +121,27 @@ export const SideBarConfig: SideBarConfigProps = {
           icon: <LuPlus />,
           children: [],
         },
-        {
-          label: "Programacion",
-          href: "/bus/reservers",
-          icon: <GrSchedules />,
-          children: [
-            {
-              label: "Lista de programaciones",
-              href: "/bus/reservers",
-              icon: <GrSchedules />,
-              children: [],
-            },
-            {
-              label: "Crear programacion",
-              href: "/bus/reservers/create",
-              icon: <LuPlus />,
-              children: [],
-            },
-          ],
-        },
       ],
       href: "/bus",
+    },
+    {
+      label: "Programacion",
+      href: "/bus/reservers",
+      icon: <GrSchedules />,
+      children: [
+        {
+          label: "Lista de programaciones",
+          href: "/bus/reservers",
+          icon: <GrSchedules />,
+          children: [],
+        },
+        {
+          label: "Crear programacion",
+          href: "/bus/reservers/create",
+          icon: <LuPlus />,
+          children: [],
+        },
+      ],
     },
     {
       label: "Usuarios",

@@ -8,6 +8,7 @@ import { Profile } from './entities/profile.entity';
 import { Like, Not, Repository } from 'typeorm';
 import { TypeUser } from './enum/type-user.enum';
 import { CreateUserDtoAdmin } from './dto/create-user-admin.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { QueryUserDto } from './dto/query-user.dto';
 import { User } from '../auth/entities/user.entity';
 import { hash } from 'bcryptjs';
@@ -180,5 +181,24 @@ export class UserService {
       ...updatedUser,
       profile: updatedProfile,
     };
+  }
+
+  async updateProfile(userId: number, updateProfileDto: UpdateProfileDto) {
+    const profile = await this.profileRepository.findOne({
+      where: {
+        user: {
+          userId,
+        },
+      },
+    });
+
+    if (!profile) {
+      throw new NotFoundException('Profile not found');
+    }
+
+    const updatedProfile = this.profileRepository.merge(profile, updateProfileDto);
+    await this.profileRepository.save(updatedProfile);
+
+    return updatedProfile;
   }
 }

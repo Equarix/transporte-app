@@ -12,6 +12,7 @@ import { Auth } from 'src/common/decorator/auth/auth.decorator';
 import { User } from 'src/common/decorator/user/user.decorator';
 import { RoleEnum } from 'src/common/enum/role.enum';
 import { CreateUserDtoAdmin } from './dto/create-user-admin.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { QueryUserDto } from './dto/query-user.dto';
 
 @Auth()
@@ -46,6 +47,14 @@ export class UserController {
   @Get(':id')
   getUserById(@Param('id') id: string) {
     return this.userService.getUserById(+id);
+  }
+
+  @Patch('profile')
+  updateProfile(
+    @User('userId') userId: number,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.userService.updateProfile(userId, updateProfileDto);
   }
 
   @Auth([RoleEnum.ADMIN])

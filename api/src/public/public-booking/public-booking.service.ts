@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Destination } from 'src/modules/destination/entities/destination.entity';
 import { Reserver } from 'src/modules/reserver/entities/reserver.entity';
-import { DataSource, In, Repository } from 'typeorm';
+import { Between, DataSource, In, Repository } from 'typeorm';
 import { QueryDestinationDto } from './dto/query-destination.dto';
 import { StatusReserverEnum } from 'src/modules/reserver/enum/status-reserver.enum';
 
@@ -35,11 +35,18 @@ export class PublicBookingService {
       throw new NotFoundException('Origin or destination not found');
     }
 
+    const checkInDate = new Date(checkIn);
+    const startDate = new Date(checkInDate);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(checkInDate);
+    endDate.setHours(23, 59, 59, 999);
+
     const reserver = await this.reserverRepository.find({
       where: {
         checkIn: originDestination,
         checkOut: destinationDestination,
-        date: checkIn,
+        date: Between(startDate, endDate),
         status: StatusReserverEnum.CONFIRMED,
       },
       relations: {
