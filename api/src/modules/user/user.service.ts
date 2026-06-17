@@ -65,6 +65,8 @@ export interface SaleFromMicroservice {
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectRepository(Profile) private profileRepository: Repository<Profile>,
     @InjectRepository(User) private userRepository: Repository<User>,
@@ -73,9 +75,7 @@ export class UserService {
     private httpService: HttpService,
     private configService: ConfigService,
     @Inject('PAYMENT_SERVICE') private readonly paymentClient: ClientProxy,
-  ) {
-    this.logger = new Logger(UserService.name);
-  }
+  ) {}
 
   async getProfile(userId: number) {
     const profile = await this.profileRepository.findOne({

@@ -16,4 +16,9 @@ export class PublicDestinationController {
   async getDestinosConectados() {
     return this.publicDestinationService.getDestinosConectados();
   }
+
+  @Get('/tourist-reviews')
+  async getTouristReviews() {
+    return this.publicDestinationService.getTouristReviews();
+  }
 }
