@@ -72,6 +72,9 @@ async function getTouristReviews(): Promise<TouristReviewData[]> {
   }
 }
 
+import LiveTrackingWidget from "@/components/modules/home/LiveTrackingWidget";
+import PromoAlertWidget from "@/components/modules/home/PromoAlertWidget";
+
 export default async function Home() {
   const routes = await getMapRoutes();
   const touristData = await getTouristReviews();
@@ -79,6 +82,8 @@ export default async function Home() {
   return (
     <main>
       <HeroFind />
+      
+      {/* Rutas Frecuentes */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
@@ -93,9 +98,26 @@ export default async function Home() {
         </MapProvider>
       </section>
 
+      {/* Servicios Inteligentes y de IA en Tiempo Real */}
+      <section className="bg-gray-50/50 border-t border-b border-gray-100 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
+              Servicios <span className="text-[#e87722]">Inteligentes y de IA</span>
+            </h2>
+            <p className="text-gray-500 mt-2 text-lg">
+              Prueba nuestras nuevas herramientas de rastreo satelital activo y alertas automatizadas de ofertas.
+            </p>
+          </div>
+
+          <LiveTrackingWidget />
+          <PromoAlertWidget />
+        </div>
+      </section>
+
       {/* Seccion de Reseñas y Turismo */}
       {touristData && touristData.length > 0 && (
-        <section className="bg-gradient-to-b from-amber-50/10 to-[#fdfcfb] border-t border-gray-100 py-16">
+        <section className="bg-gradient-to-b from-amber-50/10 to-[#fdfcfb] py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">

@@ -21,6 +21,8 @@ import { ReportsModule } from './modules/reports/reports.module';
 
 import { PromosGatewayModule } from './modules/promos/promos.module';
 import { ResenaModule } from './modules/resena/resena.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { TrackingModule } from './modules/tracking/tracking.module';
 
 @Module({
   imports: [
@@ -63,6 +65,8 @@ import { ResenaModule } from './modules/resena/resena.module';
 
     PromosGatewayModule,
     ResenaModule,
+    NotificationsModule,
+    TrackingModule,
   ],
   controllers: [],
   providers: [],

@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, Get, Param } from '@nestjs/common';
 import { PublicIaService } from './public-ia.service';
 
 @Controller('public/ia')
@@ -9,5 +9,16 @@ export class PublicIaController {
   @HttpCode(HttpStatus.OK)
   async handleWebhook(@Body() payload: Record<string, any>) {
     return this.publicIaService.forwardWebhook(payload);
+  }
+
+  @Get('tracking/:reserverId')
+  async getTracking(@Param('reserverId') reserverId: string) {
+    return this.publicIaService.getTracking(reserverId);
+  }
+
+  @Post('alerts/whatsapp')
+  @HttpCode(HttpStatus.OK)
+  async simulateWhatsapp(@Body() payload: Record<string, any>) {
+    return this.publicIaService.simulateWhatsapp(payload);
   }
 }

@@ -383,6 +383,59 @@ function ProfileContent() {
   const { user, logout, setUser } = useAuth();
 
   const activeTab = searchParams.get("tab") || "profile";
+  const [interestOriginId, setInterestOriginId] = useState<string>("");
+  const [interestDestinationId, setInterestDestinationId] = useState<string>("");
+  const [interestTravelDate, setInterestTravelDate] = useState<string>("");
+  const [whatsappPhone, setWhatsappPhone] = useState<string>("");
+  const [whatsappDestination, setWhatsappDestination] = useState<string>("");
+
+  const { data: destinationsResponse } = useQuery<ApiResponse<Destination[]>>({
+    queryKey: ["allDestinations"],
+    queryFn: async () => {
+      const res = await instance.get<ApiResponse<Destination[]>>("/public/destination");
+      return res.data;
+    },
+  });
+  const destinationsList = destinationsResponse?.body || [];
+
+  const { data: alertsResponse } = useQuery<any[]>({
+    queryKey: ["userAlerts"],
+    queryFn: async () => {
+      const res = await instance.get("/notifications/alerts");
+      return res.data;
+    },
+    enabled: !!user,
+  });
+  const alertsList = alertsResponse || [];
+
+  const saveInterestMutation = useMutation({
+    mutationFn: async (data: { originId: number; destinationId: number; travelDate: string }) => {
+      const res = await instance.post("/notifications/interests", data);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("¡Intereses guardados! Te avisaremos de ofertas personalizadas.");
+      queryClient.invalidateQueries({ queryKey: ["userAlerts"] });
+    },
+    onError: () => {
+      toast.error("Error al guardar intereses.");
+    }
+  });
+
+  const simulateWhatsAppMutation = useMutation({
+    mutationFn: async (data: { phone: string; destinationName: string }) => {
+      const res = await instance.post("/notifications/whatsapp-simulate", data);
+      return res.data;
+    },
+    onSuccess: (res) => {
+      toast.success(`Simulación exitosa: WhatsApp enviado a ${res.recipient}`);
+      queryClient.invalidateQueries({ queryKey: ["userAlerts"] });
+    },
+    onError: () => {
+      toast.error("Error al simular alerta de WhatsApp.");
+    }
+  });
+
   const [subTab, setSubTab] = useState<"upcoming" | "past" | "cancelled">(
     "upcoming",
   );
@@ -1271,16 +1324,26 @@ function ProfileContent() {
                       {/* Row 4: Footer Buttons */}
                       <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
                         {isUpcoming && (
-                          <button
-                            onClick={() =>
-                              toast.info(
-                                "Comunícate con soporte para reprogramar",
-                              )
-                            }
-                            className="px-5 py-2.5 bg-white border border-gray-200 text-[#5D4037] hover:bg-gray-50 font-bold rounded-xl text-xs transition-all shadow-xs"
-                          >
-                            Gestionar viaje
-                          </button>
+                          <>
+                            <button
+                              onClick={() =>
+                                router.push(`/reservas/seguimiento?id=${ticket.reserverId}`)
+                              }
+                              className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs"
+                            >
+                              Seguir Viaje
+                            </button>
+                            <button
+                              onClick={() =>
+                                toast.info(
+                                  "Comunícate con soporte para reprogramar",
+                                )
+                              }
+                              className="px-5 py-2.5 bg-white border border-gray-200 text-[#5D4037] hover:bg-gray-50 font-bold rounded-xl text-xs transition-all shadow-xs"
+                            >
+                              Gestionar viaje
+                            </button>
+                          </>
                         )}
                         {!isCancelled && (
                           <button
@@ -1842,6 +1905,157 @@ function ProfileContent() {
                   Modificar
                 </button>
               </div>
+            </div>
+
+            {/* Travel Interests (RF-04) */}
+            <div className="bg-white border border-gray-150 rounded-2xl p-5 space-y-4 mt-6">
+              <h3 className="text-base font-black text-gray-800 border-b border-gray-50 pb-2">
+                Intereses de Viaje y Ofertas Personalizadas
+              </h3>
+              <p className="text-xs text-[#8B7E74]">
+                Registra tus rutas de interés y las fechas en las que tienes planeado viajar. El sistema generará y te enviará cupones de descuento especiales para estos destinos.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Origen</label>
+                  <select
+                    value={interestOriginId}
+                    onChange={(e) => setInterestOriginId(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-hidden"
+                  >
+                    <option value="">Selecciona origen</option>
+                    {destinationsList.map((d) => (
+                      <option key={d.destinationId} value={d.destinationId}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Destino</label>
+                  <select
+                    value={interestDestinationId}
+                    onChange={(e) => setInterestDestinationId(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-hidden"
+                  >
+                    <option value="">Selecciona destino</option>
+                    {destinationsList.map((d) => (
+                      <option key={d.destinationId} value={d.destinationId}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Fecha de viaje</label>
+                  <input
+                    type="date"
+                    value={interestTravelDate}
+                    onChange={(e) => setInterestTravelDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={() => {
+                    if (!interestOriginId || !interestDestinationId || !interestTravelDate) {
+                      toast.error("Por favor completa todos los campos de preferencia.");
+                      return;
+                    }
+                    saveInterestMutation.mutate({
+                      originId: parseInt(interestOriginId),
+                      destinationId: parseInt(interestDestinationId),
+                      travelDate: interestTravelDate,
+                    });
+                  }}
+                  disabled={saveInterestMutation.isPending}
+                  className="px-5 py-2.5 bg-[#5D4037] hover:bg-[#4E342E] text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50"
+                >
+                  Guardar Preferencias
+                </button>
+              </div>
+            </div>
+
+            {/* WhatsApp Simulation Form */}
+            <div className="bg-white border border-gray-150 rounded-2xl p-5 space-y-4 mt-6">
+              <h3 className="text-base font-black text-gray-800 border-b border-gray-50 pb-2">
+                Prueba de Canal: Enviar Alerta por WhatsApp
+              </h3>
+              <p className="text-xs text-[#8B7E74]">
+                Envía una alerta de promoción simulada a tu teléfono (o número registrado) usando el servicio de IA.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Número de Teléfono</label>
+                  <input
+                    type="text"
+                    value={whatsappPhone}
+                    onChange={(e) => setWhatsappPhone(e.target.value)}
+                    placeholder="Escribe tu celular"
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-hidden"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Destino de la Alerta</label>
+                  <select
+                    value={whatsappDestination}
+                    onChange={(e) => setWhatsappDestination(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-hidden"
+                  >
+                    <option value="">Selecciona un destino</option>
+                    {destinationsList.map((d) => (
+                      <option key={d.destinationId} value={d.name}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={() => {
+                    if (!whatsappPhone || !whatsappDestination) {
+                      toast.error("Ingresa tu teléfono y selecciona el destino para simular.");
+                      return;
+                    }
+                    simulateWhatsAppMutation.mutate({
+                      phone: whatsappPhone,
+                      destinationName: whatsappDestination,
+                    });
+                  }}
+                  disabled={simulateWhatsAppMutation.isPending}
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all disabled:opacity-50"
+                >
+                  Enviar Alerta WhatsApp
+                </button>
+              </div>
+            </div>
+
+            {/* Notification Alerts Logs */}
+            <div className="bg-white border border-gray-150 rounded-2xl p-5 space-y-4 mt-6">
+              <h3 className="text-base font-black text-gray-800 border-b border-gray-50 pb-2">
+                Bandeja de Entrada de Alertas
+              </h3>
+              {alertsList.length === 0 ? (
+                <p className="text-xs text-gray-400 text-center py-6">No has recibido alertas o cupones todavía.</p>
+              ) : (
+                <div className="space-y-3">
+                  {alertsList.map((alert: any) => (
+                    <div key={alert.alertId} className="bg-gray-50/50 border border-gray-100 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <h4 className="font-extrabold text-xs text-gray-800">{alert.title}</h4>
+                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">{alert.message}</p>
+                        <span className="text-[9px] text-gray-400 font-medium mt-2 block">
+                          Recibido: {new Date(alert.sentAt).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-2 text-center shrink-0">
+                        <span className="text-[10px] font-black text-amber-800 block">{alert.discount}</span>
+                        <span className="text-xs font-black text-[#5D4037] block mt-1 font-mono tracking-wider select-all">{alert.code}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
