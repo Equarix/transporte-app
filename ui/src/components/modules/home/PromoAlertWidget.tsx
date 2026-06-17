@@ -57,11 +57,11 @@ export default function PromoAlertWidget() {
     setSimulatedMessage(null);
     try {
       // Direct call to public/ia proxy endpoint for simulation
-      const res = await instance.post<WhatsappResponse>(
+      const res = await instance.post<any>(
         "/public/ia/alerts/whatsapp",
         data
       );
-      setSimulatedMessage(res.data);
+      setSimulatedMessage(res.data?.body || null);
       reset({ phone: "", destinationName: "" });
     } catch (err) {
       console.error("Error simulating WhatsApp alert", err);

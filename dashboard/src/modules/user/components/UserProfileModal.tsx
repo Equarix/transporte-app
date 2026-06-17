@@ -18,6 +18,8 @@ import {
 } from "react-icons/lu";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useState } from "react";
+import { instance } from "@/libs/axios";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -46,9 +48,38 @@ export default function UserProfileModal({
   onOpenChange,
   user,
 }: UserProfileModalProps) {
+  const [destination, setDestination] = useState("Trujillo");
+  const [loading, setLoading] = useState(false);
+  const [alertStatus, setAlertStatus] = useState<string | null>(null);
+
   if (!user) return null;
 
   const profile = user.profile;
+
+  const handleSendPromo = async () => {
+    if (!profile?.phone) return;
+    setLoading(true);
+    setAlertStatus(null);
+    try {
+      const response = await instance.post<any>("/public/ia/alerts/whatsapp", {
+        phone: profile.phone,
+        destinationName: destination,
+      });
+      const body = response.data?.body;
+      if (body?.success) {
+        setAlertStatus(
+          `¡Alerta enviada con éxito! Mensaje: "${body.message}"`
+        );
+      } else {
+        setAlertStatus("Ocurrió un error al enviar la alerta.");
+      }
+    } catch (error) {
+      console.error(error);
+      setAlertStatus("Error de conexión al enviar la alerta.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Modal
@@ -149,6 +180,51 @@ export default function UserProfileModal({
                   label="Tipo de Usuario"
                   value={TYPE_USER_LABELS[profile.typeUser] || profile.typeUser}
                 />
+              </div>
+
+              <Divider className="my-2" />
+
+              {/* Alertas de Promociones WhatsApp */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-black text-foreground">
+                  Campañas de Promoción Personalizadas (RF-04)
+                </h4>
+                <p className="text-xs text-default-500">
+                  Envía una alerta de WhatsApp al número de este usuario ({profile.phone || "Sin teléfono registrado"}) mediante el servicio de IA en Python.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 items-end">
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[10px] font-bold text-default-400 uppercase tracking-wider block">
+                      Destino Recomendado
+                    </label>
+                    <select
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      className="w-full px-3 py-2 bg-default-50 dark:bg-zinc-800 border border-default-200 dark:border-zinc-700 rounded-xl text-xs focus:outline-none"
+                    >
+                      <option value="Trujillo">Trujillo</option>
+                      <option value="Lima">Lima</option>
+                      <option value="Chiclayo">Chiclayo</option>
+                      <option value="Cajamarca">Cajamarca</option>
+                      <option value="Chimbote">Chimbote</option>
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSendPromo}
+                    disabled={!profile.phone || loading}
+                    className="px-4 py-2 bg-[#e87722] hover:bg-[#d66513] disabled:bg-default-150 disabled:text-default-400 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                  >
+                    {loading ? "Enviando..." : "Enviar Alerta WhatsApp"}
+                  </button>
+                </div>
+                {alertStatus && (
+                  <div className="p-3 bg-success-50 dark:bg-emerald-950/20 border border-success-200 dark:border-emerald-800/30 rounded-xl mt-2">
+                    <p className="text-xs text-success-700 dark:text-emerald-400 font-bold">
+                      {alertStatus}
+                    </p>
+                  </div>
+                )}
               </div>
             </ModalBody>
           </>

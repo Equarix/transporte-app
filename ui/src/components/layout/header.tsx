@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import UserMenu from "@/components/modules/auth/UserMenu";
 import { useAuth } from "@/context/AuthContext";
+import NotificationBell from "./NotificationBell";
 
 const NAV_LINKS = [
   {
@@ -64,16 +65,19 @@ export default function Header() {
         </ul>
       </nav>
 
-      {mounted && user ? (
-        <UserMenu user={user} onLogout={logout} />
-      ) : (
-        <Link
-          href="/auth/login"
-          className="px-6 py-2.5 rounded-full bg-amber-600 text-white text-sm font-bold shadow-md hover:bg-amber-700 transition-all hover:scale-105 active:scale-95"
-        >
-          Iniciar Sesión
-        </Link>
-      )}
+      <div className="flex items-center gap-4">
+        {mounted && user && <NotificationBell />}
+        {mounted && user ? (
+          <UserMenu user={user} onLogout={logout} />
+        ) : (
+          <Link
+            href="/auth/login"
+            className="px-6 py-2.5 rounded-full bg-amber-600 text-white text-sm font-bold shadow-md hover:bg-amber-700 transition-all hover:scale-105 active:scale-95"
+          >
+            Iniciar Sesión
+          </Link>
+        )}
+      </div>
     </header>
   );
 }

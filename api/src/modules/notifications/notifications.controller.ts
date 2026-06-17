@@ -34,4 +34,16 @@ export class NotificationsController {
   ) {
     return this.notificationsService.simulateWhatsApp(userId, body.phone, body.destinationName);
   }
+
+  @Get('all-alerts')
+  async getAllAlerts() {
+    return this.notificationsService.getAllAlerts();
+  }
+
+  @Post('massive')
+  async sendMassiveAlert(
+    @Body() body: { title: string; message: string; code?: string; discount?: string },
+  ) {
+    return this.notificationsService.sendMassiveAlert(body);
+  }
 }
