@@ -1,7 +1,7 @@
 import logging
 from fastapi import FastAPI
 import config
-from routers import webhook
+from routers import webhook, recommendations
 
 # Configurar logs
 logging.basicConfig(
@@ -14,6 +14,7 @@ app = FastAPI(title="Módulo de IA para Transporte (Entrafesa)", version="0.1.0"
 
 # Registrar routers
 app.include_router(webhook.router)
+app.include_router(recommendations.router)
 
 @app.get("/health")
 def health_check():

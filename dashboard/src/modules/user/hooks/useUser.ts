@@ -79,3 +79,21 @@ export function useSearchUsers(documentNumber: string) {
     enabled: documentNumber.length > 2,
   });
 }
+
+export function useGetUserRecommendations(userId: number | undefined) {
+  const { token } = useAuth();
+
+  return useQuery({
+    queryKey: ["user", "recommendations", userId],
+    queryFn: async () => {
+      const res = await instance.get(`/user/${userId}/recommendations`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return res.data;
+    },
+    enabled: !!userId,
+  });
+}

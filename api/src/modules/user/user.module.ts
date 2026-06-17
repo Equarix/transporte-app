@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HttpModule } from '@nestjs/axios';
+import { ConfigModule } from '@nestjs/config';
 import { Profile } from './entities/profile.entity';
 import { User } from '../auth/entities/user.entity';
 import { Reserver } from '../reserver/entities/reserver.entity';
@@ -20,6 +22,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         },
       },
     ]),
+    HttpModule,
+    ConfigModule,
   ],
   controllers: [UserController],
   providers: [UserService],

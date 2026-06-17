@@ -2,8 +2,15 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  BadRequestException,
+  InternalServerErrorException,
+  Logger,
+  Inject,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 import { Profile } from './entities/profile.entity';
 import { In, Like, Not, Repository } from 'typeorm';
 import { TypeUser } from './enum/type-user.enum';
@@ -15,6 +22,8 @@ import { QueryUserDto } from './dto/query-user.dto';
 import { User } from '../auth/entities/user.entity';
 import { hash } from 'bcryptjs';
 import { RoleEnum } from 'src/common/enum/role.enum';
+import { AxiosError } from 'axios';
+import { firstValueFrom, catchError, throwError } from 'rxjs';
 
 export interface SaleDetailFromMicroservice {
   saleDetailId: number;
@@ -61,7 +70,12 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Reserver) private reserverRepository: Repository<Reserver>,
     @InjectRepository(Destination) private destinationRepository: Repository<Destination>,
-  ) {}
+    private httpService: HttpService,
+    private configService: ConfigService,
+    @Inject('PAYMENT_SERVICE') private readonly paymentClient: ClientProxy,
+  ) {
+    this.logger = new Logger(UserService.name);
+  }
 
   async getProfile(userId: number) {
     const profile = await this.profileRepository.findOne({
@@ -299,5 +313,55 @@ export class UserService {
         destination,
       };
     });
+  }
+
+  async getRecommendations(userId: number): Promise<any[]> {
+    this.logger.log(`Fetching recommendations for user ${userId}`);
+
+    // Get user's past tickets to determine travel history
+    const pastSales = await firstValueFrom(
+      this.paymentClient.send('findUserSales', userId),
+    ).catch(error => {
+      this.logger.error(`Failed to fetch user sales: ${error.message}`);
+      return []; // Return empty array if we can't fetch sales
+    });
+
+    if (!pastSales || pastSales.length === 0) {
+      this.logger.log(`No past sales found for user ${userId}, returning empty recommendations`);
+      return [];
+    }
+
+    // Format past trips for the IA service
+    const pastTrips = pastSales.map(sale => ({
+      fromDestinationId: sale.fromDestinationId,
+      toDestinationId: sale.toDestinationId,
+      // We could add date if needed for more sophisticated recommendations
+      date: sale.createdAt?.toISOString().split('T')[0] || ''
+    }));
+
+    // Call IA service for recommendations
+    try {
+      const iaApiUrl = this.configService.get<string>('IA_API_URL') || 'http://localhost:8000';
+      const internalKey = this.configService.get<string>('IA_INTERNAL_KEY') || 'internal-secret-key-change-in-production';
+
+      const response = await firstValueFrom(
+        this.httpService.post(
+          `${iaApiUrl}/recommendations`,
+          { past_trips: pastTrips, limit: 5 },
+          { headers: { 'x_internal_key': internalKey } }
+        ).pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(`Error calling IA service: ${error.message}`);
+            return throwError(() => error);
+          })
+        )
+      );
+
+      return response.data.data || [];
+    } catch (error) {
+      this.logger.error(`Failed to get recommendations from IA service: ${error.message}`);
+      // Return empty array as fallback
+      return [];
+    }
   }
 }

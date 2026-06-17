@@ -67,6 +67,11 @@ export class UserController {
     return this.userService.getPendingTickets(sales);
   }
 
+  @Get('recommendations')
+  async getRecommendations(@User('userId') userId: number) {
+    return this.userService.getRecommendations(userId);
+  }
+
   @Auth([RoleEnum.ADMIN])
   @Get('drivers')
   getDrivers() {

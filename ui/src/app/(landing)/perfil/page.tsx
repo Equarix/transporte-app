@@ -26,9 +26,11 @@ import {
   LuShield,
   LuX,
   LuCheck,
+  LuCompass,
+  LuMapPin,
 } from "react-icons/lu";
 import { ApiResponse } from "@/interface/utils.interface";
-import { Profile } from "@/interface/response.interface";
+import { Profile, Destination } from "@/interface/response.interface";
 import { AxiosError } from "axios";
 
 // Microservice Interfaces
@@ -539,6 +541,20 @@ function ProfileContent() {
       enabled: !!user,
     });
 
+  // Query: Get User Recommendations
+  const { data: recommendationsResponse, isLoading: recommendationsIsLoading } = useQuery<
+    ApiResponse<Destination[]>
+  >({
+    queryKey: ["userRecommendations", user?.userId],
+    queryFn: async () => {
+      const res = await instance.get<ApiResponse<Destination[]>>(
+        `/user/${user?.userId}/recommendations`
+      );
+      return res.data;
+    },
+    enabled: !!user?.userId,
+  });
+
   // Mutation: Approve (pay) a pending ticket
   const approveTicketMutation = useMutation<
     ApiResponse<{ saleId: number; status: string }>,
@@ -747,6 +763,17 @@ function ProfileContent() {
             >
               <LuTag className="text-lg" />
               Mis Cupones
+            </button>
+            <button
+              onClick={() => setTab("recommendations")}
+              className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${
+                activeTab === "recommendations"
+                  ? "bg-[#5D4037] text-white shadow-sm"
+                  : "text-[#5D4037] hover:bg-gray-50"
+              }`}
+            >
+              <LuCompass className="text-lg" />
+              Recomendaciones
             </button>
             <button
               onClick={() => setTab("pending")}
@@ -1912,6 +1939,69 @@ function ProfileContent() {
                     </div>
                   );
                 })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 6: Recomendaciones */}
+        {activeTab === "recommendations" && (
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-black text-[#333333]">
+                Recomendaciones para Ti
+              </h1>
+              <p className="text-sm text-[#8B7E74] mt-1">
+                Destinos sugeridos especialmente para tus próximos viajes.
+              </p>
+            </div>
+
+            {recommendationsIsLoading ? (
+              <div className="py-12 flex flex-col items-center justify-center gap-4">
+                <div className="size-8 rounded-full border-2 border-amber-600 border-t-transparent animate-spin"></div>
+                <p className="text-sm text-[#8B7E74]">
+                  Buscando recomendaciones personalizadas...
+                </p>
+              </div>
+            ) : !recommendationsResponse?.body || recommendationsResponse.body.length === 0 ? (
+              <div className="py-16 text-center border-2 border-dashed border-gray-100 rounded-3xl">
+                <LuCompass className="mx-auto text-4xl text-gray-300 mb-3" />
+                <p className="font-bold text-gray-700">
+                  Sin recomendaciones por el momento
+                </p>
+                <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                  Sigue viajando con Entrafesa para que podamos conocer tus destinos favoritos y ofrecerte mejores sugerencias.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recommendationsResponse.body.map((dest) => (
+                  <div
+                    key={dest.destinationId}
+                    className="bg-linear-to-br from-amber-50/20 to-[#fffbf7] border border-gray-200 hover:border-amber-300 rounded-3xl p-6 shadow-xs flex flex-col justify-between h-56 transition-all duration-300 hover:shadow-md group"
+                  >
+                    <div className="space-y-3">
+                      <div className="size-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-700 border border-amber-100 group-hover:scale-110 transition-transform">
+                        <LuMapPin className="text-lg" />
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-[#333333] text-base">
+                          {dest.name}
+                        </h3>
+                        <p className="text-xs text-[#8B7E74] font-medium mt-1 line-clamp-3">
+                          {dest.shortDescription || "Explora este increíble destino nacional con la comodidad e Imperial Class de Entrafesa."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => router.push(`/?destination=${dest.slug}`)}
+                      className="w-full py-2.5 bg-[#5D4037] hover:bg-[#4E342E] text-white font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5"
+                    >
+                      Buscar Viajes
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
