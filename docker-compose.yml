@@ -10,10 +10,14 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - default
 
   redis:
     image: redis:7
     restart: always
+    networks:
+      - default
 
   chatwoot:
     image: chatwoot/chatwoot:latest
@@ -37,6 +41,8 @@ services:
     command: >
       sh -c "bundle exec rails db:chatwoot_prepare &&
              bundle exec rails s -p 3000 -b 0.0.0.0"
+    networks:
+      - default
 
   chatwoot-worker:
     image: chatwoot/chatwoot:latest
@@ -54,7 +60,12 @@ services:
       POSTGRES_PASSWORD: postgres
       REDIS_URL: redis://redis:6379
     command: bundle exec sidekiq -g default,mailers
+    networks:
+      - default
 
 volumes:
   postgres_data:
 
+networks:
+  default:
+    name: entrafesa-network
