@@ -13,7 +13,7 @@ import Header from "@/components/layouts/header/Header";
 import { useUser } from "@/modules/user/hooks/useUser";
 import Table from "@/components/ui/table/Table";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { AuthResponse } from "@/interface/response.interface";
+import type { ApiResponse, AuthResponse } from "@/interface/response.interface";
 import {
   Button,
   Pagination,
@@ -78,7 +78,7 @@ export default function User() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       setAlerts(response.data.body || []);
     } catch (error) {
