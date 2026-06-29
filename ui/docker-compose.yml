@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  ui:
+    build:
+      context: ..
+      dockerfile: ui/Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:5000/api}
+        - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
+        - NEXT_PUBLIC_API_HOTEL=${NEXT_PUBLIC_API_HOTEL:-http://localhost:6060/api}
+        - NEXT_PUBLIC_API_HOTEL_IMAGES=${NEXT_PUBLIC_API_HOTEL_IMAGES:-http://localhost:6060/static}
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - default
+
+networks:
+  default:
+    name: entrafesa-network

@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  dashboard:
+    build:
+      context: ..
+      dockerfile: dashboard/Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:5000/api}
+        - VITE_API_GOOGLE_MAPS=${VITE_API_GOOGLE_MAPS}
+    restart: always
+    ports:
+      - "5173:80"
+    networks:
+      - default
+
+networks:
+  default:
+    name: entrafesa-network
