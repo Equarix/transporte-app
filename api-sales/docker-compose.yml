@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 services:
   api-sales:
@@ -7,18 +7,9 @@ services:
       dockerfile: api-sales/Dockerfile
     restart: always
     ports:
-      - "5001:5001"
-    environment:
-      - DB_HOST=${DB_HOST:-host.docker.internal}
-      - DB_PORT=${DB_PORT:-1433}
-      - DB_USER=${DB_USER:-sa}
-      - DB_PASSWORD=${DB_PASSWORD:-123}
-      - DB_NAME=${DB_NAME_SALES:-transporte_sales}
-      - PORT=5001
-      - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PORT=${REDIS_PORT:-6379}
+      - '5001:5001'
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     networks:
       - default
 
