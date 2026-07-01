@@ -33,7 +33,7 @@ export class ReserverService {
   ) {}
 
   async getAll(paginateDto: GetReserversDto) {
-    const { limit, page, status, date } = paginateDto;
+    const { limit, page, status, date, checkInId, checkOutId } = paginateDto;
 
     const where: any = {};
     if (status) {
@@ -45,6 +45,12 @@ export class ReserverService {
       const endOfDay = new Date(date);
       endOfDay.setUTCHours(23, 59, 59, 999);
       where.date = Between(startOfDay, endOfDay);
+    }
+    if (checkInId) {
+      where.checkIn = { destinationId: +checkInId };
+    }
+    if (checkOutId) {
+      where.checkOut = { destinationId: +checkOutId };
     }
 
     const [data, total] = await this.reserverRepository.findAndCount({

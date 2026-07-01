@@ -15,6 +15,9 @@ export function useReservers() {
   const [status, setStatusState] = useState<string>("");
   const [date, setDateState] = useState<string>("");
 
+  const [checkInId, setCheckInIdState] = useState<string>("");
+  const [checkOutId, setCheckOutIdState] = useState<string>("");
+
   const setStatus = (val: string) => {
     setStatusState(val);
     setCurrentPage(1);
@@ -25,10 +28,20 @@ export function useReservers() {
     setCurrentPage(1);
   };
 
+  const setCheckInId = (val: string) => {
+    setCheckInIdState(val);
+    setCurrentPage(1);
+  };
+
+  const setCheckOutId = (val: string) => {
+    setCheckOutIdState(val);
+    setCurrentPage(1);
+  };
+
   const { data, isLoading, refetch } = useQuery<
     ApiResponse<ResponseReserver[]>
   >({
-    queryKey: ["reservers", currentPage, status, date],
+    queryKey: ["reservers", currentPage, status, date, checkInId, checkOutId],
     queryFn: async () => {
       const params: Record<string, any> = {
         page: currentPage,
@@ -36,6 +49,8 @@ export function useReservers() {
       };
       if (status) params.status = status;
       if (date) params.date = date;
+      if (checkInId) params.checkInId = checkInId;
+      if (checkOutId) params.checkOutId = checkOutId;
 
       const response = await instance.get("/reserver", {
         headers: { Authorization: `Bearer ${token}` },
@@ -97,6 +112,10 @@ export function useReservers() {
     setStatus,
     date,
     setDate,
+    checkInId,
+    setCheckInId,
+    checkOutId,
+    setCheckOutId,
   };
 }
 

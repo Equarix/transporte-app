@@ -9,4 +9,12 @@ export class GetReserversDto extends PaginateDto {
   @IsOptional()
   @IsString()
   date?: string;
+
+  @IsOptional()
+  @IsString()
+  checkInId?: string;
+
+  @IsOptional()
+  @IsString()
+  checkOutId?: string;
 }

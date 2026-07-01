@@ -13,6 +13,10 @@ import {
   SelectItem,
   Input,
 } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
+import { instance } from "@/libs/axios";
+import { useAuth } from "@/components/providers/AuthContext";
+import type { ApiResponse, ResponseDestination } from "@/interface/response.interface";
 import {
   LuCalendar,
   LuMapPin,
@@ -61,7 +65,23 @@ export default function Reservers() {
     setStatus,
     date,
     setDate,
+    checkInId,
+    setCheckInId,
+    checkOutId,
+    setCheckOutId,
   } = useReservers();
+
+  const { token } = useAuth();
+  const { data: destinationsData } = useQuery<ApiResponse<ResponseDestination[]>>({
+    queryKey: ["destination"],
+    queryFn: async () => {
+      const res = await instance.get("/destination/get-all", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    },
+  });
+  const destinations = destinationsData?.body ?? [];
   const {
     isOpen: isStatusOpen,
     onOpen: onStatusOpen,
@@ -199,11 +219,11 @@ export default function Reservers() {
         onClick={() => navigate("create")}
       />
 
-      <div className="flex flex-col sm:flex-row gap-4 bg-default-50 p-4 rounded-xl items-end">
+      <div className="flex flex-col sm:flex-row gap-4 bg-default-50 p-4 rounded-xl items-end flex-wrap">
         <div className="w-full sm:w-48">
           <Select
             label="Estado"
-            placeholder="Todos los estados"
+            placeholder="Todos"
             selectedKeys={status ? [status] : []}
             onChange={(e) => setStatus(e.target.value)}
             size="sm"
@@ -227,7 +247,39 @@ export default function Reservers() {
           />
         </div>
 
-        {(status || date) && (
+        <div className="w-full sm:w-48">
+          <Select
+            label="Origen"
+            placeholder="Todos"
+            selectedKeys={checkInId ? [checkInId] : []}
+            onChange={(e) => setCheckInId(e.target.value)}
+            size="sm"
+          >
+            {destinations.map((d) => (
+              <SelectItem key={d.destinationId} textValue={d.name}>
+                {d.name}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        <div className="w-full sm:w-48">
+          <Select
+            label="Destino"
+            placeholder="Todos"
+            selectedKeys={checkOutId ? [checkOutId] : []}
+            onChange={(e) => setCheckOutId(e.target.value)}
+            size="sm"
+          >
+            {destinations.map((d) => (
+              <SelectItem key={d.destinationId} textValue={d.name}>
+                {d.name}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        {(status || date || checkInId || checkOutId) && (
           <Button
             color="danger"
             variant="flat"
@@ -235,6 +287,8 @@ export default function Reservers() {
             onPress={() => {
               setStatus("");
               setDate("");
+              setCheckInId("");
+              setCheckOutId("");
             }}
           >
             Limpiar Filtros
