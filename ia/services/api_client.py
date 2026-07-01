@@ -115,11 +115,14 @@ class ApiClient:
         try:
             response = requests.get(url, params=params, headers=self._get_headers())
             if response.status_code == 200:
+                logger.info(f"Respuesta de búsqueda de viajes:")
+                logger.info(f"{response.text}")
                 res_data = response.json()
                 if isinstance(res_data, dict) and "body" in res_data:
                     return res_data["body"]
                 elif isinstance(res_data, dict) and "data" in res_data:
                     return res_data["data"]
+                
                 return res_data
             else:
                 logger.error(f"Error al buscar viajes: {response.status_code} - {response.text}")

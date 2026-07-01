@@ -184,6 +184,7 @@ class OpenAIClient:
                     destination=args.get("destination"),
                     date=args.get("date")
                 )
+                logger.info(f"Respuesta de búsqueda de viajes: {trips_data}")
                 return {"result": trips_data}
                 
             elif name == "get_available_dates":
