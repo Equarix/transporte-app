@@ -15,7 +15,7 @@ services:
       - DB_PORT=1433
       - DB_USER=usersql
       - PORT=5000
-      - REDIS_HOST=host.docker.internal
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_USERNAME=default
       - REDIS_PASSWORD=bm72psd4m18rhz1knllc
