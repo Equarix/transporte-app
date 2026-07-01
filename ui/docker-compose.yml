@@ -8,8 +8,8 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=https://mssql-api.up0fay.easypanel.host/api
         - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyBikKXSiGiRSQW5UWgCHGfBrLQM9T__Dfg
-        - NEXT_PUBLIC_API_HOTEL=${NEXT_PUBLIC_API_HOTEL:-http://localhost:6060/api}
-        - NEXT_PUBLIC_API_HOTEL_IMAGES=${NEXT_PUBLIC_API_HOTEL_IMAGES:-http://localhost:6060/static}
+        - NEXT_PUBLIC_API_HOTEL=https://hotel-api-nu.vercel.app/api
+        - NEXT_PUBLIC_API_HOTEL_IMAGES=https://hotel-api-nu.vercel.app/static
     restart: always
     ports:
       - "3000"
