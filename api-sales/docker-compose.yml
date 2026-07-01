@@ -7,7 +7,7 @@ services:
       dockerfile: api-sales/Dockerfile
     restart: always
     ports:
-      - '5001:5001'
+      - '5001'
     environment:
       - DB_PASSWORD=Jade2314
       - DB_NAME=transporte_sales
