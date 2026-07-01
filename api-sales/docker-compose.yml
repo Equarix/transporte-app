@@ -8,6 +8,17 @@ services:
     restart: always
     ports:
       - '5001:5001'
+    environment:
+      - DB_PASSWORD=Jade2314
+      - DB_NAME=transporte_sales
+      - DB_HOST=mssql
+      - DB_PORT=1433
+      - DB_USER=usersql
+      - PORT=5001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_USERNAME=default
+      - REDIS_PASSWORD=bm72psd4m18rhz1knllc
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     networks:
