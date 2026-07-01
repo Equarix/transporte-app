@@ -7,7 +7,7 @@ services:
       dockerfile: api/Dockerfile
     restart: always
     ports:
-      - '5000'
+      - '5000:5000'
     environment:
       - DB_PASSWORD=Jade2314
       - DB_NAME=transporte
