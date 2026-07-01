@@ -9,9 +9,13 @@ import { UserAgency } from '../auth/entities/user-agency.entity';
 import { Agency } from '../agency/entities/agency.entity';
 import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forFeature([
       Destination,
       Bus,
@@ -25,6 +29,7 @@ import { ReportsService } from './reports.service';
         name: 'PAYMENT_SERVICE',
         transport: Transport.REDIS,
         options: {
+          host: process.env.REDIS_HOST || 'localhost',
           port: parseInt(process.env.REDIS_PORT || '6379'),
           username: process.env.REDIS_USERNAME,
           password: process.env.REDIS_PASSWORD,
