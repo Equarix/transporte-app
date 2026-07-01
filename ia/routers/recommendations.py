@@ -10,7 +10,7 @@ router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
 # Internal secret for service-to-service authentication
 INTERNAL_SECRET_KEY = os.getenv("INTERNAL_SECRET_KEY", "internal-secret-key")
-
+    
 class RecommendationRequest(BaseModel):
     past_trips: List[Dict[str, Any]]
     limit: Optional[int] = 5
