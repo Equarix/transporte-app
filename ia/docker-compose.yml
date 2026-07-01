@@ -14,7 +14,7 @@ services:
       - OPENAI_MODEL=google/gemma-4-31b-it:free
 
       - CHATWOOT_API_TOKEN=D11JKfJpzXtLyikK4KV7ptEG
-      - INTERNAL_SECRET_KEY=https://chatwoot-chatwoot.up0fay.easypanel.host
+      - CHATWOOT_BASE_URL=https://chatwoot-chatwoot.up0fay.easypanel.host
 
       - MAIN_API_URL=http://host.docker.internal:5000/api
 
