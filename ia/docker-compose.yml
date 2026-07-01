@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8000"
+      - "8000:8000"
     environment:
       - OPENAI_API_KEY=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
       - OPENAI_BASE_URL=https://openrouter.ai/api/v1
