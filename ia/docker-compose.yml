@@ -7,23 +7,27 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8000:8000"
+      - "8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
-      - OPENAI_MODEL=${OPENAI_MODEL}
-      - CHATWOOT_BASE_URL=${CHATWOOT_BASE_URL:-http://chatwoot:3000}
-      - CHATWOOT_API_TOKEN=${CHATWOOT_API_TOKEN}
-      - MAIN_API_URL=${MAIN_API_URL:-http://api:5000/api}
-      - BOT_DOCUMENT_TYPE=${BOT_DOCUMENT_TYPE:-DNI}
-      - BOT_DOCUMENT_NUMBER=${BOT_DOCUMENT_NUMBER:-99999999}
-      - BOT_PASSWORD=${BOT_PASSWORD:-botpassword123}
-      - BOT_FIRST_NAME=${BOT_FIRST_NAME:-Bot}
-      - BOT_LAST_NAME=${BOT_LAST_NAME:-Entrafesa}
-      - BOT_EMAIL=${BOT_EMAIL:-bot@entrafesa.com}
-      - BOT_PHONE=${BOT_PHONE:-999999999}
-      - BOT_DATE_OF_BIRTH=${BOT_DATE_OF_BIRTH:-2000-01-01}
-      - INTERNAL_SECRET_KEY=${INTERNAL_SECRET_KEY:-internal-secret-key-change-in-production}
+      - OPENAI_API_KEY=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
+      - OPENAI_BASE_URL=https://openrouter.ai/api/v1
+      - OPENAI_MODEL=google/gemma-4-31b-it:free
+
+      - CHATWOOT_API_TOKEN=D11JKfJpzXtLyikK4KV7ptEG
+      - INTERNAL_SECRET_KEY=https://chatwoot-chatwoot.up0fay.easypanel.host
+
+      - MAIN_API_URL=http://host.docker.internal:5000/api
+
+      - BOT_DOCUMENT_TYPE=DNI
+      - BOT_DOCUMENT_NUMBER=99999999
+      - BOT_PASSWORD=botpassword123
+      - BOT_FIRST_NAME=Bot
+      - BOT_LAST_NAME=Entrafesa
+      - BOT_EMAIL=bot@entrafesa.com
+      - BOT_PHONE=999999999
+      - BOT_DATE_OF_BIRTH=2000-01-01
+
+      - INTERNAL_SECRET_KEY=internal-secret-key-change-in-production
     networks:
       - default
 
