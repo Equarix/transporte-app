@@ -43,20 +43,21 @@ export default function RootLayout({
       </body>
 
       <Script id="chatwoot" strategy="afterInteractive">
-        {`  window.chatwootSettings = {"position":"right","type":"standard","launcherTitle":""};
+        {`  
   (function(d,t) {
-    var BASE_URL="http://localhost:8080";
+    var BASE_URL="https://chatwoot-chatwoot.up0fay.easypanel.host";
     var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
     g.src=BASE_URL+"/packs/js/sdk.js";
     g.async = true;
     s.parentNode.insertBefore(g,s);
     g.onload=function(){
       window.chatwootSDK.run({
-        websiteToken: 'aPmW7eYsf3eTBhj7S7z3TVVX',
+        websiteToken: 'kkRMz6gYM9o17UHPGHWSaXr2',
         baseUrl: BASE_URL
       })
     }
-  })(document,"script");`}
+  })(document,"script");
+`}
       </Script>
     </html>
   );
