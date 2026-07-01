@@ -12,13 +12,22 @@ import { ReportsService } from './reports.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Destination, Bus, Profile, User, UserAgency, Agency]),
+    TypeOrmModule.forFeature([
+      Destination,
+      Bus,
+      Profile,
+      User,
+      UserAgency,
+      Agency,
+    ]),
     ClientsModule.register([
       {
         name: 'PAYMENT_SERVICE',
         transport: Transport.REDIS,
         options: {
           port: parseInt(process.env.REDIS_PORT || '6379'),
+          username: process.env.REDIS_USERNAME,
+          password: process.env.REDIS_PASSWORD,
         },
       },
     ]),
