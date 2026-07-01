@@ -17,21 +17,12 @@ class RecommendationRequest(BaseModel):
 
 @router.post("")
 async def get_recommendations(
-    payload: RecommendationRequest,
-    x_internal_key: Optional[str] = Header(None)
+    payload: RecommendationRequest
 ):
     """
     Generate travel recommendations based on user's past trips.
     Expected to be called internally by the API gateway.
     """
-    # Validate internal key
-    if x_internal_key != INTERNAL_SECRET_KEY:
-        logger.warning("Invalid internal key provided")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid internal key"
-        )
-
     past_trips = payload.past_trips
     limit = payload.limit
 
