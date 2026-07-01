@@ -28,6 +28,8 @@ services:
       - BOT_DATE_OF_BIRTH=2000-01-01
 
       - INTERNAL_SECRET_KEY=internal-secret-key-change-in-production
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     networks:
       - default
 
