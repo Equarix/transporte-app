@@ -38,10 +38,12 @@ interface TouristReviewData {
   }[];
 }
 
+const API_URL = ENV.API_URL || "http://localhost:5000/api";
+
 async function getMapRoutes(): Promise<ResponseMapa[]> {
   try {
     const res = await fetch(
-      "http://localhost:5000/api/public/destination/mapa",
+      `${API_URL}/public/destination/mapa`,
       {
         next: { revalidate: 60 },
       },
@@ -58,7 +60,7 @@ async function getMapRoutes(): Promise<ResponseMapa[]> {
 async function getTouristReviews(): Promise<TouristReviewData[]> {
   try {
     const res = await fetch(
-      "http://localhost:5000/api/public/destination/tourist-reviews",
+      `${API_URL}/public/destination/tourist-reviews`,
       {
         next: { revalidate: 60 },
       },

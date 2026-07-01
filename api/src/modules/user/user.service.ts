@@ -336,7 +336,7 @@ export class UserService {
       fromDestinationId: sale.fromDestinationId,
       toDestinationId: sale.toDestinationId,
       // We could add date if needed for more sophisticated recommendations
-      date: sale.createdAt?.toISOString().split('T')[0] || ''
+      date: sale.createdAt ? new Date(sale.createdAt).toISOString().split('T')[0] : ''
     }));
 
     // Call IA service for recommendations

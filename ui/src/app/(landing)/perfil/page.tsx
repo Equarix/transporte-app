@@ -48,6 +48,13 @@ interface SaleDetail {
   typeSeat: string;
 }
 
+interface Alert {
+  alertId: number;
+  title: string;
+  message: string;
+  sentAt: string;
+}
+
 interface Ticket {
   saleId: number;
   createdAt: string;
@@ -398,15 +405,15 @@ function ProfileContent() {
   });
   const destinationsList = destinationsResponse?.body || [];
 
-  const { data: alertsResponse } = useQuery<any[]>({
+  const { data: alertsResponse } = useQuery<ApiResponse<Alert[]>>({
     queryKey: ["userAlerts"],
     queryFn: async () => {
-      const res = await instance.get("/notifications/alerts");
+      const res = await instance.get<ApiResponse<Alert[]>>("/notifications/alerts");
       return res.data;
     },
     enabled: !!user,
   });
-  const alertsList = alertsResponse || [];
+  const alertsList = alertsResponse?.body || [];
 
   const saveInterestMutation = useMutation({
     mutationFn: async (data: { originId: number; destinationId: number; travelDate: string }) => {
