@@ -9,9 +9,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - OPENAI_API_KEY=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
-      - OPENAI_BASE_URL=https://openrouter.ai/api/v1
-      - OPENAI_MODEL=google/gemma-4-31b-it:free
+      - OPENAI_API_KEY=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
+      - OPENAI_BASE_URL=https://integrate.api.nvidia.com/v1
+      - OPENAI_MODEL=deepseek-ai/deepseek-v4-pro
 
       - CHATWOOT_API_TOKEN=D11JKfJpzXtLyikK4KV7ptEG
       - CHATWOOT_BASE_URL=https://chatwoot-chatwoot.up0fay.easypanel.host
@@ -29,7 +29,7 @@ services:
 
       - INTERNAL_SECRET_KEY=internal-secret-key-change-in-production
     extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      - "host.docker.internal:host-gateway"
     networks:
       - default
 

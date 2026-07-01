@@ -61,14 +61,20 @@ function TrackingContent() {
   const router = useRouter();
   const id = searchParams.get("id");
 
-  const { data: trackingResponse, isLoading, error } = useQuery<ApiResponse<TrackingData>>({
+  const {
+    data: trackingResponse,
+    isLoading,
+    error,
+  } = useQuery<ApiResponse<TrackingData>>({
     queryKey: ["tracking", id],
     queryFn: async () => {
-      const res = await instance.get<ApiResponse<TrackingData>>(`/tracking/${id}`);
+      const res = await instance.get<ApiResponse<TrackingData>>(
+        `/tracking/${id}`,
+      );
       return res.data;
     },
     enabled: !!id,
-    refetchInterval: 5000, // Auto-refresh every 5 seconds to simulate real-time coordinates!
+    refetchInterval: 5000,
   });
 
   if (isLoading) {
@@ -76,7 +82,9 @@ function TrackingContent() {
       <div className="min-h-screen bg-[#fdfcfb] pt-28 pb-16 flex items-center justify-center">
         <div className="text-center space-y-4">
           <LuLoader className="animate-spin text-[#e87722] text-4xl mx-auto" />
-          <p className="text-[#5D4037] font-semibold text-sm">Conectando con el GPS del autobús...</p>
+          <p className="text-[#5D4037] font-semibold text-sm">
+            Conectando con el GPS del autobús...
+          </p>
         </div>
       </div>
     );
@@ -89,9 +97,12 @@ function TrackingContent() {
           <LuCompass size={32} />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Seguimiento no disponible</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            Seguimiento no disponible
+          </h2>
           <p className="text-sm text-gray-500 mt-2">
-            No se pudo establecer conexión con el sistema de rastreo en tiempo real para este viaje. Verifica el ID de reserva.
+            No se pudo establecer conexión con el sistema de rastreo en tiempo
+            real para este viaje. Verifica el ID de reserva.
           </p>
         </div>
         <button
@@ -119,18 +130,17 @@ function TrackingContent() {
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
         {/* Left Side: Trip Details Panel */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white border border-gray-150 rounded-3xl p-6 shadow-xs space-y-6">
-            
             {/* Status & Trip Title */}
             <div className="border-b border-gray-50 pb-4">
               <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[10px] font-black uppercase tracking-wider animate-pulse">
                 En Ruta
               </span>
               <h2 className="text-lg font-black text-gray-800 mt-3 leading-tight">
-                Ruta: {track.origin.name.split(" ")[0]} → {track.destination.name.split(" ")[0]}
+                Ruta: {track.origin.name.split(" ")[0]} →{" "}
+                {track.destination.name.split(" ")[0]}
               </h2>
               <p className="text-xs text-gray-400 font-bold mt-1 uppercase tracking-wide">
                 Reserva: IT-{track.reserverId}
@@ -143,8 +153,12 @@ function TrackingContent() {
                 <LuBus size={22} />
               </div>
               <div>
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Autobús</h3>
-                <p className="font-extrabold text-gray-800 text-sm mt-1">{track.bus.plate} - {track.bus.model}</p>
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                  Autobús
+                </h3>
+                <p className="font-extrabold text-gray-800 text-sm mt-1">
+                  {track.bus.plate} - {track.bus.model}
+                </p>
                 <p className="text-xs text-gray-500 mt-0.5">{track.bus.type}</p>
               </div>
             </div>
@@ -155,11 +169,15 @@ function TrackingContent() {
                 <LuUser size={22} />
               </div>
               <div>
-                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Conductor</h3>
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                  Conductor
+                </h3>
                 <p className="font-extrabold text-gray-800 text-sm mt-1">
                   {track.driver.firstName} {track.driver.lastName}
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">Piloto Principal Autorizado</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Piloto Principal Autorizado
+                </p>
               </div>
             </div>
 
@@ -167,7 +185,9 @@ function TrackingContent() {
             <div className="bg-linear-to-br from-amber-50 to-[#fffbf7] border border-amber-100 rounded-2xl p-5 space-y-4">
               <div className="flex justify-between items-center">
                 <div className="space-y-0.5">
-                  <h4 className="text-[10px] font-black text-amber-800 uppercase tracking-widest">Tiempo Estimado</h4>
+                  <h4 className="text-[10px] font-black text-amber-800 uppercase tracking-widest">
+                    Tiempo Estimado
+                  </h4>
                   <p className="text-2xl font-black text-amber-950">
                     {track.eta.minutesRemaining} min
                   </p>
@@ -182,33 +202,50 @@ function TrackingContent() {
               </div>
               <div className="flex justify-between text-[10px] font-bold text-gray-400">
                 <span>{progress}% Recorrido</span>
-                <span>ETA: {new Date(track.eta.estimatedTimeOfArrival).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span>
+                  ETA:{" "}
+                  {new Date(
+                    track.eta.estimatedTimeOfArrival,
+                  ).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
               </div>
             </div>
 
             {/* Services Available */}
             <div className="border-t border-gray-100 pt-5">
-              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Servicios a Bordo</h3>
+              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">
+                Servicios a Bordo
+              </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center gap-2 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100">
                   <LuWifi className="text-amber-700" size={16} />
-                  <span className="text-xs font-bold text-gray-700">WiFi 5G</span>
+                  <span className="text-xs font-bold text-gray-700">
+                    WiFi 5G
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100">
                   <LuUsb className="text-amber-700" size={16} />
-                  <span className="text-xs font-bold text-gray-700">Puertos USB</span>
+                  <span className="text-xs font-bold text-gray-700">
+                    Puertos USB
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100">
                   <LuWind className="text-amber-700" size={16} />
-                  <span className="text-xs font-bold text-gray-700">Aire Acond.</span>
+                  <span className="text-xs font-bold text-gray-700">
+                    Aire Acond.
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 bg-gray-50/50 p-2.5 rounded-xl border border-gray-100">
                   <LuCoffee className="text-amber-700" size={16} />
-                  <span className="text-xs font-bold text-gray-700">Snacks</span>
+                  <span className="text-xs font-bold text-gray-700">
+                    Snacks
+                  </span>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -219,18 +256,18 @@ function TrackingContent() {
               <span className="text-xs font-black text-[#e87722] bg-orange-50 px-2.5 py-1 rounded-full uppercase tracking-wider">
                 Mapa en vivo
               </span>
-              <h2 className="text-xl font-black text-gray-800 mt-2">Seguimiento Satelital</h2>
+              <h2 className="text-xl font-black text-gray-800 mt-2">
+                Seguimiento Satelital
+              </h2>
             </div>
-            
+
             {/* Live GPS simulated track using interactive premium design */}
             <div className="flex-1 bg-gray-50 border border-gray-100 rounded-2xl relative overflow-hidden flex flex-col justify-center items-center p-8">
-              
               {/* Grid Background visual styling */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-30" />
-              
+
               {/* Route Line */}
               <div className="w-4/5 h-1.5 bg-gray-250 rounded-full relative z-10">
-                
                 {/* Travelled line */}
                 <div
                   className="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full transition-all duration-1000"
@@ -265,14 +302,16 @@ function TrackingContent() {
                   <div className="relative">
                     <div className="absolute inset-0 size-8 rounded-full bg-amber-500 animate-ping opacity-30" />
                     <div className="size-8 rounded-full bg-[#e87722] border-2 border-white shadow-lg flex items-center justify-center text-white relative z-10">
-                      <LuNavigation className="rotate-90 animate-bounce" size={14} />
+                      <LuNavigation
+                        className="rotate-90 animate-bounce"
+                        size={14}
+                      />
                     </div>
                   </div>
                   <span className="text-[9px] font-black text-white bg-[#e87722] px-2 py-0.5 rounded-full shadow-sm mt-1.5 whitespace-nowrap">
                     {track.bus.plate} ({progress}%)
                   </span>
                 </div>
-
               </div>
 
               {/* Status footer inside map */}
@@ -281,17 +320,18 @@ function TrackingContent() {
                   <LuNavigation size={18} className="animate-pulse" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-extrabold text-gray-800">Ubicación del Autobús</h4>
+                  <h4 className="text-xs font-extrabold text-gray-800">
+                    Ubicación del Autobús
+                  </h4>
                   <p className="text-[10px] text-gray-500 mt-0.5">
-                    Latitud: {track.currentLocation.lat.toFixed(5)} | Longitud: {track.currentLocation.lng.toFixed(5)}
+                    Latitud: {track.currentLocation.lat.toFixed(5)} | Longitud:{" "}
+                    {track.currentLocation.lng.toFixed(5)}
                   </p>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -304,7 +344,9 @@ export default function TrackingPage() {
         <div className="min-h-screen bg-[#fdfcfb] pt-28 pb-16 flex items-center justify-center">
           <div className="text-center space-y-4">
             <LuLoader className="animate-spin text-[#e87722] text-4xl mx-auto" />
-            <p className="text-[#5D4037] font-semibold text-sm">Cargando mapa satelital...</p>
+            <p className="text-[#5D4037] font-semibold text-sm">
+              Cargando mapa satelital...
+            </p>
           </div>
         </div>
       }
