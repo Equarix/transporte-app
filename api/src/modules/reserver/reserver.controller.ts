@@ -2,9 +2,9 @@ import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ReserverService } from './reserver.service';
 import { Auth } from 'src/common/decorator/auth/auth.decorator';
 import { RoleEnum } from 'src/common/enum/role.enum';
-import { PaginateDto } from 'src/common/utils/paginate.dto';
 import { CreateReserverDto } from './dto/create-reserver.dto';
 import { UpdateStatusReserverDto } from './dto/update-status.dto';
+import { GetReserversDto } from './dto/get-reservers.dto';
 import { User } from 'src/common/decorator/user/user.decorator';
 
 @Auth([RoleEnum.ADMIN])
@@ -13,7 +13,7 @@ export class ReserverController {
   constructor(private readonly reserverService: ReserverService) {}
 
   @Get()
-  findAll(@Query() query: PaginateDto) {
+  findAll(@Query() query: GetReserversDto) {
     return this.reserverService.getAll(query);
   }
 

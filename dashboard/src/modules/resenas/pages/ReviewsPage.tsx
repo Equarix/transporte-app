@@ -1,4 +1,3 @@
-import { useState, useMemo } from "react";
 import {
   Button,
   Spinner,
@@ -60,8 +59,7 @@ function KpiCard({
 export default function ReviewsPage() {
   const { reviews, isLoading: isLoadReviews } = useReviews();
   const { metrics, isLoading: isLoadMetrics } = useReviewMetrics();
-  const { deleteReview, isDeleting } = useDeleteReview();
-  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const { deleteReview } = useDeleteReview();
 
   const handleDelete = (id: number) => {
     if (confirm("¿Está seguro de que desea eliminar esta reseña?")) {

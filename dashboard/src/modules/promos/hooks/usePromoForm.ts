@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/components/providers/AuthContext';
 import { addToast } from '@heroui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { promoSchema, type PromoFormValues } from '../schemas/promo.schema';
 import { promosService } from '../services/promos.service';
 import type { Promo } from '../types/promo.types';
@@ -16,7 +16,7 @@ export function useCreatePromo({ onSuccess }: UseCreatePromoOptions = {}) {
   const queryClient = useQueryClient();
 
   const form = useForm<PromoFormValues>({
-    resolver: zodResolver(promoSchema),
+    resolver: zodResolver(promoSchema) as Resolver<PromoFormValues>,
     defaultValues: {
       minimumPurchaseAmount: 0,
     },
@@ -51,7 +51,7 @@ export function useUpdatePromo({ promo, onSuccess }: UseUpdatePromoOptions) {
   const queryClient = useQueryClient();
 
   const form = useForm<PromoFormValues>({
-    resolver: zodResolver(promoSchema),
+    resolver: zodResolver(promoSchema) as Resolver<PromoFormValues>,
     defaultValues: {
       code: promo.code,
       name: promo.name,

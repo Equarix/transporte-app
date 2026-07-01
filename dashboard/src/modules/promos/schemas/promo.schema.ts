@@ -19,7 +19,7 @@ export const promoSchema = z
       .optional(),
 
     promoType: z.nativeEnum(PromoType, {
-      required_error: 'Debe seleccionar un tipo de promo',
+      message: 'Debe seleccionar un tipo de promo',
     }),
 
     discountMode: z.nativeEnum(DiscountMode).optional(),
@@ -41,7 +41,7 @@ export const promoSchema = z
       .optional(),
 
     applicableTo: z.nativeEnum(PromoApplicableTo, {
-      required_error: 'Debe seleccionar a qué aplica la promo',
+      message: 'Debe seleccionar a qué aplica la promo',
     }),
 
     minimumPurchaseAmount: z.coerce

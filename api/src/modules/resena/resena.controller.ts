@@ -50,8 +50,8 @@ export class ResenaController {
         : new Date(ticket.createdAt);
       return (
         tripDate < now &&
-        ticket.status.toLowerCase() !== 'cancelado' &&
-        ticket.reserver?.status.toLowerCase() !== 'cancelled'
+        ticket.status?.toLowerCase() !== 'cancelado' &&
+        ticket.reserver?.status?.toLowerCase() !== 'cancelled'
       );
     });
 

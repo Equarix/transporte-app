@@ -12,17 +12,34 @@ import { addToast } from "@heroui/react";
 export function useReservers() {
   const { token } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
+  const [status, setStatusState] = useState<string>("");
+  const [date, setDateState] = useState<string>("");
+
+  const setStatus = (val: string) => {
+    setStatusState(val);
+    setCurrentPage(1);
+  };
+
+  const setDate = (val: string) => {
+    setDateState(val);
+    setCurrentPage(1);
+  };
+
   const { data, isLoading, refetch } = useQuery<
     ApiResponse<ResponseReserver[]>
   >({
-    queryKey: ["reservers"],
+    queryKey: ["reservers", currentPage, status, date],
     queryFn: async () => {
+      const params: Record<string, any> = {
+        page: currentPage,
+        limit: 10,
+      };
+      if (status) params.status = status;
+      if (date) params.date = date;
+
       const response = await instance.get("/reserver", {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          page: currentPage,
-          limit: 10,
-        },
+        params,
       });
       return response.data;
     },
@@ -39,7 +56,7 @@ export function useReservers() {
   const { mutate, isPending } = useMutation({
     mutationFn: async ({
       id,
-      status,
+      status: mutationStatus,
     }: {
       id: number;
       status: StatusReserverEnum;
@@ -47,7 +64,7 @@ export function useReservers() {
       const response = await instance.put(
         `/reserver/${id}`,
         {
-          status,
+          status: mutationStatus,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -70,5 +87,16 @@ export function useReservers() {
     },
   });
 
-  return { data, isLoading, pagination, mutate, isPending };
+  return {
+    data,
+    isLoading,
+    pagination,
+    mutate,
+    isPending,
+    status,
+    setStatus,
+    date,
+    setDate,
+  };
 }
+

@@ -9,6 +9,9 @@ import {
   useDisclosure,
   Tooltip,
   Pagination,
+  Select,
+  SelectItem,
+  Input,
 } from "@heroui/react";
 import {
   LuCalendar,
@@ -26,6 +29,7 @@ import Header from "@/components/layouts/header/Header";
 import Container from "@/components/ui/container/Container";
 import { format } from "date-fns";
 import { IoMdMore } from "react-icons/io";
+
 const STATUS_COLOR_MAP: Record<
   string,
   "warning" | "primary" | "success" | "danger" | "default"
@@ -47,7 +51,17 @@ const STATUS_LABEL_MAP: Record<string, string> = {
 
 export default function Reservers() {
   const navigate = useNavigate();
-  const { data, isLoading, pagination, isPending, mutate } = useReservers();
+  const {
+    data,
+    isLoading,
+    pagination,
+    isPending,
+    mutate,
+    status,
+    setStatus,
+    date,
+    setDate,
+  } = useReservers();
   const {
     isOpen: isStatusOpen,
     onOpen: onStatusOpen,
@@ -185,6 +199,49 @@ export default function Reservers() {
         onClick={() => navigate("create")}
       />
 
+      <div className="flex flex-col sm:flex-row gap-4 bg-default-50 p-4 rounded-xl items-end">
+        <div className="w-full sm:w-48">
+          <Select
+            label="Estado"
+            placeholder="Todos los estados"
+            selectedKeys={status ? [status] : []}
+            onChange={(e) => setStatus(e.target.value)}
+            size="sm"
+          >
+            <SelectItem key="PENDING" textValue="Pendiente">Pendiente</SelectItem>
+            <SelectItem key="CONFIRMED" textValue="Confirmado">Confirmado</SelectItem>
+            <SelectItem key="COMPLETED" textValue="Completado">Completado</SelectItem>
+            <SelectItem key="CANCELLED" textValue="Cancelado">Cancelado</SelectItem>
+            <SelectItem key="REJECTED" textValue="Rechazado">Rechazado</SelectItem>
+          </Select>
+        </div>
+
+        <div className="w-full sm:w-48">
+          <Input
+            type="date"
+            label="Fecha de Viaje"
+            placeholder="Seleccione fecha"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            size="sm"
+          />
+        </div>
+
+        {(status || date) && (
+          <Button
+            color="danger"
+            variant="flat"
+            size="sm"
+            onPress={() => {
+              setStatus("");
+              setDate("");
+            }}
+          >
+            Limpiar Filtros
+          </Button>
+        )}
+      </div>
+
       <Table
         data={data?.body ?? []}
         columns={columns}
@@ -225,3 +282,4 @@ export default function Reservers() {
     </Container>
   );
 }
+

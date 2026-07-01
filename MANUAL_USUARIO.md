@@ -19,6 +19,12 @@ El proceso de compra comienza en la pantalla de inicio con la consulta de itiner
     *   **Filtros de Servicio:** Permite clasificar las unidades entre Servicio Regular (buses estándar de un piso) o Servicio Ejecutivo/VIP (buses de dos pisos con asientos reclinables de mayor comodidad en el primer nivel).
     *   **Tarjeta de Itinerario:** Cada opción en la lista detalla con precisión la hora exacta de salida, el tiempo estimado de viaje en horas, la placa de la unidad de bus, los asientos todavía disponibles en tiempo real y el precio en moneda local.
 
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura de pantalla del Portal de Búsqueda del Cliente mostrando el formulario de origen/destino, el selector de fechas y el listado resultante de itinerarios con sus respectivos filtros.*
+> `![Portal de Búsqueda de Itinerarios](/docs/images/cliente-busqueda-itinerarios.png)`
+
+---
+
 ### 1.2 Mapa de Asientos Dinámico y Pre-reserva
 Una vez seleccionado el itinerario, la pantalla cambia al módulo interactivo del bus, el cual lee la distribución directamente de la base de datos a través de la entidad lógica del bus asociado.
 
@@ -30,6 +36,12 @@ Una vez seleccionado el itinerario, la pantalla cambia al módulo interactivo de
     *   **Asiento Seleccionado por el Usuario Actual (Color Azul):** Indica los asientos elegidos por el usuario en la sesión vigente.
 3.  **Proceso de Reserva Temporal:** Al seleccionar uno o más asientos verdes, el sistema se comunica con el endpoint `/reserver` de la API Core para crear una reserva temporal. Un cronómetro en pantalla iniciará una cuenta regresiva de 10:00 minutos. Si el usuario no completa la transacción en ese lapso, la reserva se elimina automáticamente en base de datos y los asientos regresan a color verde para estar disponibles para otros clientes.
 
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura de pantalla del mapa dinámico de selección de asientos mostrando la distribución de butacas, el selector de niveles (pisos) y el contador de tiempo de reserva temporal.*
+> `![Mapa Interactivo de Asientos](/docs/images/cliente-seleccion-asientos.png)`
+
+---
+
 ### 1.3 Formulario de Datos del Pasajero y Checkout de Pago
 Una vez seleccionados los asientos, el sistema solicita los datos de los pasajeros que ocuparán cada butaca elegida.
 
@@ -39,6 +51,12 @@ Una vez seleccionados los asientos, el sistema solicita los datos de los pasajer
 2.  **Validaciones de Formulario:** Todos los campos están regulados por un esquema estricto de Zod en español. Si un campo no cumple con el formato (por ejemplo, un DNI con caracteres no numéricos o menor de 8 dígitos), se mostrará un mensaje de error en color rojo debajo del input correspondiente impidiendo avanzar al checkout.
 3.  **Método de Pago:** El usuario selecciona el método de pago de su preferencia (tarjeta de crédito/débito, transferencia bancaria o monederos digitales).
 4.  **Confirmación y Emisión de Comprobante:** Al confirmar la compra, el microservicio `api-sales` valida la vigencia de la pre-reserva temporal, procesa la transacción, escribe en la base de datos de ventas, emite un mensaje en Redis para bloquear definitivamente el asiento y genera el boleto electrónico en formato PDF descargable, el cual se envía adicionalmente al correo electrónico provisto.
+
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura de pantalla del formulario de checkout con los campos de datos del pasajero rellenos, mensajes de validación de error activos y la pasarela de pago seleccionada.*
+> `![Formulario de Pasajero y Pasarela de Pago](/docs/images/cliente-checkout.png)`
+
+---
 
 ### 1.4 Módulo de Fidelidad y Calificaciones en el Perfil de Usuario
 Los pasajeros registrados cuentan con un panel privado de autogestión de su cuenta.
@@ -52,6 +70,10 @@ Los pasajeros registrados cuentan con un panel privado de autogestión de su cue
     *   Una vez que el viaje ha finalizado y el estado de la reserva pasa a "Completado", se habilita en el perfil del usuario un botón para emitir una reseña.
     *   El usuario puede otorgar una valoración mediante una escala de 1 a 5 estrellas y escribir un comentario cualitativo sobre su experiencia (limpieza, puntualidad, trato del conductor).
 
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura del panel del perfil del cliente mostrando la visualización de los puntos acumulados, el historial de viajes y el modal de calificación por estrellas.*
+> `![Panel de Fidelidad y Calificaciones](/docs/images/cliente-perfil-fidelidad.png)`
+
 ---
 
 ## 2. Panel de Control Administrativo (Dashboard)
@@ -64,6 +86,12 @@ Este módulo administra las locaciones donde opera la compañía.
 1.  **Registro de Nueva Agencia:** El administrador debe ingresar al subformulario de agencias y presionar "Agregar Agencia". Los campos requeridos son: Nombre de la Agencia (ej. "Agencia Central Trujillo"), Dirección Exacta, Ciudad, Teléfono de Contacto y Estado (Activo/Inactivo).
 2.  **Edición e Inactivación:** Si una agencia entra en mantenimiento o cierra temporalmente, su estado puede cambiarse a "Inactiva". Esto causará de inmediato que ningún usuario pueda programar u ofertar viajes con salida o llegada en dicha locación.
 
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura de pantalla del listado de agencias del panel de administración con sus estados activo/inactivo.*
+> `![Módulo de Gestión de Agencias](/docs/images/admin-gestion-agencias.png)`
+
+---
+
 ### 2.2 Registro de Flota y Diseñador Visual de Buses
 La configuración de buses es un proceso crucial que alimenta el mapa interactivo del cliente.
 
@@ -72,6 +100,12 @@ La configuración de buses es un proceso crucial que alimenta el mapa interactiv
     *   El administrador cuenta con una interfaz de grilla interactiva donde define cuántas filas y columnas componen el interior del bus.
     *   Se deben marcar los cuadrantes de la grilla que representan pasillos, escaleras o baños para que no sean interpretados como asientos en el frontend público.
     *   A cada asiento útil en la grilla se le asigna un número de butaca único y se categoriza su tipo: Estándar o VIP.
+
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura del Diseñador Visual de Buses, mostrando la grilla de distribución de asientos, pasillos, baños y niveles.*
+> `![Diseñador Visual de Distribución de Buses](/docs/images/admin-diseñador-buses.png)`
+
+---
 
 ### 2.3 Creación y Programación de Rutas e Itinerarios
 Conecta la infraestructura física con la oferta comercial.
@@ -84,6 +118,12 @@ Conecta la infraestructura física con la oferta comercial.
     *   **Asignación de Conductor:** Se vincula a un chofer de la base de datos que cuente con su licencia de conducir vigente.
     *   **Configuración de Precios:** Se define el precio base para los asientos estándar y el precio base para los asientos VIP de esa salida en específico.
 
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura del formulario de programación de salidas o el calendario mensual de itinerarios del dashboard.*
+> `![Programación y Creación de Itinerarios](/docs/images/admin-programacion-itinerarios.png)`
+
+---
+
 ### 2.4 Panel de Control de Ventas, Reservas y Reportes Estadísticos
 Permite la toma de decisiones basada en datos reales de negocio.
 
@@ -92,6 +132,10 @@ Permite la toma de decisiones basada en datos reales de negocio.
     *   **Reportes de Ocupación:** Gráficos que muestran las rutas más transitadas y las horas con mayor demanda.
     *   **Reportes de Ingresos:** Filtro dinámico por rango de fechas para revisar las ventas de pasajes consolidadas.
     *   **Descargas:** Toda la información de los reportes se puede exportar en formato de hojas de cálculo CSV o archivos PDF listos para impresión o auditoría interna.
+
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura de la sección de estadísticas y gráficos del panel de administración (Dashboard principal de analítica).*
+> `![Panel de Reportes y Estadísticas de Ventas](/docs/images/admin-reportes-analitica.png)`
 
 ---
 
@@ -113,6 +157,12 @@ El bot interactúa interpretando el lenguaje natural del usuario para simplifica
     ¿Deseas que te ayude a iniciar el proceso de reserva para alguno de estos horarios?
     ```
 
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura del chat interactivo del cliente conversando con el bot de IA cotizando un pasaje.*
+> `![Chat Conversacional de Cotización IA](/docs/images/chat-ia-disponibilidad.png)`
+
+---
+
 ### 3.2 Seguimiento en Tiempo Real del Estado del Viaje (Tracking)
 Los usuarios pueden informarse sobre las unidades en ruta de forma rápida.
 
@@ -125,9 +175,19 @@ Los usuarios pueden informarse sobre las unidades en ruta de forma rápida.
     La hora estimada de llegada a la Agencia de Trujillo es a las 17:00 horas.
     ```
 
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura del chat interactivo del cliente consultando el estado de un bus en tiempo real.*
+> `![Seguimiento en Tiempo Real](/docs/images/chat-ia-tracking.png)`
+
+---
+
 ### 3.3 Gestión Automática de Quejas, Sugerencias y Derivación a Agentes
 El asistente proporciona un canal directo de atención que optimiza el trabajo de soporte humano.
 
 1.  **Captura de Incidentes:** Si un cliente expresa una queja (ej. "Mi asiento estaba en mal estado" o "El bus salió tarde"), el bot solicita formalmente el número del boleto y el DNI para realizar la búsqueda en la base de datos transaccional de ventas.
 2.  **Documentación del Caso:** El bot estructurará la queja asociándola al registro de compra del cliente en base de datos.
 3.  **Escalación Inteligente:** Si la solicitud no puede resolverse de forma automática con las respuestas parametrizadas del sistema, el bot desactiva la interacción automática en ese chat y transfiere la conversación a la bandeja de entrada de agentes humanos de Chatwoot. El personal de atención al cliente recibirá una notificación en su panel de administración para tomar el control de la conversación y dar soporte personalizado.
+
+> **📷 Captura Recomendada:**
+> *Colocar aquí una captura del panel de Chatwoot CRM mostrando una conversación escalada del bot de IA a un agente de atención humano.*
+> `![Derivación a Agente Humano en Chatwoot](/docs/images/chatwoot-derivacion-agente.png)`

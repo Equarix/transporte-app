@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reserver } from './entities/reserver.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, Between } from 'typeorm';
 import { Destination } from '../destination/entities/destination.entity';
 import { Bus } from '../bus/entities/bus.entity';
 import { User } from '../auth/entities/user.entity';
-import { PaginateDto } from 'src/common/utils/paginate.dto';
 import { CreateReserverDto } from './dto/create-reserver.dto';
 import { UpdateStatusReserverDto } from './dto/update-status.dto';
+import { GetReserversDto } from './dto/get-reservers.dto';
 import { Profile } from '../user/entities/profile.entity';
 import { Floor } from '../bus/entities/floor.entity';
 import { Agency } from '../agency/entities/agency.entity';
@@ -32,10 +32,23 @@ export class ReserverService {
     private readonly agencyRepository: Repository<Agency>,
   ) {}
 
-  async getAll(paginateDto: PaginateDto) {
-    const { limit, page } = paginateDto;
+  async getAll(paginateDto: GetReserversDto) {
+    const { limit, page, status, date } = paginateDto;
+
+    const where: any = {};
+    if (status) {
+      where.status = status;
+    }
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setUTCHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setUTCHours(23, 59, 59, 999);
+      where.date = Between(startOfDay, endOfDay);
+    }
 
     const [data, total] = await this.reserverRepository.findAndCount({
+      where,
       take: limit,
       skip: (page - 1) * limit,
       relations: {

@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Auth } from 'src/common/decorator/auth/auth.decorator';
@@ -67,9 +68,16 @@ export class UserController {
     return this.userService.getPendingTickets(sales);
   }
 
-  @Get('recommendations')
-  async getRecommendations(@User('userId') userId: number) {
-    return this.userService.getRecommendations(userId);
+  @Get(':userId/recommendations')
+  async getRecommendations(
+    @Param('userId') userId: string,
+    @User('userId') authenticatedUserId: number,
+    @User('role') role: string,
+  ) {
+    if (+userId !== authenticatedUserId && role !== RoleEnum.ADMIN) {
+      throw new ForbiddenException('No autorizado a ver recomendaciones de otro usuario');
+    }
+    return this.userService.getRecommendations(+userId);
   }
 
   @Auth([RoleEnum.ADMIN])
